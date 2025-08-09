@@ -1,0 +1,210 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # Extract changelog for current version
+          VERSION="${{ steps.get_version.outputs.version }}"
+          VERSION_NUM=${VERSION#v}
+          
+          # Extract section from CHANGELOG.md
+          sed -n "/## \[$VERSION_NUM\]/,/## \[/p" CHANGELOG.md | sed '$d' > RELEASE_CHANGELOG.md
+          
+          if [ ! -s RELEASE_CHANGELOG.md ]; then
+            echo "No changelog found for version $VERSION_NUM"
+            echo "## Release $VERSION" > RELEASE_CHANGELOG.md
+            echo "" >> RELEASE_CHANGELOG.md
+            echo "Release of X-Proxy Chrome Extension $VERSION" >> RELEASE_CHANGELOG.md
+          fi
+          
+          cat RELEASE_CHANGELOG.md
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: X-Proxy ${{ steps.get_version.outputs.version }}
+          body_path: RELEASE_CHANGELOG.md
+          draft: false
+          prerelease: ${{ contains(steps.get_version.outputs.version, 'beta') || contains(steps.get_version.outputs.version, 'alpha') }}
+
+  build-and-upload:
+    name: Build and Upload Assets
+    runs-on: ubuntu-latest
+    needs: create-release
+    strategy:
+      matrix:
+        include:
+          - name: chrome
+            manifest: manifest.json
+          - name: edge
+            manifest: manifest-edge.json
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Prepare ${{ matrix.name }} package
+        run: |
+          # Copy appropriate manifest if needed
+          if [ "${{ matrix.manifest }}" != "manifest.json" ] && [ -f "${{ matrix.manifest }}" ]; then
+            cp ${{ matrix.manifest }} dist/manifest.json
+          fi
+          
+          # Create package
+          cd dist
+          zip -r ../x-proxy-${{ matrix.name }}-${{ needs.create-release.outputs.version }}.zip *
+          cd ..
+          
+          # Create source package for Chrome Web Store
+          if [ "${{ matrix.name }}" = "chrome" ]; then
+            zip -r x-proxy-source-${{ needs.create-release.outputs.version }}.zip . \
+              -x "*.git*" \
+              -x "node_modules/*" \
+              -x "dist/*" \
+              -x "coverage/*" \
+              -x "*.zip"
+          fi
+
+      - name: Upload ${{ matrix.name }} package
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./x-proxy-${{ matrix.name }}-${{ needs.create-release.outputs.version }}.zip
+          asset_name: x-proxy-${{ matrix.name }}-${{ needs.create-release.outputs.version }}.zip
+          asset_content_type: application/zip
+
+      - name: Upload source package
+        if: matrix.name == 'chrome'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ./x-proxy-source-${{ needs.create-release.outputs.version }}.zip
+          asset_name: x-proxy-source-${{ needs.create-release.outputs.version }}.zip
+          asset_content_type: application/zip
+
+  publish-chrome-store:
+    name: Publish to Chrome Web Store
+    runs-on: ubuntu-latest
+    needs: [create-release, build-and-upload]
+    if: ${{ !contains(needs.create-release.outputs.version, 'beta') && !contains(needs.create-release.outputs.version, 'alpha') }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Package extension
+        run: |
+          cd dist
+          zip -r ../x-proxy-chrome-store.zip *
+          cd ..
+
+      - name: Upload to Chrome Web Store
+        uses: mnao305/chrome-extension-upload@v4.0.1
+        with:
+          file-path: x-proxy-chrome-store.zip
+          extension-id: ${{ secrets.CHROME_EXTENSION_ID }}
+          client-id: ${{ secrets.CHROME_CLIENT_ID }}
+          client-secret: ${{ secrets.CHROME_CLIENT_SECRET }}
+          refresh-token: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          publish: true
+
+  notify:
+    name: Send Notifications
+    runs-on: ubuntu-latest
+    needs: [create-release, publish-chrome-store]
+    if: always()
+    steps:
+      - name: Send Discord notification
+        if: ${{ vars.DISCORD_WEBHOOK }}
+        run: |
+          curl -X POST ${{ vars.DISCORD_WEBHOOK }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "content": "🚀 **X-Proxy ${{ needs.create-release.outputs.version }} Released!**\n\nView release: https://github.com/${{ github.repository }}/releases/tag/${{ needs.create-release.outputs.version }}"
+            }'
+
+      - name: Send Slack notification
+        if: ${{ vars.SLACK_WEBHOOK }}
+        run: |
+          curl -X POST ${{ vars.SLACK_WEBHOOK }} \
+            -H "Content-Type: application/json" \
+            -d '{
+              "text": "🚀 X-Proxy ${{ needs.create-release.outputs.version }} has been released!",
+              "attachments": [{
+                "color": "good",
+                "fields": [{
+                  "title": "Version",
+                  "value": "${{ needs.create-release.outputs.version }}",
+                  "short": true
+                }, {
+                  "title": "Release URL",
+                  "value": "https://github.com/${{ github.repository }}/releases/tag/${{ needs.create-release.outputs.version }}",
+                  "short": false
+                }]
+              }]
+            }'

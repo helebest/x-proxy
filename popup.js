@@ -1,0 +1,367 @@
+// X-Proxy Popup Script
+// Handles UI interactions and communicates with the background service
+
+let profiles = [];
+let activeProfile = null;
+
+// Cache DOM elements
+const elements = {};
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', async () => {
+    cacheElements();
+    await loadData();
+    attachEventListeners();
+    updateUI();
+});
+
+// Cache DOM elements
+function cacheElements() {
+    elements.statusIndicator = document.getElementById('statusIndicator');
+    elements.statusText = document.getElementById('statusText');
+    elements.directConnection = document.getElementById('directConnection');
+    elements.systemProxy = document.getElementById('systemProxy');
+    elements.profilesList = document.getElementById('profilesList');
+    elements.emptyState = document.getElementById('emptyState');
+    elements.addProfileBtn = document.getElementById('addProfileBtn');
+    elements.settingsBtn = document.getElementById('settingsBtn');
+    elements.importBtn = document.getElementById('importBtn');
+    elements.exportBtn = document.getElementById('exportBtn');
+    elements.helpBtn = document.getElementById('helpBtn');
+}
+
+// Load data from background service
+async function loadData() {
+    try {
+        // Get profiles from background service
+        const profilesResponse = await sendMessage({
+            type: 'GET_PROFILES'
+        });
+        
+        if (profilesResponse && profilesResponse.success) {
+            profiles = profilesResponse.data || [];
+            console.log('Loaded profiles:', profiles);
+        } else {
+            profiles = [];
+            console.log('No profiles loaded');
+        }
+        
+        // Get active profile
+        const activeResponse = await sendMessage({
+            type: 'GET_ACTIVE_PROFILE'
+        });
+        
+        if (activeResponse && activeResponse.success) {
+            activeProfile = activeResponse.data;
+            console.log('Active profile:', activeProfile);
+        } else {
+            activeProfile = null;
+        }
+    } catch (error) {
+        console.error('Error loading data:', error);
+        profiles = [];
+        activeProfile = null;
+    }
+}
+
+// Send message to background service
+function sendMessage(message) {
+    return new Promise((resolve) => {
+        chrome.runtime.sendMessage(message, (response) => {
+            if (chrome.runtime.lastError) {
+                console.error('Message error:', chrome.runtime.lastError);
+                resolve({ success: false, error: chrome.runtime.lastError.message });
+            } else {
+                resolve(response || { success: false });
+            }
+        });
+    });
+}
+
+// Attach event listeners
+function attachEventListeners() {
+    // Quick actions
+    elements.directConnection?.addEventListener('click', handleDirectConnection);
+    elements.systemProxy?.addEventListener('click', handleSystemProxy);
+    
+    // Buttons
+    elements.addProfileBtn?.addEventListener('click', () => chrome.runtime.openOptionsPage());
+    elements.settingsBtn?.addEventListener('click', () => chrome.runtime.openOptionsPage());
+    elements.importBtn?.addEventListener('click', handleImport);
+    elements.exportBtn?.addEventListener('click', handleExport);
+    elements.helpBtn?.addEventListener('click', () => {
+        chrome.tabs.create({ url: 'https://github.com' });
+    });
+    
+    // Empty state button
+    const emptyBtn = document.querySelector('.empty-state-btn');
+    if (emptyBtn) {
+        emptyBtn.addEventListener('click', () => chrome.runtime.openOptionsPage());
+    }
+}
+
+// Handle direct connection
+async function handleDirectConnection() {
+    const response = await sendMessage({
+        type: 'DEACTIVATE_PROFILE'
+    });
+    
+    if (response.success) {
+        activeProfile = null;
+        updateUI();
+        showNotification('Direct connection enabled');
+    } else {
+        showNotification('Failed to enable direct connection', 'error');
+    }
+}
+
+// Handle system proxy
+async function handleSystemProxy() {
+    const response = await sendMessage({
+        type: 'DEACTIVATE_PROFILE'
+    });
+    
+    if (response.success) {
+        activeProfile = null;
+        updateUI();
+        showNotification('Using system proxy');
+    } else {
+        showNotification('Failed to set system proxy', 'error');
+    }
+}
+
+// Handle profile click
+async function handleProfileClick(profileId) {
+    const response = await sendMessage({
+        type: 'ACTIVATE_PROFILE',
+        payload: { id: profileId }
+    });
+    
+    if (response.success) {
+        activeProfile = profiles.find(p => p.id === profileId);
+        updateUI();
+        showNotification(`Activated ${activeProfile?.name || 'profile'}`);
+    } else {
+        showNotification('Failed to activate profile', 'error');
+    }
+}
+
+// Handle profile edit
+function handleProfileEdit(profileId) {
+    chrome.storage.local.set({ editProfileId: profileId }, () => {
+        chrome.runtime.openOptionsPage();
+    });
+}
+
+// Handle import
+async function handleImport() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    
+    input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        
+        try {
+            const text = await file.text();
+            const data = JSON.parse(text);
+            
+            const response = await sendMessage({
+                type: 'IMPORT_PROFILES',
+                payload: { profiles: Array.isArray(data) ? data : data.profiles || [] }
+            });
+            
+            if (response.success) {
+                await loadData();
+                updateUI();
+                showNotification('Imported successfully');
+            } else {
+                showNotification('Import failed', 'error');
+            }
+        } catch (error) {
+            showNotification('Invalid file', 'error');
+        }
+    };
+    
+    input.click();
+}
+
+// Handle export
+async function handleExport() {
+    const response = await sendMessage({
+        type: 'EXPORT_PROFILES'
+    });
+    
+    if (response.success && response.data) {
+        const blob = new Blob([JSON.stringify(response.data, null, 2)], { 
+            type: 'application/json' 
+        });
+        const url = URL.createObjectURL(blob);
+        
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'x-proxy-profiles.json';
+        a.click();
+        
+        URL.revokeObjectURL(url);
+        showNotification('Exported successfully');
+    } else {
+        showNotification('Export failed', 'error');
+    }
+}
+
+// Update UI
+function updateUI() {
+    updateStatusIndicator();
+    updateQuickActions();
+    updateProfilesList();
+}
+
+// Update status indicator
+function updateStatusIndicator() {
+    if (!elements.statusIndicator || !elements.statusText) return;
+    
+    elements.statusIndicator.classList.remove('active', 'inactive', 'proxy');
+    
+    if (activeProfile) {
+        elements.statusIndicator.classList.add('proxy');
+        elements.statusText.textContent = activeProfile.name;
+    } else {
+        elements.statusIndicator.classList.add('active');
+        elements.statusText.textContent = 'Direct Connection';
+    }
+}
+
+// Update quick actions
+function updateQuickActions() {
+    elements.directConnection?.classList.toggle('selected', !activeProfile);
+    elements.systemProxy?.classList.remove('selected');
+}
+
+// Update profiles list
+function updateProfilesList() {
+    const container = elements.profilesList;
+    if (!container) return;
+    
+    // Clear all existing profile items
+    container.innerHTML = '';
+    
+    // If we have profiles, show them
+    if (profiles.length > 0) {
+        profiles.forEach(profile => {
+            const element = createProfileElement(profile);
+            container.appendChild(element);
+        });
+        
+        container.style.display = 'flex';
+        if (elements.emptyState) {
+            elements.emptyState.style.display = 'none';
+        }
+    } else {
+        // Show empty state if no profiles
+        container.style.display = 'none';
+        if (elements.emptyState) {
+            elements.emptyState.style.display = 'flex';
+        }
+    }
+}
+
+// Create profile element
+function createProfileElement(profile) {
+    const div = document.createElement('div');
+    div.className = 'profile-item';
+    div.dataset.profileId = profile.id;
+    
+    if (activeProfile && activeProfile.id === profile.id) {
+        div.classList.add('active');
+    }
+    
+    const type = profile.config?.type || 'PROXY';
+    const host = profile.config?.host || '';
+    const port = profile.config?.port || '';
+    
+    div.innerHTML = `
+        <div class="profile-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+            </svg>
+        </div>
+        <div class="profile-content">
+            <h4>${escapeHtml(profile.name)}</h4>
+            <p>${type} • ${host}:${port}</p>
+        </div>
+        <div class="profile-actions">
+            <button class="profile-edit" title="Edit">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+            </button>
+        </div>
+    `;
+    
+    // Add click listener
+    div.addEventListener('click', (e) => {
+        if (!e.target.closest('.profile-edit')) {
+            handleProfileClick(profile.id);
+        }
+    });
+    
+    // Add edit listener
+    const editBtn = div.querySelector('.profile-edit');
+    if (editBtn) {
+        editBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            handleProfileEdit(profile.id);
+        });
+    }
+    
+    return div;
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text || '';
+    return div.innerHTML;
+}
+
+// Show notification
+function showNotification(message, type = 'success') {
+    // Remove existing notification
+    document.querySelectorAll('.notification').forEach(n => n.remove());
+    
+    const notification = document.createElement('div');
+    notification.className = 'notification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: ${type === 'error' ? '#f44336' : type === 'info' ? '#2196F3' : '#4CAF50'};
+        color: white;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-size: 14px;
+        z-index: 10000;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.style.opacity = '0';
+        notification.style.transition = 'opacity 0.3s';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Refresh data when popup is shown
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        loadData().then(() => updateUI());
+    }
+});

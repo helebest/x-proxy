@@ -1,0 +1,51 @@
+{
+  "name": "x-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run build:background && npm run build:popup && npm run build:options",
+    "build:background": "vite build --config vite.config.background.ts",
+    "build:popup": "vite build --config vite.config.popup.ts",
+    "build:options": "vite build --config vite.config.options.ts",
+    "build:all": "tsc && npm run build",
+    "preview": "vite preview",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
+    "clean": "rm -rf dist node_modules",
+    "generate-icons": "node scripts/generate-icons.js",
+    "watch": "vite build --watch --config vite.config.background.ts",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "vitest run tests/e2e",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest watch"
+  },
+  "keywords": [
+    "vite",
+    "typescript",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "description": "A modern TypeScript project built with Vite",
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/chrome": "^0.1.3",
+    "@types/node": "^24.2.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "@vitest/ui": "^3.2.4",
+    "chrome-mock": "^0.0.9",
+    "happy-dom": "^18.0.1",
+    "jsdom": "^26.1.0",
+    "sharp": "^0.34.3",
+    "typescript": "^5.9.2",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4",
+    "webextension-polyfill": "^0.12.0"
+  }
+}

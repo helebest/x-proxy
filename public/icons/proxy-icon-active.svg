@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Clean minimalist proxy icon - Active State -->
+  <!-- Following Apple's design principles: simple, clear, and functional -->
+  
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="56" fill="url(#gradient-active)" />
+  
+  <!-- Center node -->
+  <circle cx="64" cy="64" r="8" fill="white" />
+  
+  <!-- Connection lines -->
+  <path d="M64 56 L64 40" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <path d="M64 72 L64 88" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <path d="M56 64 L40 64" stroke="white" stroke-width="3" stroke-linecap="round" />
+  <path d="M72 64 L88 64" stroke="white" stroke-width="3" stroke-linecap="round" />
+  
+  <!-- Diagonal connections -->
+  <path d="M58 58 L46 46" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+  <path d="M70 58 L82 46" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+  <path d="M58 70 L46 82" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+  <path d="M70 70 L82 82" stroke="white" stroke-width="2.5" stroke-linecap="round" opacity="0.9" />
+  
+  <!-- Endpoint nodes -->
+  <circle cx="64" cy="40" r="5" fill="white" />
+  <circle cx="64" cy="88" r="5" fill="white" />
+  <circle cx="40" cy="64" r="5" fill="white" />
+  <circle cx="88" cy="64" r="5" fill="white" />
+  
+  <circle cx="46" cy="46" r="4" fill="white" opacity="0.9" />
+  <circle cx="82" cy="46" r="4" fill="white" opacity="0.9" />
+  <circle cx="46" cy="82" r="4" fill="white" opacity="0.9" />
+  <circle cx="82" cy="82" r="4" fill="white" opacity="0.9" />
+  
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient-active" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#007AFF" />
+      <stop offset="100%" stop-color="#0051D5" />
+    </linearGradient>
+  </defs>
+</svg>

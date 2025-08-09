@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>X-Proxy Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header" role="banner">
+      <div class="header-content">
+        <div class="logo">
+          <img src="icons/icon-48.png" alt="X-Proxy" />
+          <h1>X-Proxy Settings</h1>
+        </div>
+        <div class="header-actions">
+          <button id="importBtn" class="btn btn-secondary" aria-label="Import proxy configurations" tabindex="0">
+            <span class="icon" aria-hidden="true">📥</span> Import
+          </button>
+          <button id="exportBtn" class="btn btn-secondary" aria-label="Export proxy configurations" tabindex="0">
+            <span class="icon" aria-hidden="true">📤</span> Export
+          </button>
+          <button id="backupBtn" class="btn btn-primary" aria-label="Create backup of all settings" tabindex="0">
+            <span class="icon" aria-hidden="true">💾</span> Backup
+          </button>
+          <button id="restoreBtn" class="btn btn-secondary" aria-label="Restore settings from backup" tabindex="0">
+            <span class="icon" aria-hidden="true">🔄</span> Restore
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Sidebar Navigation -->
+      <nav class="sidebar" role="navigation" aria-label="Main navigation">
+        <ul class="nav-list" role="list">
+          <li class="nav-item active" data-section="profiles" role="listitem" tabindex="0" aria-label="Proxy Profiles section" aria-current="page">
+            <span class="icon" aria-hidden="true">👤</span>
+            <span>Proxy Profiles</span>
+          </li>
+          <li class="nav-item" data-section="rules" role="listitem" tabindex="0" aria-label="Auto-Switch Rules section">
+            <span class="icon" aria-hidden="true">📋</span>
+            <span>Auto-Switch Rules</span>
+          </li>
+          <li class="nav-item" data-section="pac" role="listitem" tabindex="0" aria-label="PAC Script Editor section">
+            <span class="icon" aria-hidden="true">📝</span>
+            <span>PAC Script Editor</span>
+          </li>
+          <li class="nav-item" data-section="general" role="listitem" tabindex="0" aria-label="General Settings section">
+            <span class="icon" aria-hidden="true">⚙️</span>
+            <span>General Settings</span>
+          </li>
+          <li class="nav-item" data-section="advanced" role="listitem" tabindex="0" aria-label="Advanced settings section">
+            <span class="icon" aria-hidden="true">🔧</span>
+            <span>Advanced</span>
+          </li>
+          <li class="nav-item" data-section="about" role="listitem" tabindex="0" aria-label="About section">
+            <span class="icon" aria-hidden="true">ℹ️</span>
+            <span>About</span>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Content Area -->
+      <main class="content" role="main">
+        <!-- Profiles Section -->
+        <section id="profiles-section" class="section active">
+          <h2>Proxy Profiles</h2>
+          <div class="section-header">
+            <p class="section-description">Manage your proxy server configurations</p>
+            <button id="addProfileBtn" class="btn btn-primary" aria-label="Add new proxy profile">
+              <span class="icon" aria-hidden="true">➕</span> Add Profile
+            </button>
+          </div>
+
+          <div id="profilesList" class="profiles-list">
+            <!-- Profiles will be dynamically added here -->
+          </div>
+        </section>
+
+        <!-- Auto-Switch Rules Section -->
+        <section id="rules-section" class="section">
+          <h2>Auto-Switch Rules</h2>
+          <div class="section-header">
+            <p class="section-description">Configure automatic proxy switching based on URL patterns</p>
+            <button id="addRuleBtn" class="btn btn-primary">
+              <span class="icon">➕</span> Add Rule
+            </button>
+          </div>
+
+          <div class="rules-controls">
+          <label class="switch" for="enableAutoSwitch">
+            <input type="checkbox" id="enableAutoSwitch" role="switch" aria-checked="false" aria-label="Enable automatic proxy switching">
+            <span class="slider" aria-hidden="true"></span>
+            <span class="switch-label">Enable Auto-Switch</span>
+          </label>
+          </div>
+
+          <div id="rulesList" class="rules-list">
+            <!-- Rules will be dynamically added here -->
+          </div>
+        </section>
+
+        <!-- PAC Script Editor Section -->
+        <section id="pac-section" class="section">
+          <h2>PAC Script Editor</h2>
+          <div class="section-header">
+            <p class="section-description">Edit Proxy Auto-Configuration (PAC) script</p>
+            <div class="pac-controls">
+              <button id="pacTemplateBtn" class="btn btn-secondary">Load Template</button>
+              <button id="pacValidateBtn" class="btn btn-secondary">Validate</button>
+              <button id="pacSaveBtn" class="btn btn-primary">Save PAC</button>
+            </div>
+          </div>
+
+          <div class="editor-container">
+            <div class="editor-header">
+              <span class="editor-title">PAC Script</span>
+              <div class="editor-actions">
+                <button id="formatPacBtn" class="btn-icon" title="Format Code">
+                  <span>🎨</span>
+                </button>
+                <button id="copyPacBtn" class="btn-icon" title="Copy">
+                  <span>📋</span>
+                </button>
+              </div>
+            </div>
+            <div id="pacEditor" class="code-editor" contenteditable="true" spellcheck="false" role="textbox" aria-label="PAC script editor" aria-multiline="true">
+              <!-- PAC script will be loaded here -->
+            </div>
+            <div id="pacStatus" class="editor-status"></div>
+          </div>
+        </section>
+
+        <!-- General Settings Section -->
+        <section id="general-section" class="section">
+          <h2>General Settings</h2>
+          
+          <div class="settings-group">
+            <h3>Startup Behavior</h3>
+            <div class="setting-item">
+              <label class="switch">
+                <input type="checkbox" id="startupEnable">
+                <span class="slider"></span>
+                <span class="switch-label">Enable proxy on browser startup</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label for="defaultProfile">Default Profile:</label>
+              <select id="defaultProfile" class="form-select">
+                <option value="">System Settings</option>
+                <!-- Profiles will be added dynamically -->
+              </select>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Notifications</h3>
+            <div class="setting-item">
+              <label class="switch">
+                <input type="checkbox" id="notifyChange">
+                <span class="slider"></span>
+                <span class="switch-label">Show notifications on proxy change</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <label class="switch">
+                <input type="checkbox" id="notifyError">
+                <span class="slider"></span>
+                <span class="switch-label">Show error notifications</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Badge</h3>
+            <div class="setting-item">
+              <label class="switch">
+                <input type="checkbox" id="showBadge">
+                <span class="slider"></span>
+                <span class="switch-label">Show status badge on icon</span>
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <!-- Advanced Settings Section -->
+        <section id="advanced-section" class="section">
+          <h2>Advanced Settings</h2>
+          
+          <div class="settings-group">
+            <h3>Performance</h3>
+            <div class="setting-item">
+              <label for="connectionTimeout">Connection Timeout (seconds):</label>
+              <input type="number" id="connectionTimeout" class="form-input" min="1" max="300" value="30">
+            </div>
+            <div class="setting-item">
+              <label for="maxRetries">Max Connection Retries:</label>
+              <input type="number" id="maxRetries" class="form-input" min="0" max="10" value="3">
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Bypass List</h3>
+            <div class="setting-item">
+              <label for="bypassList">Hosts to bypass (one per line):</label>
+              <textarea id="bypassList" class="form-textarea" rows="5" placeholder="localhost&#10;127.0.0.1&#10;*.local"></textarea>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <h3>Debug</h3>
+            <div class="setting-item">
+              <label class="switch">
+                <input type="checkbox" id="debugMode">
+                <span class="slider"></span>
+                <span class="switch-label">Enable debug logging</span>
+              </label>
+            </div>
+            <div class="setting-item">
+              <button id="clearStorageBtn" class="btn btn-danger">Clear All Data</button>
+              <button id="viewLogsBtn" class="btn btn-secondary">View Logs</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- About Section -->
+        <section id="about-section" class="section">
+          <h2>About X-Proxy</h2>
+          
+          <div class="about-content">
+            <div class="about-logo">
+              <img src="icons/icon-128.png" alt="X-Proxy">
+            </div>
+            
+            <div class="about-info">
+              <h3>X-Proxy v1.0.0</h3>
+              <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
+              
+              <div class="about-details">
+                <h4>Features:</h4>
+                <ul>
+                  <li>✓ Multiple proxy profiles</li>
+                  <li>✓ Auto-switch rules</li>
+                  <li>✓ PAC script support</li>
+                  <li>✓ SOCKS5 & HTTP(S) proxy support</li>
+                  <li>✓ Authentication support</li>
+                  <li>✓ Import/Export configurations</li>
+                </ul>
+              </div>
+              
+              <div class="about-links">
+                <a href="https://github.com/yourusername/x-proxy" target="_blank" class="link">
+                  <span class="icon">🔗</span> GitHub Repository
+                </a>
+                <a href="#" id="reportBugBtn" class="link">
+                  <span class="icon">🐛</span> Report a Bug
+                </a>
+                <a href="#" id="requestFeatureBtn" class="link">
+                  <span class="icon">💡</span> Request Feature
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+      <div class="footer-content">
+        <span class="status" id="saveStatus"></span>
+        <button id="saveAllBtn" class="btn btn-primary" aria-label="Save all configuration changes">Save All Changes</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="profileModalTitle">Add Proxy Profile</h3>
+        <button class="modal-close" id="closeProfileModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="profileForm">
+          <div class="form-group">
+            <label for="profileName">Profile Name *</label>
+            <input type="text" id="profileName" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="profileColor">Profile Color</label>
+            <input type="color" id="profileColor" class="form-input" value="#4CAF50">
+          </div>
+          
+          <div class="form-group">
+            <label for="proxyType">Proxy Type *</label>
+            <select id="proxyType" class="form-select" required>
+              <option value="http">HTTP</option>
+              <option value="https">HTTPS</option>
+              <option value="socks4">SOCKS4</option>
+              <option value="socks5">SOCKS5</option>
+              <option value="pac">PAC Script</option>
+            </select>
+          </div>
+          
+          <div id="proxyDetails" class="proxy-details">
+            <div class="form-group">
+              <label for="proxyHost">Host *</label>
+              <input type="text" id="proxyHost" class="form-input" placeholder="proxy.example.com" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="proxyPort">Port *</label>
+              <input type="number" id="proxyPort" class="form-input" placeholder="8080" required>
+            </div>
+            
+            <div class="form-group">
+              <label class="switch">
+                <input type="checkbox" id="proxyAuth">
+                <span class="slider"></span>
+                <span class="switch-label">Authentication Required</span>
+              </label>
+            </div>
+            
+            <div id="authDetails" class="auth-details" style="display: none;">
+              <div class="form-group">
+                <label for="proxyUsername">Username</label>
+                <input type="text" id="proxyUsername" class="form-input">
+              </div>
+              
+              <div class="form-group">
+                <label for="proxyPassword">Password</label>
+                <input type="password" id="proxyPassword" class="form-input">
+              </div>
+            </div>
+          </div>
+          
+          <div id="pacDetails" class="pac-details" style="display: none;">
+            <div class="form-group">
+              <label for="pacUrl">PAC Script URL *</label>
+              <input type="url" id="pacUrl" class="form-input" placeholder="http://example.com/proxy.pac">
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelProfileBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveProfileBtn">Save Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rule Modal -->
+  <div id="ruleModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="ruleModalTitle">Add Auto-Switch Rule</h3>
+        <button class="modal-close" id="closeRuleModal">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="ruleForm">
+          <div class="form-group">
+            <label for="ruleName">Rule Name *</label>
+            <input type="text" id="ruleName" class="form-input" required>
+          </div>
+          
+          <div class="form-group">
+            <label for="rulePattern">URL Pattern *</label>
+            <input type="text" id="rulePattern" class="form-input" placeholder="*.example.com/*" required>
+            <small class="form-help">Use wildcards: * for any characters, ? for single character</small>
+          </div>
+          
+          <div class="form-group">
+            <label for="ruleProfile">Use Profile *</label>
+            <select id="ruleProfile" class="form-select" required>
+              <option value="direct">Direct Connection</option>
+              <!-- Profiles will be added dynamically -->
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="rulePriority">Priority</label>
+            <input type="number" id="rulePriority" class="form-input" min="0" max="999" value="10">
+            <small class="form-help">Higher priority rules are checked first</small>
+          </div>
+          
+          <div class="form-group">
+            <label class="switch">
+              <input type="checkbox" id="ruleEnabled" checked>
+              <span class="slider"></span>
+              <span class="switch-label">Rule Enabled</span>
+            </label>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" id="cancelRuleBtn">Cancel</button>
+        <button class="btn btn-primary" id="saveRuleBtn">Save Rule</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Import/Export file inputs (hidden) -->
+  <input type="file" id="importFile" accept=".json" style="display: none;">
+  <input type="file" id="restoreFile" accept=".json" style="display: none;">
+
+  <script src="options.js" type="module"></script>
+</body>
+</html>
