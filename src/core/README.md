@@ -1,5 +1,7 @@
 # Proxy Management Module
 
+Last updated: 2025-08-10
+
 A comprehensive TypeScript module for managing proxy profiles in Chrome extensions. This module provides a complete solution for creating, managing, and persisting proxy configurations with support for multiple proxy types (HTTP, HTTPS, SOCKS4, SOCKS5).
 
 ## Features

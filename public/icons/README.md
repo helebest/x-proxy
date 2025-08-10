@@ -1,5 +1,7 @@
 # X-Proxy Icon Assets
 
+Last updated: 2025-08-10
+
 ## Overview
 
 This directory contains all the visual assets for the X-Proxy Chrome extension. The icons follow Apple's design principles with a clean, minimalist aesthetic that provides clear visual feedback for different proxy states.

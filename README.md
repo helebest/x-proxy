@@ -1,5 +1,7 @@
 # X-Proxy Chrome Extension
 
+Last updated: 2025-08-10
+
 <p align="center">
   <img src="assets/logo.png" alt="X-Proxy Logo" width="128" height="128">
 </p>
@@ -201,11 +203,14 @@ The application will be available at `http://localhost:3000` (configurable in `v
 | Command | Description |
 |---------|-------------|
 | `npm run dev` | Start development server with hot-reload |
-| `npm run build` | Type-check and build for production |
+| `npm run build` | Build all extension components |
+| `npm run build:all` | Type-check and build for production |
 | `npm run preview` | Preview production build locally |
 | `npm run type-check` | Run TypeScript type checking |
 | `npm run lint` | Run ESLint for code quality |
 | `npm run clean` | Clean build artifacts and dependencies |
+| `npm run generate-icons` | Generate icon assets from SVG sources |
+| `npm run watch` | Watch mode for background script development |
 
 ## 🏗️ Project Structure
 
@@ -292,17 +297,24 @@ npm run test:watch
 
 ### Testing Stack
 - **Vitest** - Fast unit testing framework
-- **@testing-library** - DOM testing utilities
+- **@testing-library** - DOM testing utilities  
 - **Happy DOM** - Lightweight DOM implementation
+- **JSDOM** - Alternative DOM implementation for testing
 - **Chrome Mock** - Chrome API mocking
+- **@vitest/ui** - Interactive test UI
+- **@vitest/coverage-v8** - Code coverage reporting
 
 ## 📦 Dependencies
 
 ### Development Dependencies
 
-- **vite** - Build tool and dev server
-- **typescript** - TypeScript compiler
-- **@types/node** - Node.js type definitions
+- **vite** (^6.3.5) - Build tool and dev server
+- **typescript** (^5.9.2) - TypeScript compiler
+- **@types/node** (^24.2.1) - Node.js type definitions
+- **@types/chrome** (^0.1.3) - Chrome extension API types
+- **vitest** (^3.2.4) - Testing framework
+- **webextension-polyfill** (^0.12.0) - Cross-browser extension API
+- **sharp** (^0.34.3) - Image processing for icon generation
 
 ## 🤝 Contributing
 

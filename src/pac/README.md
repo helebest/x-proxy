@@ -1,5 +1,7 @@
 # PAC Script Module
 
+Last updated: 2025-08-10
+
 A comprehensive TypeScript module for working with Proxy Auto-Configuration (PAC) scripts. This module provides functionality for parsing, validating, generating, testing, and editing PAC scripts.
 
 ## Features
@@ -262,7 +264,7 @@ tester.setContext({
     ['server.local', '192.168.1.100']
   ]),
   myIpAddress: '10.0.0.100',
-  currentTime: new Date('2024-01-01T10:00:00Z')
+  currentTime: new Date('2025-08-10T10:00:00Z')
 });
 ```
 
