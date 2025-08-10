@@ -340,6 +340,10 @@ function escapeHtml(text) {
 
 // Show notification
 function showNotification(message, type = 'success') {
+    if (type === 'success') {
+        return; // Do not show success notifications
+    }
+
     // Remove existing notification
     document.querySelectorAll('.notification').forEach(n => n.remove());
     
