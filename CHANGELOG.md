@@ -11,23 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- AI-powered proxy optimization suggestions
-- Mobile app companion for remote management
-- Advanced analytics dashboard
-- Proxy marketplace integration
+### [1.1.0] - To be released
 
-### Changed
-- Performance improvements for large proxy lists
-- Updated UI components to latest design system
+**Note**: The following features are planned for version 1.1.0 but have not yet been implemented.
 
-### Fixed
-- Compatibility issues with latest Chrome updates
-- Edge cases in PAC script parsing
-
-## [1.1.0] - 2025-08-09 (migrated)
-
-### Added
+#### Added
 - Advanced PAC script debugging tools with step-through debugger
 - Proxy chain support for enhanced anonymity (up to 5 proxies)
 - API for programmatic proxy management with OAuth 2.0
@@ -36,20 +24,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Proxy health monitoring with automatic failover
 - Custom DNS resolver configuration
 - Geolocation-based proxy auto-selection
+- AI-powered proxy optimization suggestions
+- Mobile app companion for remote management
+- Advanced analytics dashboard
+- Proxy marketplace integration
 
-### Changed
+#### Changed
 - Improved connection retry logic with exponential backoff
 - Enhanced error messages with troubleshooting suggestions
 - Optimized memory usage by 40%
 - Upgraded to latest Chrome Manifest V3 APIs
+- Performance improvements for large proxy lists
+- Updated UI components to latest design system
 
-### Fixed
+#### Fixed
 - Memory leak in long-running sessions (>24 hours)
 - WebRTC leak on certain network configurations
 - Race condition in profile switching
 - Incorrect badge count on proxy errors
+- Compatibility issues with latest Chrome updates
+- Edge cases in PAC script parsing
 
-### Security
+#### Security
 - Added support for TLS 1.3 proxy connections
 - Implemented certificate pinning for critical domains
 - Enhanced password encryption with Argon2id
@@ -181,8 +177,7 @@ Thanks to all contributors who have helped shape X-Proxy:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-[Unreleased]: https://github.com/yourusername/x-proxy/compare/v1.1.0...HEAD
-[1.1.0]: https://github.com/yourusername/x-proxy/compare/v1.0.0...v1.1.0
+[Unreleased]: https://github.com/yourusername/x-proxy/compare/v1.0.0...HEAD
 [1.0.0]: https://github.com/yourusername/x-proxy/compare/v0.9.0-beta...v1.0.0
 [0.9.0-beta]: https://github.com/yourusername/x-proxy/compare/v0.8.0-alpha...v0.9.0-beta
 [0.8.0-alpha]: https://github.com/yourusername/x-proxy/compare/v0.5.0-dev...v0.8.0-alpha
