@@ -299,16 +299,48 @@ class OptionsManager {
           }
         </div>
         <div class="profile-actions">
-          <button class="btn btn-secondary" onclick="optionsManager.editProfile(${index})">Edit</button>
-          <button class="btn btn-secondary" onclick="optionsManager.duplicateProfile(${index})">Duplicate</button>
-          <button class="btn btn-danger" onclick="optionsManager.deleteProfile(${index})">Delete</button>
+          <button class="btn btn-secondary" data-action="edit" data-index="${index}">Edit</button>
+          <button class="btn btn-secondary" data-action="duplicate" data-index="${index}">Duplicate</button>
+          <button class="btn btn-danger" data-action="delete" data-index="${index}">Delete</button>
         </div>
       `;
       container.appendChild(card);
     });
 
+    // Add event delegation for profile action buttons
+    this.setupProfileActionEvents(container);
+
     // Update default profile dropdown
     this.updateProfileDropdowns();
+  }
+
+  // Setup event delegation for profile action buttons
+  setupProfileActionEvents(container) {
+    // Remove existing event listeners to avoid duplicates
+    container.removeEventListener('click', this.handleProfileAction);
+    
+    // Add event delegation
+    this.handleProfileAction = (e) => {
+      const button = e.target.closest('button[data-action]');
+      if (!button) return;
+      
+      const action = button.dataset.action;
+      const index = parseInt(button.dataset.index);
+      
+      switch (action) {
+        case 'edit':
+          this.editProfile(index);
+          break;
+        case 'duplicate':
+          this.duplicateProfile(index);
+          break;
+        case 'delete':
+          this.deleteProfile(index);
+          break;
+      }
+    };
+    
+    container.addEventListener('click', this.handleProfileAction);
   }
 
   updateProfileDropdowns() {
@@ -481,15 +513,55 @@ class OptionsManager {
         <div class="rule-actions">
           <label class="switch">
             <input type="checkbox" ${rule.enabled ? 'checked' : ''} 
-                   onchange="optionsManager.toggleRule(${index}, this.checked)">
+                   data-action="toggle" data-index="${index}">
             <span class="slider"></span>
           </label>
-          <button class="btn-icon" onclick="optionsManager.editRule(${index})" title="Edit">✏️</button>
-          <button class="btn-icon" onclick="optionsManager.deleteRule(${index})" title="Delete">🗑️</button>
+          <button class="btn-icon" data-action="edit" data-index="${index}" title="Edit">✏️</button>
+          <button class="btn-icon" data-action="delete" data-index="${index}" title="Delete">🗑️</button>
         </div>
       `;
       container.appendChild(item);
     });
+
+    // Add event delegation for rule action buttons
+    this.setupRuleActionEvents(container);
+  }
+
+  // Setup event delegation for rule action buttons
+  setupRuleActionEvents(container) {
+    // Remove existing event listeners to avoid duplicates
+    container.removeEventListener('click', this.handleRuleAction);
+    container.removeEventListener('change', this.handleRuleToggle);
+    
+    // Add event delegation for buttons
+    this.handleRuleAction = (e) => {
+      const button = e.target.closest('button[data-action]');
+      if (!button) return;
+      
+      const action = button.dataset.action;
+      const index = parseInt(button.dataset.index);
+      
+      switch (action) {
+        case 'edit':
+          this.editRule(index);
+          break;
+        case 'delete':
+          this.deleteRule(index);
+          break;
+      }
+    };
+    
+    // Add event delegation for checkboxes
+    this.handleRuleToggle = (e) => {
+      const checkbox = e.target.closest('input[data-action="toggle"]');
+      if (!checkbox) return;
+      
+      const index = parseInt(checkbox.dataset.index);
+      this.toggleRule(index, checkbox.checked);
+    };
+    
+    container.addEventListener('click', this.handleRuleAction);
+    container.addEventListener('change', this.handleRuleToggle);
   }
 
   getProfileName(profileId) {
