@@ -32,38 +32,115 @@ function cacheElements() {
     elements.helpBtn = document.getElementById('helpBtn');
 }
 
-// Load data from background service
+// Load data from background service or fallback to direct storage
 async function loadData() {
     try {
-        // Get profiles from background service
+        // First try to get data from background service
         const profilesResponse = await sendMessage({
             type: 'GET_PROFILES'
         });
         
         if (profilesResponse && profilesResponse.success) {
             profiles = profilesResponse.data || [];
-            console.log('Loaded profiles:', profiles);
+            console.log('Loaded profiles from background:', profiles);
+            
+            // Get active profile from background
+            const activeResponse = await sendMessage({
+                type: 'GET_ACTIVE_PROFILE'
+            });
+            
+            if (activeResponse && activeResponse.success) {
+                activeProfile = activeResponse.data;
+                console.log('Active profile from background:', activeProfile);
+            } else {
+                activeProfile = null;
+            }
         } else {
-            profiles = [];
-            console.log('No profiles loaded');
+            // Fallback: Load directly from chrome.storage if background service fails
+            console.log('Background service not available, loading from storage directly');
+            await loadDataFromStorage();
         }
+    } catch (error) {
+        console.error('Error loading data from background:', error);
+        // Fallback to direct storage access
+        await loadDataFromStorage();
+    }
+}
+
+// Fallback method to load data directly from chrome.storage
+async function loadDataFromStorage() {
+    try {
+        const result = await chrome.storage.local.get(['x-proxy-data']);
+        const data = result['x-proxy-data'] || getDefaultData();
         
-        // Get active profile
-        const activeResponse = await sendMessage({
-            type: 'GET_ACTIVE_PROFILE'
-        });
+        profiles = (data.profiles || []).map(p => normalizeProfile(p));
         
-        if (activeResponse && activeResponse.success) {
-            activeProfile = activeResponse.data;
-            console.log('Active profile:', activeProfile);
+        // Find active profile by ID
+        const activeProfileId = data.activeProfileId;
+        if (activeProfileId) {
+            activeProfile = profiles.find(p => p.id === activeProfileId) || null;
         } else {
             activeProfile = null;
         }
+        
+        console.log('Loaded from storage - Profiles:', profiles.length, 'Active:', activeProfile?.name);
     } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error loading from storage:', error);
         profiles = [];
         activeProfile = null;
     }
+}
+
+// Get default data structure (same as options.js)
+function getDefaultData() {
+    return {
+        version: 1,
+        profiles: [],
+        activeProfileId: undefined,
+        settings: {
+            startupEnable: false,
+            defaultProfile: '',
+            notifyChange: true,
+            notifyError: true,
+            showBadge: true,
+            connectionTimeout: 30,
+            maxRetries: 3,
+            bypassList: ['localhost', '127.0.0.1', '*.local'],
+            debugMode: false,
+            autoSwitchEnabled: false
+        },
+        rules: [],
+        pacScript: ''
+    };
+}
+
+// Normalize profile data format (handle different storage formats)
+function normalizeProfile(profile) {
+    if (!profile) return null;
+    
+    // Handle both new format (with config object) and old format (flat structure)
+    return {
+        id: profile.id,
+        name: profile.name || 'Unnamed',
+        description: profile.description || '',
+        color: profile.color || '#007AFF',
+        isActive: profile.isActive || false,
+        isDefault: profile.isDefault || false,
+        config: profile.config || {
+            type: profile.type || 'http',
+            host: profile.host || '',
+            port: parseInt(profile.port) || 8080,
+            auth: profile.auth ? {
+                username: profile.username || '',
+                password: profile.password || ''
+            } : undefined,
+            bypassList: profile.bypassList || [],
+            pacUrl: profile.pacUrl
+        },
+        createdAt: profile.createdAt ? new Date(profile.createdAt) : new Date(),
+        updatedAt: profile.updatedAt ? new Date(profile.updatedAt) : new Date(),
+        tags: profile.tags || []
+    };
 }
 
 // Send message to background service (with retry to handle bg init race)
