@@ -10,7 +10,6 @@ export enum ProxyType {
   HTTPS = 'https',
   SOCKS4 = 'socks4',
   SOCKS5 = 'socks5',
-  DIRECT = 'direct',
   SYSTEM = 'system'
 }
 

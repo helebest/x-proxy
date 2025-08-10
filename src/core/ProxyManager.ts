@@ -513,14 +513,6 @@ export class ProxyManager {
         }
       },
       {
-        name: 'Direct Connection',
-        config: {
-          type: ProxyType.DIRECT,
-          host: '',
-          port: 0
-        }
-      },
-      {
         name: 'System Proxy',
         config: {
           type: ProxyType.SYSTEM,

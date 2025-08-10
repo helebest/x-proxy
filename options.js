@@ -499,7 +499,6 @@ class OptionsManager {
   }
 
   getProfileName(profileId) {
-    if (profileId === 'direct') return 'Direct';
     const profile = this.profiles.find(p => p.id === profileId);
     return profile ? profile.name : 'Unknown';
   }

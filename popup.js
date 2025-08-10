@@ -9,6 +9,8 @@ const elements = {};
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
+    // Initialize system proxy flag
+    window.systemProxyActive = false;
     cacheElements();
     await loadData();
     attachEventListeners();
@@ -100,7 +102,6 @@ function sendMessage(message, { retries = 5, delay = 150 } = {}) {
 // Attach event listeners
 function attachEventListeners() {
     // Quick actions
-    elements.directConnection?.addEventListener('click', handleDirectConnection);
     elements.systemProxy?.addEventListener('click', handleSystemProxy);
     
     // Buttons
@@ -119,20 +120,7 @@ function attachEventListeners() {
     }
 }
 
-// Handle direct connection
-async function handleDirectConnection() {
-    const response = await sendMessage({
-        type: 'DEACTIVATE_PROFILE'
-    });
-    
-    if (response.success) {
-        activeProfile = null;
-        updateUI();
-        showNotification('Direct connection enabled');
-    } else {
-        showNotification('Failed to enable direct connection', 'error');
-    }
-}
+
 
 // Handle system proxy
 async function handleSystemProxy() {
@@ -142,6 +130,8 @@ async function handleSystemProxy() {
     
     if (response.success) {
         activeProfile = null;
+        // Set a flag to indicate system proxy is active
+        window.systemProxyActive = true;
         updateUI();
         showNotification('Using system proxy');
     } else {
@@ -158,6 +148,8 @@ async function handleProfileClick(profileId) {
     
     if (response.success) {
         activeProfile = profiles.find(p => p.id === profileId);
+        // Reset system proxy flag when activating a profile
+        window.systemProxyActive = false;
         updateUI();
         showNotification(`Activated ${activeProfile?.name || 'profile'}`);
     } else {
@@ -247,15 +239,14 @@ function updateStatusIndicator() {
         elements.statusIndicator.classList.add('proxy');
         elements.statusText.textContent = activeProfile.name;
     } else {
-        elements.statusIndicator.classList.add('active');
-        elements.statusText.textContent = 'Direct Connection';
+        elements.statusIndicator.classList.add('inactive');
+        elements.statusText.textContent = 'System Proxy';
     }
 }
 
 // Update quick actions
 function updateQuickActions() {
-    elements.directConnection?.classList.toggle('selected', !activeProfile);
-    elements.systemProxy?.classList.remove('selected');
+    elements.systemProxy?.classList.toggle('selected', !activeProfile);
 }
 
 // Update profiles list
