@@ -64,18 +64,37 @@ async function loadData() {
     }
 }
 
-// Send message to background service
-function sendMessage(message) {
-    return new Promise((resolve) => {
-        chrome.runtime.sendMessage(message, (response) => {
-            if (chrome.runtime.lastError) {
-                console.error('Message error:', chrome.runtime.lastError);
-                resolve({ success: false, error: chrome.runtime.lastError.message });
-            } else {
-                resolve(response || { success: false });
-            }
+// Send message to background service (with retry to handle bg init race)
+function sendMessage(message, { retries = 5, delay = 150 } = {}) {
+    function attempt(remaining) {
+        return new Promise((resolve) => {
+            chrome.runtime.sendMessage(message, (response) => {
+                const lastErr = chrome.runtime.lastError;
+                const noResponse = !response || response.success === undefined;
+                const initError = response && response.success === false &&
+                    typeof response.error === 'string' && response.error.includes('ProxyManager not initialized');
+
+                if (lastErr || noResponse || initError) {
+                    if (remaining > 0) {
+                        // Retry after a short delay (background may still be booting)
+                        setTimeout(() => resolve(attempt(remaining - 1)), delay);
+                    } else {
+                        if (lastErr) {
+                            console.error('Message error:', lastErr);
+                            resolve({ success: false, error: lastErr.message });
+                        } else if (noResponse) {
+                            resolve({ success: false, error: 'No response from background' });
+                        } else {
+                            resolve(response);
+                        }
+                    }
+                } else {
+                    resolve(response);
+                }
+            });
         });
-    });
+    }
+    return attempt(retries);
 }
 
 // Attach event listeners

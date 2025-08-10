@@ -531,12 +531,12 @@ function FindProxyForURL(url, host) {
       };
 
       // Mock current time as work hours
-      vi.setSystemTime(new Date('2024-01-15 10:00:00')); // Monday 10 AM
+      vi.setSystemTime(new Date('2025-08-09 10:00:00')); // Saturday 10 AM (normalized date)
       await applyScheduledProxy();
       expect(proxyManager.getActiveProfile()?.id).toBe(workProxy.id);
 
       // Mock current time as personal hours
-      vi.setSystemTime(new Date('2024-01-15 20:00:00')); // Monday 8 PM
+      vi.setSystemTime(new Date('2025-08-09 20:00:00')); // Saturday 8 PM (normalized date)
       await applyScheduledProxy();
       expect(proxyManager.getActiveProfile()?.id).toBe(personalProxy.id);
 
