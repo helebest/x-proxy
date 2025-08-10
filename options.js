@@ -92,10 +92,49 @@ class OptionsManager {
         bypassList: profile.bypassList || [],
         pacUrl: profile.pacUrl
       },
-      createdAt: profile.createdAt ? new Date(profile.createdAt) : new Date(),
-      updatedAt: profile.updatedAt ? new Date(profile.updatedAt) : new Date(),
+      createdAt: this.safeParseDate(profile.createdAt),
+      updatedAt: this.safeParseDate(profile.updatedAt),
       tags: profile.tags || []
     };
+  }
+
+  // Safely parse date values to Date objects
+  safeParseDate(dateValue) {
+    if (!dateValue) return new Date();
+    
+    if (dateValue instanceof Date) {
+      return isNaN(dateValue.getTime()) ? new Date() : dateValue;
+    }
+    
+    if (typeof dateValue === 'string' || typeof dateValue === 'number') {
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? new Date() : date;
+    }
+    
+    return new Date();
+  }
+
+  // Safely normalize date values
+  normalizeDate(dateValue) {
+    if (!dateValue) return new Date().toISOString();
+    
+    if (dateValue instanceof Date) {
+      return isNaN(dateValue.getTime()) ? new Date().toISOString() : dateValue.toISOString();
+    }
+    
+    if (typeof dateValue === 'string') {
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    }
+    
+    // If it's a number (timestamp)
+    if (typeof dateValue === 'number') {
+      const date = new Date(dateValue);
+      return isNaN(date.getTime()) ? new Date().toISOString() : date.toISOString();
+    }
+    
+    // Fallback to current time
+    return new Date().toISOString();
   }
 
   normalizeProfileForSave(profile) {
@@ -119,7 +158,7 @@ class OptionsManager {
         bypassList: config.bypassList || profile.bypassList || [],
         pacUrl: config.pacUrl || profile.pacUrl
       },
-      createdAt: profile.createdAt instanceof Date ? profile.createdAt.toISOString() : profile.createdAt,
+      createdAt: this.normalizeDate(profile.createdAt),
       updatedAt: new Date().toISOString(),
       tags: profile.tags || []
     };
