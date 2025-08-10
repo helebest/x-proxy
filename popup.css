@@ -453,7 +453,7 @@ body::before {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    padding-right: 4px;
+    padding: 4px 8px 4px 4px;
 }
 
 /* Custom Scrollbar */
@@ -503,9 +503,10 @@ body::before {
 
 .profile-item:hover {
     background: linear-gradient(135deg, rgba(255, 255, 255, 1) 0%, var(--surface) 100%);
-    transform: translateX(4px) scale(1.02);
+    transform: scale(1.01);
     box-shadow: var(--shadow-md);
     border-color: var(--primary-color);
+    z-index: 1;
 }
 
 .profile-item.active {
