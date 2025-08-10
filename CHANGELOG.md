@@ -1,6 +1,8 @@
 # Changelog
 
-Last updated: 2025-08-09
+Last updated: 2025-08-10
+
+**History Migration Note**: Entries with dates prior to 2025-08-09 were migrated and normalized.
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -23,7 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Compatibility issues with latest Chrome updates
 - Edge cases in PAC script parsing
 
-## [1.1.0] - 2025-01-09
+## [1.1.0] - 2025-08-09 (migrated)
 
 ### Added
 - Advanced PAC script debugging tools with step-through debugger
@@ -52,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented certificate pinning for critical domains
 - Enhanced password encryption with Argon2id
 
-## [1.0.0] - 2024-12-29
+## [1.0.0] - 2025-08-09 (migrated)
 
 ### Added
 - Initial release of X-Proxy Chrome Extension
@@ -87,7 +89,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Enforced HTTPS for all PAC script downloads
 - Implemented input validation for all proxy configurations
 
-## [0.9.0-beta] - 2024-12-15
+## [0.9.0-beta] - 2025-08-09 (migrated)
 
 ### Added
 - Beta release for testing
@@ -104,7 +106,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Chrome 120+ compatibility issues
 - Service worker lifecycle management
 
-## [0.8.0-alpha] - 2024-12-01
+## [0.8.0-alpha] - 2025-08-09 (migrated)
 
 ### Added
 - Alpha release for internal testing
@@ -117,7 +119,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - PAC scripts not fully functional
 - UI needs polish
 
-## [0.5.0-dev] - 2024-11-15
+## [0.5.0-dev] - 2025-08-09 (migrated)
 
 ### Added
 - Initial development version
