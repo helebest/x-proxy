@@ -15,20 +15,6 @@
           <img src="icons/icon-48.png" alt="X-Proxy" />
           <h1>X-Proxy Settings</h1>
         </div>
-        <div class="header-actions">
-          <button id="importBtn" class="btn btn-secondary" aria-label="Import proxy configurations" tabindex="0">
-            <span class="icon" aria-hidden="true">📥</span> Import
-          </button>
-          <button id="exportBtn" class="btn btn-secondary" aria-label="Export proxy configurations" tabindex="0">
-            <span class="icon" aria-hidden="true">📤</span> Export
-          </button>
-          <button id="backupBtn" class="btn btn-primary" aria-label="Create backup of all settings" tabindex="0">
-            <span class="icon" aria-hidden="true">💾</span> Backup
-          </button>
-          <button id="restoreBtn" class="btn btn-secondary" aria-label="Restore settings from backup" tabindex="0">
-            <span class="icon" aria-hidden="true">🔄</span> Restore
-          </button>
-        </div>
       </div>
     </header>
 
@@ -405,9 +391,7 @@
     </div>
   </div>
 
-  <!-- Import/Export file inputs (hidden) -->
-  <input type="file" id="importFile" accept=".json" style="display: none;">
-  <input type="file" id="restoreFile" accept=".json" style="display: none;">
+  <!-- Import/Export file inputs removed (features offline) -->
 
   <script src="options.js" type="module"></script>
 </body>

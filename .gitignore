@@ -82,6 +82,9 @@ Desktop.ini
 # Debug
 debug.log
 
+# Claude Code directory
+.claude
+
 # Misc
 *.orig
 *.bak

@@ -192,15 +192,9 @@ class OptionsManager {
     document.getElementById('formatPacBtn').addEventListener('click', () => this.formatPACScript());
     document.getElementById('copyPacBtn').addEventListener('click', () => this.copyPACScript());
 
-    // Import/Export
-    document.getElementById('importBtn').addEventListener('click', () => this.importSettings());
-    document.getElementById('exportBtn').addEventListener('click', () => this.exportSettings());
-    document.getElementById('backupBtn').addEventListener('click', () => this.backupSettings());
-    document.getElementById('restoreBtn').addEventListener('click', () => this.restoreSettings());
+    // Import/Export - removed importBtn, exportBtn, backupBtn, restoreBtn (features offline)
 
-    // File inputs
-    document.getElementById('importFile').addEventListener('change', (e) => this.handleImportFile(e));
-    document.getElementById('restoreFile').addEventListener('change', (e) => this.handleRestoreFile(e));
+    // File inputs - removed (import/export features offline)
 
     // General Settings
     document.getElementById('startupEnable').addEventListener('change', (e) => {
@@ -720,121 +714,12 @@ class OptionsManager {
     document.getElementById('enableAutoSwitch').checked = this.settings.autoSwitchEnabled;
   }
 
-  // Import/Export
-  async exportSettings() {
-    const data = {
-      version: '1.0.0',
-      exportDate: new Date().toISOString(),
-      profiles: this.profiles,
-      rules: this.rules,
-      settings: this.settings,
-      pacScript: this.pacScript
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `x-proxy-settings-${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    this.showStatus('Settings exported successfully', 'success');
-  }
+  // Import/Export methods removed (features offline)
 
-  importSettings() {
-    document.getElementById('importFile').click();
-  }
 
-  async handleImportFile(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    
-    try {
-      const text = await file.text();
-      const data = JSON.parse(text);
-      
-      if (!data.version || !data.profiles) {
-        throw new Error('Invalid settings file');
-      }
-      
-      if (confirm('This will replace all current settings. Continue?')) {
-        this.profiles = data.profiles || [];
-        this.rules = data.rules || [];
-        this.settings = data.settings || this.getDefaultSettings();
-        this.pacScript = data.pacScript || this.getDefaultPACScript();
-        
-        await this.saveData();
-        this.renderProfiles();
-        this.renderRules();
-        this.loadSettings();
-        this.loadPACScript();
-        
-        this.showStatus('Settings imported successfully', 'success');
-      }
-    } catch (error) {
-      console.error('Error importing settings:', error);
-      this.showStatus('Failed to import settings', 'error');
-    }
-    
-    e.target.value = '';
-  }
 
-  async backupSettings() {
-    const data = {
-      version: '1.0.0',
-      backupDate: new Date().toISOString(),
-      profiles: this.profiles,
-      rules: this.rules,
-      settings: this.settings,
-      pacScript: this.pacScript
-    };
-    
-    try {
-      await chrome.storage.local.set({ backup: data });
-      this.showStatus('Backup created successfully', 'success');
-    } catch (error) {
-      console.error('Error creating backup:', error);
-      this.showStatus('Failed to create backup', 'error');
-    }
-  }
 
-  restoreSettings() {
-    document.getElementById('restoreFile').click();
-  }
 
-  async handleRestoreFile(e) {
-    const file = e.target.files[0];
-    if (file) {
-      await this.handleImportFile(e);
-    } else {
-      // Restore from internal backup
-      try {
-        const data = await chrome.storage.local.get('backup');
-        if (data.backup) {
-          if (confirm('Restore from last backup? This will replace all current settings.')) {
-            this.profiles = data.backup.profiles || [];
-            this.rules = data.backup.rules || [];
-            this.settings = data.backup.settings || this.getDefaultSettings();
-            this.pacScript = data.backup.pacScript || this.getDefaultPACScript();
-            
-            await this.saveData();
-            this.renderProfiles();
-            this.renderRules();
-            this.loadSettings();
-            this.loadPACScript();
-            
-            this.showStatus('Settings restored from backup', 'success');
-          }
-        } else {
-          this.showStatus('No backup found', 'error');
-        }
-      } catch (error) {
-        console.error('Error restoring backup:', error);
-        this.showStatus('Failed to restore backup', 'error');
-      }
-    }
-  }
 
   async clearAllData() {
     if (confirm('This will delete all settings, profiles, and rules. Are you sure?')) {
