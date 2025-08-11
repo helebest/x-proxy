@@ -405,20 +405,32 @@ class OptionsManager {
     
     if (profile) {
       title.textContent = 'Edit Proxy Profile';
-      document.getElementById('profileName').value = profile.name;
-      document.getElementById('profileColor').value = profile.color;
-      document.getElementById('proxyType').value = profile.type;
+      document.getElementById('profileName').value = profile.name || '';
+      document.getElementById('profileColor').value = profile.color || '#007AFF';
       
-      if (profile.type === 'pac') {
-        document.getElementById('pacUrl').value = profile.pacUrl;
+      // Access config from either the new nested structure or old flat structure
+      const config = profile.config || {};
+      const type = config.type || profile.type || 'http';
+      document.getElementById('proxyType').value = type;
+      
+      if (type === 'pac') {
+        document.getElementById('pacUrl').value = config.pacUrl || profile.pacUrl || '';
       } else {
-        document.getElementById('proxyHost').value = profile.host;
-        document.getElementById('proxyPort').value = profile.port;
-        document.getElementById('proxyAuth').checked = profile.auth;
-        if (profile.auth) {
-          document.getElementById('proxyUsername').value = profile.username;
-          document.getElementById('proxyPassword').value = profile.password;
+        document.getElementById('proxyHost').value = config.host || profile.host || '';
+        document.getElementById('proxyPort').value = config.port || profile.port || '';
+        
+        const hasAuth = config.auth || profile.auth;
+        document.getElementById('proxyAuth').checked = !!hasAuth;
+        
+        if (hasAuth) {
+          // Handle both old flat structure and new nested structure
+          const username = config.auth?.username || profile.username || '';
+          const password = config.auth?.password || profile.password || '';
+          document.getElementById('proxyUsername').value = username;
+          document.getElementById('proxyPassword').value = password;
           document.getElementById('authDetails').style.display = 'block';
+        } else {
+          document.getElementById('authDetails').style.display = 'none';
         }
       }
     } else {
@@ -427,7 +439,7 @@ class OptionsManager {
       document.getElementById('authDetails').style.display = 'none';
     }
     
-    this.handleProxyTypeChange({ target: { value: profile?.type || 'http' } });
+    this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
     modal.classList.add('show');
   }
 
@@ -501,21 +513,73 @@ class OptionsManager {
 
   duplicateProfile(index) {
     const original = this.profiles[index];
+    
+    // Create a proper deep copy with correct structure
     const duplicate = {
-      ...original,
       id: Date.now().toString(),
       name: `${original.name} (Copy)`,
+      description: original.description || '',
+      color: original.color || '#007AFF',
+      isActive: false,
+      isDefault: false,
+      config: {
+        type: original.config?.type || original.type || 'http',
+        host: original.config?.host || original.host || '',
+        port: parseInt(original.config?.port || original.port) || 8080,
+        auth: original.config?.auth || (original.auth ? {
+          username: original.username || '',
+          password: original.password || ''
+        } : undefined),
+        bypassList: original.config?.bypassList || original.bypassList || [],
+        pacUrl: original.config?.pacUrl || original.pacUrl
+      },
       createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      tags: original.tags || []
     };
+    
     this.profiles.push(duplicate);
+    console.log('Created duplicate profile:', duplicate);
     this.saveData();
     this.renderProfiles();
   }
 
   async deleteProfile(index) {
-    if (confirm(`Are you sure you want to delete "${this.profiles[index].name}"?`)) {
+    const profileToDelete = this.profiles[index];
+    if (confirm(`Are you sure you want to delete "${profileToDelete.name}"?`)) {
+      // Check if the deleted profile is currently active
+      const result = await chrome.storage.local.get(['x-proxy-data']);
+      const data = result['x-proxy-data'] || this.getDefaultData();
+      const isActiveProfile = data.activeProfileId === profileToDelete.id;
+      
+      // Remove the profile
       this.profiles.splice(index, 1);
+      
+      // If the deleted profile was active, deactivate it and switch to system proxy
+      if (isActiveProfile) {
+        console.log(`Deleted profile ${profileToDelete.name} was active, switching to system proxy`);
+        
+        // Clear active profile ID
+        data.activeProfileId = undefined;
+        await chrome.storage.local.set({ 'x-proxy-data': data });
+        
+        // Send message to background to deactivate proxy
+        try {
+          const response = await chrome.runtime.sendMessage({
+            type: 'DEACTIVATE_PROFILE'
+          });
+          
+          if (response && response.success) {
+            console.log('Successfully switched to system proxy');
+            this.showStatus(`Deleted active profile "${profileToDelete.name}", switched to system proxy`, 'info');
+          } else {
+            console.error('Failed to deactivate proxy:', response?.error);
+          }
+        } catch (error) {
+          console.error('Error sending deactivate message:', error);
+        }
+      }
+      
       await this.saveData();
       this.renderProfiles();
     }

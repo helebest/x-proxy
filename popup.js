@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     cacheElements();
     await loadData();
     attachEventListeners();
+    setupStorageListener();
     updateUI();
 });
 
@@ -32,55 +33,49 @@ function cacheElements() {
     elements.helpBtn = document.getElementById('helpBtn');
 }
 
-// Load data from background service or fallback to direct storage
+// Load data directly from storage (bypassing background service cache)
 async function loadData() {
-    try {
-        // First try to get data from background service
-        const profilesResponse = await sendMessage({
-            type: 'GET_PROFILES'
-        });
-        
-        if (profilesResponse && profilesResponse.success) {
-            profiles = profilesResponse.data || [];
-            console.log('Loaded profiles from background:', profiles);
-            
-            // Get active profile from background
-            const activeResponse = await sendMessage({
-                type: 'GET_ACTIVE_PROFILE'
-            });
-            
-            if (activeResponse && activeResponse.success) {
-                activeProfile = activeResponse.data;
-                console.log('Active profile from background:', activeProfile);
-            } else {
-                activeProfile = null;
-            }
-        } else {
-            // Fallback: Load directly from chrome.storage if background service fails
-            console.log('Background service not available, loading from storage directly');
-            await loadDataFromStorage();
-        }
-    } catch (error) {
-        console.error('Error loading data from background:', error);
-        // Fallback to direct storage access
-        await loadDataFromStorage();
-    }
+    console.log('Loading data directly from storage...');
+    await loadDataFromStorage();
 }
 
-// Fallback method to load data directly from chrome.storage
+// Load data directly from chrome.storage
 async function loadDataFromStorage() {
     try {
         const result = await chrome.storage.local.get(['x-proxy-data']);
+        console.log('Raw storage data:', result);
+        
         const data = result['x-proxy-data'] || getDefaultData();
+        console.log('Parsed data:', data);
         
         profiles = (data.profiles || []).map(p => normalizeProfile(p));
+        console.log('Normalized profiles:', profiles);
         
         // Find active profile by ID
         const activeProfileId = data.activeProfileId;
         if (activeProfileId) {
             activeProfile = profiles.find(p => p.id === activeProfileId) || null;
+            
+            // If active profile ID exists but profile not found, it was deleted
+            if (!activeProfile && activeProfileId) {
+                console.log('Active profile was deleted, clearing active profile ID');
+                // Clear the stale active profile ID
+                data.activeProfileId = undefined;
+                await chrome.storage.local.set({ 'x-proxy-data': data });
+                
+                // Ensure system proxy is active
+                window.systemProxyActive = true;
+                
+                // Send deactivate message to background
+                try {
+                    await sendMessage({ type: 'DEACTIVATE_PROFILE' });
+                } catch (error) {
+                    console.error('Error deactivating proxy:', error);
+                }
+            }
         } else {
             activeProfile = null;
+            window.systemProxyActive = true;
         }
         
         console.log('Loaded from storage - Profiles:', profiles.length, 'Active:', activeProfile?.name);
@@ -230,7 +225,9 @@ async function handleProfileClick(profileId) {
         updateUI();
         showNotification(`Activated ${activeProfile?.name || 'profile'}`);
     } else {
-        showNotification('Failed to activate profile', 'error');
+        console.error('Failed to activate profile:', response);
+        const errorMsg = response.error || 'Unknown error';
+        showNotification(`Failed to activate profile: ${errorMsg}`, 'error');
     }
 }
 
@@ -450,9 +447,29 @@ function showNotification(message, type = 'success') {
     }, 3000);
 }
 
+// Setup storage change listener for real-time updates
+function setupStorageListener() {
+    chrome.storage.onChanged.addListener((changes, namespace) => {
+        if (namespace === 'local' && changes['x-proxy-data']) {
+            console.log('Storage changed, reloading data...', changes);
+            loadData().then(() => {
+                console.log('Data reloaded, profiles:', profiles.length);
+                updateUI();
+            });
+        }
+    });
+}
+
 // Refresh data when popup is shown
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
+        console.log('Popup became visible, reloading data...');
         loadData().then(() => updateUI());
     }
+});
+
+// Also reload data when the popup is focused (more reliable for extensions)
+window.addEventListener('focus', () => {
+    console.log('Popup focused, reloading data...');
+    loadData().then(() => updateUI());
 });
