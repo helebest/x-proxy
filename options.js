@@ -85,10 +85,6 @@ class OptionsManager {
         type: profile.type || 'http',
         host: profile.host || '',
         port: parseInt(profile.port) || 8080,
-        auth: profile.auth ? {
-          username: profile.username || '',
-          password: profile.password || ''
-        } : undefined,
         bypassList: profile.bypassList || [],
         pacUrl: profile.pacUrl
       },
@@ -151,10 +147,6 @@ class OptionsManager {
         type: config.type || profile.type || 'http',
         host: config.host || profile.host || '',
         port: parseInt(config.port || profile.port) || 8080,
-        auth: (config.auth || profile.auth) ? {
-          username: config.auth?.username || profile.username || '',
-          password: config.auth?.password || profile.password || ''
-        } : undefined,
         bypassList: config.bypassList || profile.bypassList || [],
         pacUrl: config.pacUrl || profile.pacUrl
       },
@@ -212,10 +204,6 @@ class OptionsManager {
     // Proxy type change handler
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
     
-    // Authentication toggle
-    document.getElementById('proxyAuth').addEventListener('change', (e) => {
-      document.getElementById('authDetails').style.display = e.target.checked ? 'block' : 'none';
-    });
 
     // Rules Management
     document.getElementById('addRuleBtn').addEventListener('click', () => this.showRuleModal());
@@ -322,7 +310,6 @@ class OptionsManager {
       if (type === 'socks4') type = 'socks5';
       const host = config.host || profile.host || '';
       const port = config.port || profile.port || '';
-      const hasAuth = config.auth || profile.auth;
       
       card.innerHTML = `
         <div class="profile-header">
@@ -337,7 +324,7 @@ class OptionsManager {
         <div class="profile-details">
           ${type === 'pac' ? 
             `PAC URL: ${config.pacUrl || profile.pacUrl || ''}` : 
-            `${host}:${port}${hasAuth ? ' (Auth)' : ''}`
+            `${host}:${port}`
           }
         </div>
         <div class="profile-actions">
@@ -433,25 +420,10 @@ class OptionsManager {
       } else {
         document.getElementById('proxyHost').value = config.host || profile.host || '';
         document.getElementById('proxyPort').value = config.port || profile.port || '';
-        
-        const hasAuth = config.auth || profile.auth;
-        document.getElementById('proxyAuth').checked = !!hasAuth;
-        
-        if (hasAuth) {
-          // Handle both old flat structure and new nested structure
-          const username = config.auth?.username || profile.username || '';
-          const password = config.auth?.password || profile.password || '';
-          document.getElementById('proxyUsername').value = username;
-          document.getElementById('proxyPassword').value = password;
-          document.getElementById('authDetails').style.display = 'block';
-        } else {
-          document.getElementById('authDetails').style.display = 'none';
-        }
       }
     } else {
       title.textContent = 'Add Proxy Profile';
       document.getElementById('profileForm').reset();
-      document.getElementById('authDetails').style.display = 'none';
     }
     
     this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
@@ -498,16 +470,10 @@ class OptionsManager {
     } else {
       profile.host = document.getElementById('proxyHost').value.trim();
       profile.port = document.getElementById('proxyPort').value.trim();
-      profile.auth = document.getElementById('proxyAuth').checked;
       
       if (!profile.host || !profile.port) {
         alert('Please enter host and port');
         return;
-      }
-      
-      if (profile.auth) {
-        profile.username = document.getElementById('proxyUsername').value;
-        profile.password = document.getElementById('proxyPassword').value;
       }
     }
     
@@ -547,10 +513,6 @@ class OptionsManager {
         })(),
         host: original.config?.host || original.host || '',
         port: parseInt(original.config?.port || original.port) || 8080,
-        auth: original.config?.auth || (original.auth ? {
-          username: original.username || '',
-          password: original.password || ''
-        } : undefined),
         bypassList: original.config?.bypassList || original.bypassList || [],
         pacUrl: original.config?.pacUrl || original.pacUrl
       },

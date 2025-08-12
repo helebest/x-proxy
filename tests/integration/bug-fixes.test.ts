@@ -301,10 +301,6 @@ describe('Bug Fixes Integration Tests', () => {
           type: 'http',
           host: '127.0.0.1',
           port: 1235,
-          auth: {
-            username: 'user',
-            password: 'pass'
-          },
           bypassList: ['localhost']
         },
         createdAt: new Date('2024-01-01').toISOString(),
@@ -325,10 +321,6 @@ describe('Bug Fixes Integration Tests', () => {
             type: original.config?.type || original.type || 'http',
             host: original.config?.host || original.host || '',
             port: parseInt(original.config?.port || original.port) || 8080,
-            auth: original.config?.auth || (original.auth ? {
-              username: original.username || '',
-              password: original.password || ''
-            } : undefined),
             bypassList: original.config?.bypassList || original.bypassList || [],
             pacUrl: original.config?.pacUrl || original.pacUrl
           },
@@ -346,7 +338,6 @@ describe('Bug Fixes Integration Tests', () => {
       expect(duplicate.config.type).toBe('http');
       expect(duplicate.config.host).toBe('127.0.0.1');
       expect(duplicate.config.port).toBe(1235);
-      expect(duplicate.config.auth?.username).toBe('user');
       expect(duplicate.config.bypassList).toEqual(['localhost']);
       expect(typeof duplicate.createdAt).toBe('string');
       expect(() => new Date(duplicate.createdAt)).not.toThrow();
