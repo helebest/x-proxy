@@ -27,10 +27,6 @@
             <span class="icon" aria-hidden="true">👤</span>
             <span>Proxy Profiles</span>
           </li>
-          <li class="nav-item" data-section="rules" role="listitem" tabindex="0" aria-label="Auto-Switch Rules section">
-            <span class="icon" aria-hidden="true">📋</span>
-            <span>Auto-Switch Rules</span>
-          </li>
           <li class="nav-item" data-section="about" role="listitem" tabindex="0" aria-label="About section">
             <span class="icon" aria-hidden="true">ℹ️</span>
             <span>About</span>
@@ -55,28 +51,6 @@
           </div>
         </section>
 
-        <!-- Auto-Switch Rules Section -->
-        <section id="rules-section" class="section">
-          <h2>Auto-Switch Rules</h2>
-          <div class="section-header">
-            <p class="section-description">Configure automatic proxy switching based on URL patterns</p>
-            <button id="addRuleBtn" class="btn btn-primary">
-              <span class="icon">➕</span> Add Rule
-            </button>
-          </div>
-
-          <div class="rules-controls">
-          <label class="switch" for="enableAutoSwitch">
-            <input type="checkbox" id="enableAutoSwitch" role="switch" aria-checked="false" aria-label="Enable automatic proxy switching">
-            <span class="slider" aria-hidden="true"></span>
-            <span class="switch-label">Enable Auto-Switch</span>
-          </label>
-          </div>
-
-          <div id="rulesList" class="rules-list">
-            <!-- Rules will be dynamically added here -->
-          </div>
-        </section>
 
 
 
@@ -204,56 +178,6 @@
     </div>
   </div>
 
-  <!-- Rule Modal -->
-  <div id="ruleModal" class="modal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 id="ruleModalTitle">Add Auto-Switch Rule</h3>
-        <button class="modal-close" id="closeRuleModal">&times;</button>
-      </div>
-      <div class="modal-body">
-        <form id="ruleForm">
-          <div class="form-group">
-            <label for="ruleName">Rule Name *</label>
-            <input type="text" id="ruleName" class="form-input" required>
-          </div>
-          
-          <div class="form-group">
-            <label for="rulePattern">URL Pattern *</label>
-            <input type="text" id="rulePattern" class="form-input" placeholder="*.example.com/*" required>
-            <small class="form-help">Use wildcards: * for any characters, ? for single character</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="ruleProfile">Use Profile *</label>
-            <select id="ruleProfile" class="form-select" required>
-              <option value="system">System Proxy</option>
-              <!-- Profiles will be added dynamically -->
-            </select>
-          </div>
-          
-          <div class="form-group">
-            <label for="rulePriority">Priority</label>
-            <input type="number" id="rulePriority" class="form-input" min="0" max="999" value="10">
-            <small class="form-help">Higher priority rules are checked first</small>
-          </div>
-          
-          <div class="form-group">
-            <label for="ruleEnabled">Rule Status</label>
-            <label class="switch">
-              <input type="checkbox" id="ruleEnabled" checked>
-              <span class="slider"></span>
-              <span class="switch-label">Enabled</span>
-            </label>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" id="cancelRuleBtn">Cancel</button>
-        <button class="btn btn-primary" id="saveRuleBtn">Save Rule</button>
-      </div>
-    </div>
-  </div>
 
   <!-- Import/Export file inputs removed (features offline) -->
 

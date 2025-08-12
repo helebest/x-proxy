@@ -55,8 +55,7 @@ describe('Bug Fixes Integration Tests', () => {
           notifyChange: true,
           notifyError: true,
           showBadge: true
-        },
-        rules: []
+        }
       }
     };
 

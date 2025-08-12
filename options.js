@@ -2,11 +2,9 @@
 class OptionsManager {
   constructor() {
     this.profiles = [];
-    this.rules = [];
     this.settings = {};
     this.currentSection = 'profiles';
     this.editingProfile = null;
-    this.editingRule = null;
     this.init();
   }
 
@@ -14,7 +12,6 @@ class OptionsManager {
     await this.loadData();
     this.setupEventListeners();
     this.renderProfiles();
-    this.renderRules();
     this.loadSettings();
   }
 
@@ -26,7 +23,6 @@ class OptionsManager {
       const data = result['x-proxy-data'] || this.getDefaultData();
       
       this.profiles = data.profiles || [];
-      this.rules = data.rules || [];
       this.settings = data.settings || this.getDefaultSettings();
       
       // Convert profiles to the correct format if needed
@@ -45,7 +41,6 @@ class OptionsManager {
       
       // Update the data with our changes
       data.profiles = this.profiles.map(p => this.normalizeProfileForSave(p));
-      data.rules = this.rules;
       data.settings = { ...data.settings, ...this.settings };
       
       await chrome.storage.local.set({ 'x-proxy-data': data });
@@ -61,8 +56,7 @@ class OptionsManager {
       version: 1,
       profiles: [],
       activeProfileId: undefined,
-      settings: this.getDefaultSettings(),
-      rules: []
+      settings: this.getDefaultSettings()
     };
   }
 
@@ -158,8 +152,7 @@ class OptionsManager {
       connectionTimeout: 30,
       maxRetries: 3,
       bypassList: ['localhost', '127.0.0.1', '*.local'],
-      debugMode: false,
-      autoSwitchEnabled: false
+      debugMode: false
     };
   }
 
@@ -181,12 +174,6 @@ class OptionsManager {
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
     
 
-    // Rules Management
-    document.getElementById('addRuleBtn').addEventListener('click', () => this.showRuleModal());
-    document.getElementById('saveRuleBtn').addEventListener('click', () => this.saveRule());
-    document.getElementById('cancelRuleBtn').addEventListener('click', () => this.hideRuleModal());
-    document.getElementById('closeRuleModal').addEventListener('click', () => this.hideRuleModal());
-    document.getElementById('enableAutoSwitch').addEventListener('change', (e) => this.toggleAutoSwitch(e));
 
 
     // Import/Export - removed importBtn, exportBtn, backupBtn, restoreBtn (features offline)
@@ -274,8 +261,6 @@ class OptionsManager {
     // Add event delegation for profile action buttons
     this.setupProfileActionEvents(container);
 
-    // Update profile dropdown for rules
-    this.updateProfileDropdowns();
   }
 
   // Setup event delegation for profile action buttons
@@ -307,21 +292,6 @@ class OptionsManager {
     container.addEventListener('click', this.handleProfileAction);
   }
 
-  updateProfileDropdowns() {
-    const ruleSelect = document.getElementById('ruleProfile');
-    
-    // Clear existing options
-    ruleSelect.innerHTML = '';
-    
-    this.profiles.forEach(profile => {
-      const option = new Option(profile.name, profile.id);
-      ruleSelect.add(option);
-    });
-    
-    // Add System Proxy as last option
-    const systemOption = new Option('System Proxy', 'system');
-    ruleSelect.add(systemOption);
-  }
 
   showProfileModal(profile = null) {
     this.editingProfile = profile;
@@ -489,190 +459,20 @@ class OptionsManager {
     }
   }
 
-  // Rules Management
-  renderRules() {
-    const container = document.getElementById('rulesList');
-    container.innerHTML = '';
 
-    if (this.rules.length === 0) {
-      container.innerHTML = `
-        <div class="empty-state" style="padding: 20px; text-align: center; color: #757575;">
-          <p>No auto-switch rules configured</p>
-          <p>Click "Add Rule" to create URL-based proxy switching rules</p>
-        </div>
-      `;
-      return;
-    }
 
-    // Sort rules by priority
-    const sortedRules = [...this.rules].sort((a, b) => b.priority - a.priority);
 
-    sortedRules.forEach((rule, index) => {
-      const item = document.createElement('div');
-      item.className = 'rule-item';
-      item.innerHTML = `
-        <div class="rule-info">
-          <div class="rule-name">${rule.name}</div>
-          <div class="rule-pattern">${rule.pattern}</div>
-        </div>
-        <span class="rule-profile">${this.getProfileName(rule.profileId)}</span>
-        <span class="rule-priority">Priority: ${rule.priority}</span>
-        <div class="rule-actions">
-          <label class="switch">
-            <input type="checkbox" ${rule.enabled ? 'checked' : ''} 
-                   data-action="toggle" data-index="${index}">
-            <span class="slider"></span>
-          </label>
-          <button class="btn-icon" data-action="edit" data-index="${index}">✏️</button>
-          <button class="btn-icon" data-action="delete" data-index="${index}">🗑️</button>
-        </div>
-      `;
-      container.appendChild(item);
-    });
 
-    // Add event delegation for rule action buttons
-    this.setupRuleActionEvents(container);
-  }
 
-  // Setup event delegation for rule action buttons
-  setupRuleActionEvents(container) {
-    // Remove existing event listeners to avoid duplicates
-    container.removeEventListener('click', this.handleRuleAction);
-    container.removeEventListener('change', this.handleRuleToggle);
-    
-    // Add event delegation for buttons
-    this.handleRuleAction = (e) => {
-      const button = e.target.closest('button[data-action]');
-      if (!button) return;
-      
-      const action = button.dataset.action;
-      const index = parseInt(button.dataset.index);
-      
-      switch (action) {
-        case 'edit':
-          this.editRule(index);
-          break;
-        case 'delete':
-          this.deleteRule(index);
-          break;
-      }
-    };
-    
-    // Add event delegation for checkboxes
-    this.handleRuleToggle = (e) => {
-      const checkbox = e.target.closest('input[data-action="toggle"]');
-      if (!checkbox) return;
-      
-      const index = parseInt(checkbox.dataset.index);
-      this.toggleRule(index, checkbox.checked);
-    };
-    
-    container.addEventListener('click', this.handleRuleAction);
-    container.addEventListener('change', this.handleRuleToggle);
-  }
 
-  getProfileName(profileId) {
-    if (profileId === 'system' || profileId === 'direct') {
-      return 'System Proxy';
-    }
-    const profile = this.profiles.find(p => p.id === profileId);
-    return profile ? profile.name : 'Unknown';
-  }
 
-  showRuleModal(rule = null) {
-    this.editingRule = rule;
-    const modal = document.getElementById('ruleModal');
-    const title = document.getElementById('ruleModalTitle');
-    
-    if (rule) {
-      title.textContent = 'Edit Auto-Switch Rule';
-      document.getElementById('ruleName').value = rule.name;
-      document.getElementById('rulePattern').value = rule.pattern;
-      document.getElementById('ruleProfile').value = rule.profileId;
-      document.getElementById('rulePriority').value = rule.priority;
-      document.getElementById('ruleEnabled').checked = rule.enabled;
-    } else {
-      title.textContent = 'Add Auto-Switch Rule';
-      document.getElementById('ruleForm').reset();
-    }
-    
-    modal.classList.add('show');
-  }
 
-  hideRuleModal() {
-    document.getElementById('ruleModal').classList.remove('show');
-    this.editingRule = null;
-  }
 
-  async saveRule() {
-    const name = document.getElementById('ruleName').value.trim();
-    const pattern = document.getElementById('rulePattern').value.trim();
-    const profileId = document.getElementById('ruleProfile').value;
-    const priorityValue = document.getElementById('rulePriority').value.trim();
-    const priority = parseInt(priorityValue);
-    const enabled = document.getElementById('ruleEnabled').checked;
-    
-    if (!name || !pattern) {
-      alert('Please enter rule name and pattern');
-      return;
-    }
-    
-    // Validate priority field
-    if (!priorityValue || isNaN(priority) || priority < 0 || priority > 999) {
-      alert('Priority must be a number between 0 and 999');
-      return;
-    }
-    
-    const rule = {
-      id: this.editingRule?.id || Date.now().toString(),
-      name,
-      pattern,
-      profileId,
-      priority,
-      enabled,
-      createdAt: this.editingRule?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    
-    if (this.editingRule) {
-      const index = this.rules.findIndex(r => r.id === this.editingRule.id);
-      this.rules[index] = rule;
-    } else {
-      this.rules.push(rule);
-    }
-    
-    await this.saveData();
-    this.renderRules();
-    this.hideRuleModal();
-  }
-
-  editRule(index) {
-    this.showRuleModal(this.rules[index]);
-  }
-
-  async deleteRule(index) {
-    if (confirm(`Are you sure you want to delete "${this.rules[index].name}"?`)) {
-      this.rules.splice(index, 1);
-      await this.saveData();
-      this.renderRules();
-    }
-  }
-
-  async toggleRule(index, enabled) {
-    this.rules[index].enabled = enabled;
-    await this.saveData();
-  }
-
-  async toggleAutoSwitch(e) {
-    this.settings.autoSwitchEnabled = e.target.checked;
-    await this.saveData();
-  }
 
 
   // Settings Management
   loadSettings() {
     // Settings UI removed, but keep default settings in storage
-    document.getElementById('enableAutoSwitch').checked = this.settings.autoSwitchEnabled;
   }
 
   // Import/Export methods removed (features offline)
