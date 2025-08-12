@@ -250,7 +250,7 @@ class OptionsManager {
           ${host}:${port}
         </div>
         <div class="profile-actions">
-          <button class="btn btn-secondary" data-action="edit" data-index="${index}">✏️</button>
+          <button class="btn btn-secondary" data-action="edit" data-index="${index}">Edit</button>
           <button class="btn btn-secondary" data-action="duplicate" data-index="${index}">Duplicate</button>
           <button class="btn btn-danger" data-action="delete" data-index="${index}">Delete</button>
         </div>
