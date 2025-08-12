@@ -310,13 +310,17 @@ class OptionsManager {
   updateProfileDropdowns() {
     const ruleSelect = document.getElementById('ruleProfile');
     
-    // Clear existing options
-    ruleSelect.innerHTML = '<option value="direct">Direct Connection</option>';
+    // Clear existing options - removed Direct Connection as first option
+    ruleSelect.innerHTML = '';
     
     this.profiles.forEach(profile => {
       const option = new Option(profile.name, profile.id);
       ruleSelect.add(option);
     });
+    
+    // Add Direct Connection as last option if needed
+    const directOption = new Option('Direct Connection', 'direct');
+    ruleSelect.add(directOption);
   }
 
   showProfileModal(profile = null) {
@@ -601,11 +605,18 @@ class OptionsManager {
     const name = document.getElementById('ruleName').value.trim();
     const pattern = document.getElementById('rulePattern').value.trim();
     const profileId = document.getElementById('ruleProfile').value;
-    const priority = parseInt(document.getElementById('rulePriority').value);
+    const priorityValue = document.getElementById('rulePriority').value.trim();
+    const priority = parseInt(priorityValue);
     const enabled = document.getElementById('ruleEnabled').checked;
     
     if (!name || !pattern) {
       alert('Please enter rule name and pattern');
+      return;
+    }
+    
+    // Validate priority field
+    if (!priorityValue || isNaN(priority) || priority < 0 || priority > 999) {
+      alert('Priority must be a number between 0 and 999');
       return;
     }
     
