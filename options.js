@@ -193,38 +193,6 @@ class OptionsManager {
 
     // File inputs - removed (import/export features offline)
 
-    // General Settings
-    document.getElementById('startupEnable').addEventListener('change', (e) => {
-      this.settings.startupEnable = e.target.checked;
-    });
-    document.getElementById('defaultProfile').addEventListener('change', (e) => {
-      this.settings.defaultProfile = e.target.value;
-    });
-    document.getElementById('notifyChange').addEventListener('change', (e) => {
-      this.settings.notifyChange = e.target.checked;
-    });
-    document.getElementById('notifyError').addEventListener('change', (e) => {
-      this.settings.notifyError = e.target.checked;
-    });
-    document.getElementById('showBadge').addEventListener('change', (e) => {
-      this.settings.showBadge = e.target.checked;
-    });
-
-    // Advanced Settings
-    document.getElementById('connectionTimeout').addEventListener('change', (e) => {
-      this.settings.connectionTimeout = parseInt(e.target.value);
-    });
-    document.getElementById('maxRetries').addEventListener('change', (e) => {
-      this.settings.maxRetries = parseInt(e.target.value);
-    });
-    document.getElementById('bypassList').addEventListener('change', (e) => {
-      this.settings.bypassList = e.target.value.split('\n').filter(host => host.trim());
-    });
-    document.getElementById('debugMode').addEventListener('change', (e) => {
-      this.settings.debugMode = e.target.checked;
-    });
-    document.getElementById('clearStorageBtn').addEventListener('click', () => this.clearAllData());
-    document.getElementById('viewLogsBtn').addEventListener('click', () => this.viewLogs());
 
     // Save All Button
     document.getElementById('saveAllBtn').addEventListener('click', () => this.saveData());
@@ -306,7 +274,7 @@ class OptionsManager {
     // Add event delegation for profile action buttons
     this.setupProfileActionEvents(container);
 
-    // Update default profile dropdown
+    // Update profile dropdown for rules
     this.updateProfileDropdowns();
   }
 
@@ -340,18 +308,14 @@ class OptionsManager {
   }
 
   updateProfileDropdowns() {
-    const defaultSelect = document.getElementById('defaultProfile');
     const ruleSelect = document.getElementById('ruleProfile');
     
     // Clear existing options
-    defaultSelect.innerHTML = '<option value="">System Settings</option>';
     ruleSelect.innerHTML = '<option value="direct">Direct Connection</option>';
     
     this.profiles.forEach(profile => {
-      const option1 = new Option(profile.name, profile.id);
-      const option2 = new Option(profile.name, profile.id);
-      defaultSelect.add(option1);
-      ruleSelect.add(option2);
+      const option = new Option(profile.name, profile.id);
+      ruleSelect.add(option);
     });
   }
 
@@ -693,15 +657,7 @@ class OptionsManager {
 
   // Settings Management
   loadSettings() {
-    document.getElementById('startupEnable').checked = this.settings.startupEnable;
-    document.getElementById('defaultProfile').value = this.settings.defaultProfile;
-    document.getElementById('notifyChange').checked = this.settings.notifyChange;
-    document.getElementById('notifyError').checked = this.settings.notifyError;
-    document.getElementById('showBadge').checked = this.settings.showBadge;
-    document.getElementById('connectionTimeout').value = this.settings.connectionTimeout;
-    document.getElementById('maxRetries').value = this.settings.maxRetries;
-    document.getElementById('bypassList').value = this.settings.bypassList.join('\n');
-    document.getElementById('debugMode').checked = this.settings.debugMode;
+    // Settings UI removed, but keep default settings in storage
     document.getElementById('enableAutoSwitch').checked = this.settings.autoSwitchEnabled;
   }
 
@@ -712,35 +668,6 @@ class OptionsManager {
 
 
 
-  async clearAllData() {
-    if (confirm('This will delete all settings, profiles, and rules. Are you sure?')) {
-      if (confirm('This action cannot be undone. Please confirm again.')) {
-        try {
-          await chrome.storage.local.clear();
-          this.profiles = [];
-          this.rules = [];
-          this.settings = this.getDefaultSettings();
-          
-          this.renderProfiles();
-          this.renderRules();
-          this.loadSettings();
-          
-          this.showStatus('All data cleared', 'success');
-        } catch (error) {
-          console.error('Error clearing data:', error);
-          this.showStatus('Failed to clear data', 'error');
-        }
-      }
-    }
-  }
-
-  viewLogs() {
-    chrome.storage.local.get('logs', (data) => {
-      const logs = data.logs || [];
-      console.log('Debug Logs:', logs);
-      alert('Debug logs have been printed to the console. Press F12 to view.');
-    });
-  }
 
   // Utility Functions
   showStatus(message, type = 'info') {
