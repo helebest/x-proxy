@@ -263,7 +263,7 @@ class OptionsManager {
           ${host}:${port}
         </div>
         <div class="profile-actions">
-          <button class="btn btn-secondary" data-action="edit" data-index="${index}">Edit</button>
+          <button class="btn btn-secondary" data-action="edit" data-index="${index}">✏️</button>
           <button class="btn btn-secondary" data-action="duplicate" data-index="${index}">Duplicate</button>
           <button class="btn btn-danger" data-action="delete" data-index="${index}">Delete</button>
         </div>
@@ -310,7 +310,7 @@ class OptionsManager {
   updateProfileDropdowns() {
     const ruleSelect = document.getElementById('ruleProfile');
     
-    // Clear existing options - removed Direct Connection as first option
+    // Clear existing options
     ruleSelect.innerHTML = '';
     
     this.profiles.forEach(profile => {
@@ -318,9 +318,9 @@ class OptionsManager {
       ruleSelect.add(option);
     });
     
-    // Add Direct Connection as last option if needed
-    const directOption = new Option('Direct Connection', 'direct');
-    ruleSelect.add(directOption);
+    // Add System Proxy as last option
+    const systemOption = new Option('System Proxy', 'system');
+    ruleSelect.add(systemOption);
   }
 
   showProfileModal(profile = null) {
@@ -523,8 +523,8 @@ class OptionsManager {
                    data-action="toggle" data-index="${index}">
             <span class="slider"></span>
           </label>
-          <button class="btn-icon" data-action="edit" data-index="${index}" title="Edit">✏️</button>
-          <button class="btn-icon" data-action="delete" data-index="${index}" title="Delete">🗑️</button>
+          <button class="btn-icon" data-action="edit" data-index="${index}">✏️</button>
+          <button class="btn-icon" data-action="delete" data-index="${index}">🗑️</button>
         </div>
       `;
       container.appendChild(item);
@@ -572,6 +572,9 @@ class OptionsManager {
   }
 
   getProfileName(profileId) {
+    if (profileId === 'system' || profileId === 'direct') {
+      return 'System Proxy';
+    }
     const profile = this.profiles.find(p => p.id === profileId);
     return profile ? profile.name : 'Unknown';
   }
