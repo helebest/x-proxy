@@ -316,7 +316,10 @@ class OptionsManager {
       const card = document.createElement('div');
       card.className = 'profile-card';
       const config = profile.config || {};
-      const type = config.type || profile.type || 'http';
+      let type = config.type || profile.type || 'http';
+      // Normalize deprecated types since they're now combined/removed
+      if (type === 'https') type = 'http';
+      if (type === 'socks4') type = 'socks5';
       const host = config.host || profile.host || '';
       const port = config.port || profile.port || '';
       const hasAuth = config.auth || profile.auth;
@@ -328,7 +331,7 @@ class OptionsManager {
               <span class="profile-color-indicator" style="background: ${profile.color}"></span>
               ${profile.name}
             </div>
-            <div class="profile-type">${type.toUpperCase()}</div>
+            <div class="profile-type">${type === 'http' ? 'HTTP/HTTPS' : type.toUpperCase()}</div>
           </div>
         </div>
         <div class="profile-details">
@@ -406,11 +409,23 @@ class OptionsManager {
     if (profile) {
       title.textContent = 'Edit Proxy Profile';
       document.getElementById('profileName').value = profile.name || '';
-      document.getElementById('profileColor').value = profile.color || '#007AFF';
+      
+      // Handle color palette selection
+      const profileColor = profile.color || '#007AFF';
+      const colorRadio = document.querySelector(`input[name="profileColor"][value="${profileColor}"]`);
+      if (colorRadio) {
+        colorRadio.checked = true;
+      } else {
+        // Default to blue if color not found in palette
+        document.getElementById('color-blue').checked = true;
+      }
       
       // Access config from either the new nested structure or old flat structure
       const config = profile.config || {};
-      const type = config.type || profile.type || 'http';
+      let type = config.type || profile.type || 'http';
+      // Normalize deprecated types since they're now combined/removed
+      if (type === 'https') type = 'http';
+      if (type === 'socks4') type = 'socks5';
       document.getElementById('proxyType').value = type;
       
       if (type === 'pac') {
@@ -456,7 +471,8 @@ class OptionsManager {
 
   async saveProfile() {
     const name = document.getElementById('profileName').value.trim();
-    const color = document.getElementById('profileColor').value;
+    const colorRadio = document.querySelector('input[name="profileColor"]:checked');
+    const color = colorRadio ? colorRadio.value : '#007AFF';
     const type = document.getElementById('proxyType').value;
     
     if (!name) {
@@ -523,7 +539,12 @@ class OptionsManager {
       isActive: false,
       isDefault: false,
       config: {
-        type: original.config?.type || original.type || 'http',
+        type: (() => {
+          let t = original.config?.type || original.type || 'http';
+          if (t === 'https') t = 'http';
+          if (t === 'socks4') t = 'socks5';
+          return t;
+        })(),
         host: original.config?.host || original.host || '',
         port: parseInt(original.config?.port || original.port) || 8080,
         auth: original.config?.auth || (original.auth ? {

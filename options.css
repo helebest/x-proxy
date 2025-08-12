@@ -599,6 +599,49 @@ html {
   color: var(--text-primary);
 }
 
+/* Color Palette */
+.color-palette {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.color-palette input[type="radio"] {
+  display: none;
+}
+
+.color-option {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 3px solid transparent;
+  transition: var(--transition);
+  position: relative;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.color-palette input[type="radio"]:checked + .color-option {
+  border-color: var(--text-primary);
+  transform: scale(1.1);
+}
+
+.color-palette input[type="radio"]:checked + .color-option::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-size: 14px;
+  font-weight: bold;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
 /* Profile Cards */
 .profiles-list {
   display: grid;

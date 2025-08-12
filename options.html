@@ -280,15 +280,37 @@
           
           <div class="form-group">
             <label for="profileColor">Profile Color</label>
-            <input type="color" id="profileColor" class="form-input" value="#4CAF50">
+            <div class="color-palette">
+              <input type="radio" name="profileColor" id="color-blue" value="#007AFF" checked>
+              <label for="color-blue" class="color-option" style="background-color: #007AFF" title="Blue"></label>
+              
+              <input type="radio" name="profileColor" id="color-green" value="#4CAF50">
+              <label for="color-green" class="color-option" style="background-color: #4CAF50" title="Green"></label>
+              
+              <input type="radio" name="profileColor" id="color-red" value="#F44336">
+              <label for="color-red" class="color-option" style="background-color: #F44336" title="Red"></label>
+              
+              <input type="radio" name="profileColor" id="color-orange" value="#FF9800">
+              <label for="color-orange" class="color-option" style="background-color: #FF9800" title="Orange"></label>
+              
+              <input type="radio" name="profileColor" id="color-purple" value="#9C27B0">
+              <label for="color-purple" class="color-option" style="background-color: #9C27B0" title="Purple"></label>
+              
+              <input type="radio" name="profileColor" id="color-teal" value="#009688">
+              <label for="color-teal" class="color-option" style="background-color: #009688" title="Teal"></label>
+              
+              <input type="radio" name="profileColor" id="color-yellow" value="#FFC107">
+              <label for="color-yellow" class="color-option" style="background-color: #FFC107" title="Yellow"></label>
+              
+              <input type="radio" name="profileColor" id="color-gray" value="#607D8B">
+              <label for="color-gray" class="color-option" style="background-color: #607D8B" title="Gray"></label>
+            </div>
           </div>
           
           <div class="form-group">
             <label for="proxyType">Proxy Type *</label>
             <select id="proxyType" class="form-select" required>
-              <option value="http">HTTP</option>
-              <option value="https">HTTPS</option>
-              <option value="socks4">SOCKS4</option>
+              <option value="http">HTTP/HTTPS</option>
               <option value="socks5">SOCKS5</option>
               <option value="pac">PAC Script</option>
             </select>
