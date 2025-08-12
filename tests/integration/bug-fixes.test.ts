@@ -56,8 +56,7 @@ describe('Bug Fixes Integration Tests', () => {
           notifyError: true,
           showBadge: true
         },
-        rules: [],
-        pacScript: ''
+        rules: []
       }
     };
 
@@ -321,8 +320,7 @@ describe('Bug Fixes Integration Tests', () => {
             type: original.config?.type || original.type || 'http',
             host: original.config?.host || original.host || '',
             port: parseInt(original.config?.port || original.port) || 8080,
-            bypassList: original.config?.bypassList || original.bypassList || [],
-            pacUrl: original.config?.pacUrl || original.pacUrl
+            bypassList: original.config?.bypassList || original.bypassList || []
           },
           createdAt: new Date().toISOString(),
           updatedAt: new Date().toISOString(),

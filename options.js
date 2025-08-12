@@ -7,7 +7,6 @@ class OptionsManager {
     this.currentSection = 'profiles';
     this.editingProfile = null;
     this.editingRule = null;
-    this.pacScript = '';
     this.init();
   }
 
@@ -17,8 +16,6 @@ class OptionsManager {
     this.renderProfiles();
     this.renderRules();
     this.loadSettings();
-    this.loadPACScript();
-    this.setupPACEditor();
   }
 
   // Data Management
@@ -31,7 +28,6 @@ class OptionsManager {
       this.profiles = data.profiles || [];
       this.rules = data.rules || [];
       this.settings = data.settings || this.getDefaultSettings();
-      this.pacScript = data.pacScript || this.getDefaultPACScript();
       
       // Convert profiles to the correct format if needed
       this.profiles = this.profiles.map(p => this.normalizeProfile(p));
@@ -51,7 +47,6 @@ class OptionsManager {
       data.profiles = this.profiles.map(p => this.normalizeProfileForSave(p));
       data.rules = this.rules;
       data.settings = { ...data.settings, ...this.settings };
-      data.pacScript = this.pacScript;
       
       await chrome.storage.local.set({ 'x-proxy-data': data });
       this.showStatus('Settings saved successfully', 'success');
@@ -67,8 +62,7 @@ class OptionsManager {
       profiles: [],
       activeProfileId: undefined,
       settings: this.getDefaultSettings(),
-      rules: [],
-      pacScript: this.getDefaultPACScript()
+      rules: []
     };
   }
 
@@ -85,8 +79,7 @@ class OptionsManager {
         type: profile.type || 'http',
         host: profile.host || '',
         port: parseInt(profile.port) || 8080,
-        bypassList: profile.bypassList || [],
-        pacUrl: profile.pacUrl
+        bypassList: profile.bypassList || []
       },
       createdAt: this.safeParseDate(profile.createdAt),
       updatedAt: this.safeParseDate(profile.updatedAt),
@@ -147,8 +140,7 @@ class OptionsManager {
         type: config.type || profile.type || 'http',
         host: config.host || profile.host || '',
         port: parseInt(config.port || profile.port) || 8080,
-        bypassList: config.bypassList || profile.bypassList || [],
-        pacUrl: config.pacUrl || profile.pacUrl
+        bypassList: config.bypassList || profile.bypassList || []
       },
       createdAt: this.normalizeDate(profile.createdAt),
       updatedAt: new Date().toISOString(),
@@ -171,22 +163,6 @@ class OptionsManager {
     };
   }
 
-  getDefaultPACScript() {
-    return `function FindProxyForURL(url, host) {
-  // Direct connection for local addresses
-  if (isPlainHostName(host) ||
-      shExpMatch(host, "*.local") ||
-      isInNet(dnsResolve(host), "10.0.0.0", "255.0.0.0") ||
-      isInNet(dnsResolve(host), "172.16.0.0", "255.240.0.0") ||
-      isInNet(dnsResolve(host), "192.168.0.0", "255.255.0.0") ||
-      isInNet(dnsResolve(host), "127.0.0.0", "255.255.255.0")) {
-    return "DIRECT";
-  }
-  
-  // Default proxy
-  return "PROXY proxy.example.com:8080";
-}`;
-  }
 
   // Event Listeners Setup
   setupEventListeners() {
@@ -212,12 +188,6 @@ class OptionsManager {
     document.getElementById('closeRuleModal').addEventListener('click', () => this.hideRuleModal());
     document.getElementById('enableAutoSwitch').addEventListener('change', (e) => this.toggleAutoSwitch(e));
 
-    // PAC Script Editor
-    document.getElementById('pacTemplateBtn').addEventListener('click', () => this.loadPACTemplate());
-    document.getElementById('pacValidateBtn').addEventListener('click', () => this.validatePACScript());
-    document.getElementById('pacSaveBtn').addEventListener('click', () => this.savePACScript());
-    document.getElementById('formatPacBtn').addEventListener('click', () => this.formatPACScript());
-    document.getElementById('copyPacBtn').addEventListener('click', () => this.copyPACScript());
 
     // Import/Export - removed importBtn, exportBtn, backupBtn, restoreBtn (features offline)
 
@@ -322,10 +292,7 @@ class OptionsManager {
           </div>
         </div>
         <div class="profile-details">
-          ${type === 'pac' ? 
-            `PAC URL: ${config.pacUrl || profile.pacUrl || ''}` : 
-            `${host}:${port}`
-          }
+          ${host}:${port}
         </div>
         <div class="profile-actions">
           <button class="btn btn-secondary" data-action="edit" data-index="${index}">Edit</button>
@@ -415,12 +382,8 @@ class OptionsManager {
       if (type === 'socks4') type = 'socks5';
       document.getElementById('proxyType').value = type;
       
-      if (type === 'pac') {
-        document.getElementById('pacUrl').value = config.pacUrl || profile.pacUrl || '';
-      } else {
-        document.getElementById('proxyHost').value = config.host || profile.host || '';
-        document.getElementById('proxyPort').value = config.port || profile.port || '';
-      }
+      document.getElementById('proxyHost').value = config.host || profile.host || '';
+      document.getElementById('proxyPort').value = config.port || profile.port || '';
     } else {
       title.textContent = 'Add Proxy Profile';
       document.getElementById('profileForm').reset();
@@ -436,9 +399,8 @@ class OptionsManager {
   }
 
   handleProxyTypeChange(e) {
-    const isPAC = e.target.value === 'pac';
-    document.getElementById('proxyDetails').style.display = isPAC ? 'none' : 'block';
-    document.getElementById('pacDetails').style.display = isPAC ? 'block' : 'none';
+    // No need to handle PAC type anymore
+    document.getElementById('proxyDetails').style.display = 'block';
   }
 
   async saveProfile() {
@@ -461,20 +423,12 @@ class OptionsManager {
       updatedAt: new Date().toISOString()
     };
     
-    if (type === 'pac') {
-      profile.pacUrl = document.getElementById('pacUrl').value.trim();
-      if (!profile.pacUrl) {
-        alert('Please enter a PAC script URL');
-        return;
-      }
-    } else {
-      profile.host = document.getElementById('proxyHost').value.trim();
-      profile.port = document.getElementById('proxyPort').value.trim();
-      
-      if (!profile.host || !profile.port) {
-        alert('Please enter host and port');
-        return;
-      }
+    profile.host = document.getElementById('proxyHost').value.trim();
+    profile.port = document.getElementById('proxyPort').value.trim();
+    
+    if (!profile.host || !profile.port) {
+      alert('Please enter host and port');
+      return;
     }
     
     if (this.editingProfile) {
@@ -513,8 +467,7 @@ class OptionsManager {
         })(),
         host: original.config?.host || original.host || '',
         port: parseInt(original.config?.port || original.port) || 8080,
-        bypassList: original.config?.bypassList || original.bypassList || [],
-        pacUrl: original.config?.pacUrl || original.pacUrl
+        bypassList: original.config?.bypassList || original.bypassList || []
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -737,126 +690,6 @@ class OptionsManager {
     await this.saveData();
   }
 
-  // PAC Script Editor
-  setupPACEditor() {
-    const editor = document.getElementById('pacEditor');
-    
-    // Add syntax highlighting on input
-    editor.addEventListener('input', () => {
-      this.pacScript = editor.textContent;
-      // Simple syntax highlighting (can be enhanced)
-      this.highlightPACScript();
-    });
-  }
-
-  loadPACScript() {
-    const editor = document.getElementById('pacEditor');
-    editor.textContent = this.pacScript;
-    this.highlightPACScript();
-  }
-
-  highlightPACScript() {
-    // This is a simplified version - for production, use a proper syntax highlighter
-    const editor = document.getElementById('pacEditor');
-    const code = editor.textContent;
-    
-    // Basic syntax highlighting patterns
-    const highlighted = code
-      .replace(/\b(function|return|if|else|for|while|var|const|let)\b/g, '<span class="keyword">$1</span>')
-      .replace(/"([^"]*)"/g, '<span class="string">"$1"</span>')
-      .replace(/'([^']*)'/g, '<span class="string">\'$1\'</span>')
-      .replace(/\/\/.*$/gm, '<span class="comment">$&</span>')
-      .replace(/\/\*[\s\S]*?\*\//g, '<span class="comment">$&</span>')
-      .replace(/\b\d+\b/g, '<span class="number">$&</span>');
-    
-    // Preserve cursor position
-    const selection = window.getSelection();
-    let startOffset = 0;
-    let shouldRestoreCursor = false;
-    
-    // Only try to preserve cursor if there's an active selection
-    if (selection.rangeCount > 0) {
-      try {
-        const range = selection.getRangeAt(0);
-        startOffset = range.startOffset;
-        shouldRestoreCursor = true;
-      } catch (e) {
-        // No valid range, skip cursor preservation
-      }
-    }
-    
-    editor.innerHTML = highlighted;
-    
-    // Restore cursor position if we saved it
-    if (shouldRestoreCursor && editor.firstChild) {
-      try {
-        const newRange = document.createRange();
-        newRange.setStart(editor.firstChild, Math.min(startOffset, editor.firstChild.length || 0));
-        newRange.collapse(true);
-        selection.removeAllRanges();
-        selection.addRange(newRange);
-      } catch (e) {
-        // Cursor restoration failed, ignore
-      }
-    }
-  }
-
-  loadPACTemplate() {
-    if (confirm('This will replace the current PAC script. Continue?')) {
-      this.pacScript = this.getDefaultPACScript();
-      this.loadPACScript();
-    }
-  }
-
-  validatePACScript() {
-    const status = document.getElementById('pacStatus');
-    try {
-      // Basic validation - check if it's valid JavaScript
-      new Function(this.pacScript);
-      
-      // Check for required function
-      if (!this.pacScript.includes('FindProxyForURL')) {
-        throw new Error('Missing required function: FindProxyForURL');
-      }
-      
-      status.textContent = '✓ PAC script is valid';
-      status.className = 'editor-status success';
-    } catch (error) {
-      status.textContent = `✗ Error: ${error.message}`;
-      status.className = 'editor-status error';
-    }
-  }
-
-  async savePACScript() {
-    this.validatePACScript();
-    await this.saveData();
-  }
-
-  formatPACScript() {
-    // Basic formatting - for production, use a proper formatter
-    try {
-      // Simple beautification
-      this.pacScript = this.pacScript
-        .replace(/\{/g, ' {\n  ')
-        .replace(/\}/g, '\n}')
-        .replace(/;/g, ';\n  ')
-        .replace(/\n\s*\n/g, '\n');
-      
-      this.loadPACScript();
-    } catch (error) {
-      console.error('Error formatting PAC script:', error);
-    }
-  }
-
-  async copyPACScript() {
-    try {
-      await navigator.clipboard.writeText(this.pacScript);
-      this.showStatus('PAC script copied to clipboard', 'success');
-    } catch (error) {
-      console.error('Error copying PAC script:', error);
-      this.showStatus('Failed to copy PAC script', 'error');
-    }
-  }
 
   // Settings Management
   loadSettings() {
@@ -887,12 +720,10 @@ class OptionsManager {
           this.profiles = [];
           this.rules = [];
           this.settings = this.getDefaultSettings();
-          this.pacScript = this.getDefaultPACScript();
           
           this.renderProfiles();
           this.renderRules();
           this.loadSettings();
-          this.loadPACScript();
           
           this.showStatus('All data cleared', 'success');
         } catch (error) {

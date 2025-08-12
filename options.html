@@ -31,10 +31,6 @@
             <span class="icon" aria-hidden="true">📋</span>
             <span>Auto-Switch Rules</span>
           </li>
-          <li class="nav-item" data-section="pac" role="listitem" tabindex="0" aria-label="PAC Script Editor section">
-            <span class="icon" aria-hidden="true">📝</span>
-            <span>PAC Script Editor</span>
-          </li>
           <li class="nav-item" data-section="general" role="listitem" tabindex="0" aria-label="General Settings section">
             <span class="icon" aria-hidden="true">⚙️</span>
             <span>General Settings</span>
@@ -90,36 +86,6 @@
           </div>
         </section>
 
-        <!-- PAC Script Editor Section -->
-        <section id="pac-section" class="section">
-          <h2>PAC Script Editor</h2>
-          <div class="section-header">
-            <p class="section-description">Edit Proxy Auto-Configuration (PAC) script</p>
-            <div class="pac-controls">
-              <button id="pacTemplateBtn" class="btn btn-secondary">Load Template</button>
-              <button id="pacValidateBtn" class="btn btn-secondary">Validate</button>
-              <button id="pacSaveBtn" class="btn btn-primary">Save PAC</button>
-            </div>
-          </div>
-
-          <div class="editor-container">
-            <div class="editor-header">
-              <span class="editor-title">PAC Script</span>
-              <div class="editor-actions">
-                <button id="formatPacBtn" class="btn-icon" title="Format Code">
-                  <span>🎨</span>
-                </button>
-                <button id="copyPacBtn" class="btn-icon" title="Copy">
-                  <span>📋</span>
-                </button>
-              </div>
-            </div>
-            <div id="pacEditor" class="code-editor" contenteditable="true" spellcheck="false" role="textbox" aria-label="PAC script editor" aria-multiline="true">
-              <!-- PAC script will be loaded here -->
-            </div>
-            <div id="pacStatus" class="editor-status"></div>
-          </div>
-        </section>
 
         <!-- General Settings Section -->
         <section id="general-section" class="section">
@@ -231,7 +197,6 @@
                 <ul>
                   <li>✓ Multiple proxy profiles</li>
                   <li>✓ Auto-switch rules</li>
-                  <li>✓ PAC script support</li>
                   <li>✓ SOCKS5 & HTTP(S) proxy support</li>
                   <li>✓ Authentication support</li>
                   <li>✓ Import/Export configurations</li>
@@ -312,7 +277,6 @@
             <select id="proxyType" class="form-select" required>
               <option value="http">HTTP/HTTPS</option>
               <option value="socks5">SOCKS5</option>
-              <option value="pac">PAC Script</option>
             </select>
           </div>
           
@@ -329,12 +293,6 @@
             
           </div>
           
-          <div id="pacDetails" class="pac-details" style="display: none;">
-            <div class="form-group">
-              <label for="pacUrl">PAC Script URL *</label>
-              <input type="url" id="pacUrl" class="form-input" placeholder="http://example.com/proxy.pac">
-            </div>
-          </div>
         </form>
       </div>
       <div class="modal-footer">
