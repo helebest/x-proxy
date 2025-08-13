@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.systemProxyActive = false;
     cacheElements();
     await loadData();
+    await syncStateWithBackground(); // Sync with background service
     attachEventListeners();
     setupStorageListener();
     updateUI();
@@ -138,6 +139,26 @@ function normalizeProfile(profile) {
     };
 }
 
+// Sync state with background service
+async function syncStateWithBackground() {
+    try {
+        const response = await sendMessage({ type: 'GET_STATE' });
+        if (response.success) {
+            // Update local state based on background service
+            if (response.activeProfile) {
+                activeProfile = response.activeProfile;
+                window.systemProxyActive = false;
+            } else {
+                activeProfile = null;
+                window.systemProxyActive = true;
+            }
+            console.log('Synced state with background:', { activeProfile: activeProfile?.name, systemProxy: window.systemProxyActive });
+        }
+    } catch (error) {
+        console.error('Failed to sync state with background:', error);
+    }
+}
+
 // Send message to background service (with retry to handle bg init race)
 function sendMessage(message, { retries = 5, delay = 150 } = {}) {
     function attempt(remaining) {
@@ -182,7 +203,7 @@ function attachEventListeners() {
     elements.importBtn?.addEventListener('click', handleImport);
     elements.exportBtn?.addEventListener('click', handleExport);
     elements.helpBtn?.addEventListener('click', () => {
-        chrome.tabs.create({ url: 'https://github.com' });
+        chrome.tabs.create({ url: 'https://github.com/helebest/x-proxy' });
     });
     
     // Empty state button
@@ -207,6 +228,7 @@ async function handleSystemProxy() {
         updateUI();
         showNotification('Using system proxy');
     } else {
+        console.error('Failed to set system proxy:', response);
         showNotification('Failed to set system proxy', 'error');
     }
 }
@@ -314,7 +336,7 @@ function updateStatusIndicator() {
         elements.statusText.textContent = activeProfile.name;
     } else {
         elements.statusIndicator.classList.add('inactive');
-        elements.statusText.textContent = 'System Proxy';
+        elements.statusText.textContent = 'System';
     }
 }
 
@@ -461,15 +483,19 @@ function setupStorageListener() {
 }
 
 // Refresh data when popup is shown
-document.addEventListener('visibilitychange', () => {
+document.addEventListener('visibilitychange', async () => {
     if (!document.hidden) {
         console.log('Popup became visible, reloading data...');
-        loadData().then(() => updateUI());
+        await loadData();
+        await syncStateWithBackground();
+        updateUI();
     }
 });
 
 // Also reload data when the popup is focused (more reliable for extensions)
-window.addEventListener('focus', () => {
+window.addEventListener('focus', async () => {
     console.log('Popup focused, reloading data...');
-    loadData().then(() => updateUI());
+    await loadData();
+    await syncStateWithBackground();
+    updateUI();
 });

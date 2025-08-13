@@ -187,11 +187,15 @@ class OptionsManager {
     // About Section
     document.getElementById('reportBugBtn').addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('https://github.com/yourusername/x-proxy/issues/new', '_blank');
+      const bugReportUrl = 'https://github.com/helebest/x-proxy/issues/new?' + 
+        'labels=bug&template=bug_report.md&title=' + encodeURIComponent('[Bug Report] ');
+      window.open(bugReportUrl, '_blank');
     });
     document.getElementById('requestFeatureBtn').addEventListener('click', (e) => {
       e.preventDefault();
-      window.open('https://github.com/yourusername/x-proxy/issues/new', '_blank');
+      const featureRequestUrl = 'https://github.com/helebest/x-proxy/issues/new?' + 
+        'labels=enhancement&template=feature_request.md&title=' + encodeURIComponent('[Feature Request] ');
+      window.open(featureRequestUrl, '_blank');
     });
   }
 
