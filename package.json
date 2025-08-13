@@ -29,9 +29,17 @@
     "typescript",
     "proxy"
   ],
-  "author": "",
+  "author": "helebest <helebest@gmail.com>",
   "license": "MIT",
-  "description": "A modern TypeScript project built with Vite",
+  "description": "Simple and reliable proxy switcher for Chrome",
+  "homepage": "https://github.com/helebest/x-proxy",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/helebest/x-proxy.git"
+  },
+  "bugs": {
+    "url": "https://github.com/helebest/x-proxy/issues"
+  },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
     "@testing-library/user-event": "^14.6.1",

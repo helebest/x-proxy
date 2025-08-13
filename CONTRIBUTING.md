@@ -1,8 +1,8 @@
 # Contributing to X-Proxy
 
-Last updated: 2025-08-10
+Last updated: 2025-08-13
 
-First off, thank you for considering contributing to X-Proxy! It's people like you that make X-Proxy such a great tool. 🎉
+First off, thank you for considering contributing to X-Proxy! 🎉
 
 ## Table of Contents
 
@@ -15,12 +15,10 @@ First off, thank you for considering contributing to X-Proxy! It's people like y
 - [Commit Messages](#commit-messages)
 - [Pull Request Process](#pull-request-process)
 - [Testing](#testing)
-- [Documentation](#documentation)
-- [Community](#community)
 
 ## Code of Conduct
 
-This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code. Please report unacceptable behavior to [conduct@x-proxy.com](mailto:conduct@x-proxy.com).
+This project and everyone participating in it is governed by our Code of Conduct. By participating, you are expected to uphold this code.
 
 ### Our Standards
 
@@ -45,9 +43,9 @@ Before you begin, ensure you have:
 
 Unsure where to begin? You can start by looking through these issues:
 
-- [Good First Issues](https://github.com/yourusername/x-proxy/labels/good%20first%20issue) - issues which should only require a few lines of code
-- [Help Wanted](https://github.com/yourusername/x-proxy/labels/help%20wanted) - issues which need extra attention
-- [Documentation](https://github.com/yourusername/x-proxy/labels/documentation) - improvements or additions to documentation
+- [Good First Issues](https://github.com/helebest/x-proxy/labels/good%20first%20issue) - issues which should only require a few lines of code
+- [Help Wanted](https://github.com/helebest/x-proxy/labels/help%20wanted) - issues which need extra attention
+- [Documentation](https://github.com/helebest/x-proxy/labels/documentation) - improvements or additions to documentation
 
 ## How Can I Contribute?
 
@@ -121,7 +119,7 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 2. **Set Up Upstream**
    ```bash
-   git remote add upstream https://github.com/yourusername/x-proxy.git
+   git remote add upstream https://github.com/helebest/x-proxy.git
    git fetch upstream
    ```
 
@@ -152,30 +150,22 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 
 ```
 x-proxy/
-├── src/
-│   ├── background/      # Service worker (background script)
-│   │   ├── index.ts    # Main background entry
-│   │   ├── proxy.ts    # Proxy management
-│   │   └── events.ts   # Event handlers
-│   ├── popup/          # Popup UI
-│   │   ├── index.html  # Popup HTML
-│   │   ├── popup.ts    # Popup logic
-│   │   └── styles.css  # Popup styles
-│   ├── options/        # Options page
-│   │   ├── index.html  # Options HTML
-│   │   ├── options.ts  # Options logic
-│   │   └── styles.css  # Options styles
-│   ├── content/        # Content scripts
-│   ├── core/           # Core business logic
-│   │   ├── proxy/      # Proxy-related logic
-│   │   ├── storage/    # Storage management
-│   │   └── utils/      # Utilities
-│   ├── pac/            # PAC script handling
-│   └── types/          # TypeScript types
-├── public/             # Static assets
-├── tests/              # Test files
+├── dist/               # Build output
+├── tests/              # Test suites
+│   ├── unit/          # Unit tests
+│   ├── integration/   # Integration tests
+│   └── e2e/           # End-to-end tests
 ├── docs/               # Documentation
-└── scripts/            # Build scripts
+├── store-assets/       # Chrome Web Store assets
+├── manifest.json       # Extension manifest
+├── popup.html          # Popup UI
+├── popup.js            # Popup logic
+├── options.html        # Options page
+├── options.js          # Options logic
+├── background.js       # Background service worker
+├── package.json        # Project configuration
+├── tsconfig.json       # TypeScript configuration
+└── README.md           # Documentation
 ```
 
 ## Coding Guidelines
@@ -258,10 +248,9 @@ export function createProxy(config: any) {
 ### Chrome Extension Specific Guidelines
 
 1. **Manifest Permissions**: Only request necessary permissions
-2. **Message Passing**: Use typed message passing between scripts
-3. **Storage**: Use chrome.storage.sync for user preferences
-4. **Security**: Never execute dynamic code or use eval()
-5. **Performance**: Minimize background script wake-ups
+2. **Storage**: Use chrome.storage.local for profile data
+3. **Security**: Never execute dynamic code or use eval()
+4. **Performance**: Keep background script lightweight
 
 ## Commit Messages
 
@@ -494,48 +483,13 @@ When making changes:
 4. Add examples for new features
 5. Update CHANGELOG.md
 
-## Community
-
-### Getting Help
-
-- **Discord**: [Join our Discord server](https://discord.gg/x-proxy)
-- **GitHub Discussions**: [Start a discussion](https://github.com/yourusername/x-proxy/discussions)
-- **Stack Overflow**: Tag questions with `x-proxy`
-
-### Recognition
-
-Contributors are recognized in:
-- README.md contributors section
-- CHANGELOG.md for significant contributions
-- GitHub contributors page
-- Special badges for regular contributors
-
-## Release Process
-
-### Version Numbering
-
-We use [Semantic Versioning](https://semver.org/):
-- MAJOR: Breaking changes
-- MINOR: New features (backward compatible)
-- PATCH: Bug fixes (backward compatible)
-
-### Release Checklist
-
-1. Update version in `manifest.json` and `package.json`
-2. Update CHANGELOG.md
-3. Run full test suite
-4. Create release PR
-5. Merge after approval
-6. Tag release
-7. GitHub Actions handles deployment
-
 ## License
 
 By contributing, you agree that your contributions will be licensed under the MIT License.
 
 ## Questions?
 
-Feel free to open an issue with the "question" label or reach out on Discord!
+Feel free to open an issue with the "question" label!
 
 ---
 
