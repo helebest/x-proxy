@@ -1,10 +1,23 @@
 // X-Proxy Background Service Worker
-// Simple background script for proxy management
+// Background script for proxy management with lifecycle management
 
 console.log('X-Proxy background service worker loaded');
 
-// Simple proxy management
+// Service worker state management
 let activeProfile = null;
+let isInitialized = false;
+let keepAliveTimeout = null;
+
+// Keep service worker alive during active operations
+function keepAlive() {
+  if (keepAliveTimeout) {
+    clearTimeout(keepAliveTimeout);
+  }
+  keepAliveTimeout = setTimeout(() => {
+    // Service worker can be terminated after inactivity
+    keepAliveTimeout = null;
+  }, 25000); // Chrome terminates service workers after 30s of inactivity
+}
 
 // Update extension icon based on proxy state
 function updateIcon(isSystemProxy = true) {
@@ -24,6 +37,8 @@ function updateIcon(isSystemProxy = true) {
 
 // Activate proxy profile
 async function activateProxy(profileId) {
+  keepAlive(); // Keep service worker alive during operation
+  
   try {
     // Get profile data from storage
     const result = await chrome.storage.local.get(['x-proxy-data']);
@@ -72,12 +87,15 @@ async function activateProxy(profileId) {
     
   } catch (error) {
     console.error('Failed to activate proxy:', error);
-    return { success: false, error: error.message };
+    const errorMessage = error?.message || String(error) || 'Unknown error';
+    return { success: false, error: errorMessage };
   }
 }
 
 // Deactivate proxy (use system proxy)
 async function deactivateProxy() {
+  keepAlive(); // Keep service worker alive during operation
+  
   try {
     // Clear any existing proxy configuration first
     await chrome.proxy.settings.clear({
@@ -129,13 +147,20 @@ async function deactivateProxy() {
       
     } catch (fallbackError) {
       console.error('Fallback also failed:', fallbackError);
-      return { success: false, error: `Primary: ${error.message}, Fallback: ${fallbackError.message}` };
+      const primaryError = error?.message || String(error) || 'Unknown primary error';
+      const fallbackErrorMsg = fallbackError?.message || String(fallbackError) || 'Unknown fallback error';
+      return { success: false, error: `Primary: ${primaryError}, Fallback: ${fallbackErrorMsg}` };
     }
   }
 }
 
 // Initialize proxy state from storage
 async function initializeProxyState() {
+  if (isInitialized) return; // Prevent multiple initializations
+  
+  keepAlive();
+  console.log('Initializing proxy state...');
+  
   try {
     const result = await chrome.storage.local.get(['x-proxy-data']);
     const data = result['x-proxy-data'] || {};
@@ -156,11 +181,15 @@ async function initializeProxyState() {
     updateIcon(true); // Gray icon for system proxy
     console.log('No active proxy, using system settings');
     
+    isInitialized = true;
+    console.log('Proxy state initialization completed');
+    
   } catch (error) {
     console.error('Failed to initialize proxy state:', error);
     // Default to system proxy (gray) on error
     activeProfile = null;
     updateIcon(true);
+    isInitialized = true; // Mark as initialized even on error
   }
 }
 
@@ -176,34 +205,57 @@ chrome.runtime.onStartup.addListener(() => {
   initializeProxyState();
 });
 
-// Handle messages from popup and options
-chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
+// Handle messages from popup and options with improved error handling
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Background received message:', request);
+  keepAlive(); // Keep service worker alive during message processing
   
-  switch (request.type) {
-    case 'ACTIVATE_PROFILE':
-      const activateResult = await activateProxy(request.payload.id);
-      sendResponse(activateResult);
-      break;
+  // Wrap all operations in try-catch to prevent service worker crashes
+  (async () => {
+    try {
+      // Ensure initialization is complete before processing requests
+      if (!isInitialized && request.type !== 'GET_STATE') {
+        console.log('Service worker not initialized, initializing now...');
+        await initializeProxyState();
+      }
       
-    case 'DEACTIVATE_PROFILE':
-      const deactivateResult = await deactivateProxy();
-      sendResponse(deactivateResult);
-      break;
+      switch (request.type) {
+        case 'ACTIVATE_PROFILE':
+          if (!request.payload?.id) {
+            sendResponse({ success: false, error: 'Profile ID is required' });
+            return;
+          }
+          const activateResult = await activateProxy(request.payload.id);
+          sendResponse(activateResult);
+          break;
+          
+        case 'DEACTIVATE_PROFILE':
+          const deactivateResult = await deactivateProxy();
+          sendResponse(deactivateResult);
+          break;
 
-    case 'GET_STATE':
-      // Return current state for popup
-      sendResponse({
-        success: true,
-        activeProfile: activeProfile,
-        isSystemProxy: !activeProfile
-      });
-      break;
-      
-    default:
-      sendResponse({ success: true });
-      break;
-  }
+        case 'GET_STATE':
+          // Ensure initialization before returning state
+          if (!isInitialized) {
+            await initializeProxyState();
+          }
+          sendResponse({
+            success: true,
+            activeProfile: activeProfile,
+            isSystemProxy: !activeProfile
+          });
+          break;
+          
+        default:
+          sendResponse({ success: true });
+          break;
+      }
+    } catch (error) {
+      console.error('Error handling message:', error);
+      const errorMessage = error?.message || String(error) || 'Unknown error';
+      sendResponse({ success: false, error: errorMessage });
+    }
+  })();
   
   // Return true to indicate we will send response asynchronously
   return true;

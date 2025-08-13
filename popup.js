@@ -159,37 +159,61 @@ async function syncStateWithBackground() {
     }
 }
 
-// Send message to background service (with retry to handle bg init race)
-function sendMessage(message, { retries = 5, delay = 150 } = {}) {
-    function attempt(remaining) {
+// Send message to background service with improved timeout and retry handling
+function sendMessage(message, { retries = 3, delay = 200, timeout = 5000 } = {}) {
+    function attemptWithTimeout(remaining) {
         return new Promise((resolve) => {
-            chrome.runtime.sendMessage(message, (response) => {
-                const lastErr = chrome.runtime.lastError;
-                const noResponse = !response || response.success === undefined;
-                const initError = response && response.success === false &&
-                    typeof response.error === 'string' && response.error.includes('ProxyManager not initialized');
-
-                if (lastErr || noResponse || initError) {
+            let isResolved = false;
+            
+            // Set up timeout
+            const timeoutId = setTimeout(() => {
+                if (!isResolved) {
+                    isResolved = true;
+                    console.warn('Message timeout after', timeout, 'ms:', message.type);
                     if (remaining > 0) {
-                        // Retry after a short delay (background may still be booting)
-                        setTimeout(() => resolve(attempt(remaining - 1)), delay);
+                        console.log(`Retrying... (${retries - remaining + 1}/${retries + 1})`);
+                        setTimeout(() => resolve(attemptWithTimeout(remaining - 1)), delay);
                     } else {
-                        if (lastErr) {
-                            console.error('Message error:', lastErr);
-                            resolve({ success: false, error: lastErr.message });
-                        } else if (noResponse) {
-                            resolve({ success: false, error: 'No response from background' });
-                        } else {
-                            resolve(response);
-                        }
+                        resolve({ success: false, error: 'Request timeout - background service may be busy' });
                     }
-                } else {
-                    resolve(response);
                 }
-            });
+            }, timeout);
+            
+            try {
+                chrome.runtime.sendMessage(message, (response) => {
+                    if (isResolved) return; // Already handled by timeout
+                    
+                    clearTimeout(timeoutId);
+                    isResolved = true;
+                    
+                    const lastErr = chrome.runtime.lastError;
+                    const noResponse = !response || response.success === undefined;
+                    
+                    if (lastErr || noResponse) {
+                        if (remaining > 0) {
+                            console.log(`Message failed, retrying... (${retries - remaining + 1}/${retries + 1})`, lastErr?.message || 'No response');
+                            setTimeout(() => resolve(attemptWithTimeout(remaining - 1)), delay);
+                        } else {
+                            const errorMsg = lastErr?.message || 'No response from background service';
+                            console.error('Final message error:', errorMsg);
+                            resolve({ success: false, error: errorMsg });
+                        }
+                    } else {
+                        resolve(response);
+                    }
+                });
+            } catch (error) {
+                clearTimeout(timeoutId);
+                if (!isResolved) {
+                    isResolved = true;
+                    console.error('Exception in sendMessage:', error);
+                    resolve({ success: false, error: error?.message || 'Message send failed' });
+                }
+            }
         });
     }
-    return attempt(retries);
+    
+    return attemptWithTimeout(retries);
 }
 
 // Attach event listeners
@@ -229,7 +253,8 @@ async function handleSystemProxy() {
         showNotification('Using system proxy');
     } else {
         console.error('Failed to set system proxy:', response);
-        showNotification('Failed to set system proxy', 'error');
+        const errorMsg = getDisplayError(response.error);
+        showNotification(`Failed to set system proxy: ${errorMsg}`, 'error');
     }
 }
 
@@ -248,7 +273,7 @@ async function handleProfileClick(profileId) {
         showNotification(`Activated ${activeProfile?.name || 'profile'}`);
     } else {
         console.error('Failed to activate profile:', response);
-        const errorMsg = response.error || 'Unknown error';
+        const errorMsg = getDisplayError(response.error);
         showNotification(`Failed to activate profile: ${errorMsg}`, 'error');
     }
 }
@@ -434,39 +459,93 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Show notification
+// Convert technical errors to user-friendly messages
+function getDisplayError(error) {
+    if (!error) return 'Unknown error';
+    
+    // Convert common technical errors to user-friendly messages
+    const errorString = String(error).toLowerCase();
+    
+    if (errorString.includes('timeout') || errorString.includes('port closed')) {
+        return 'Connection timeout - please try again';
+    }
+    if (errorString.includes('no response')) {
+        return 'Service unavailable - please try again';
+    }
+    if (errorString.includes('profile not found')) {
+        return 'Profile not found - it may have been deleted';
+    }
+    if (errorString.includes('invalid proxy')) {
+        return 'Invalid proxy configuration';
+    }
+    if (errorString.includes('connection refused')) {
+        return 'Unable to connect to proxy server';
+    }
+    if (errorString.includes('permission')) {
+        return 'Permission denied - check proxy settings';
+    }
+    
+    // Return original error if it's already user-friendly (short and clear)
+    if (error.length < 100 && !errorString.includes('object') && !errorString.includes('undefined')) {
+        return error;
+    }
+    
+    return 'Operation failed - please check your settings and try again';
+}
+
+// Show notification with improved styling and auto-dismiss
 function showNotification(message, type = 'success') {
     if (type === 'success') {
         return; // Do not show success notifications
     }
 
-    // Remove existing notification
+    // Remove existing notifications
     document.querySelectorAll('.notification').forEach(n => n.remove());
     
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.style.cssText = `
         position: fixed;
-        top: 20px;
+        top: 16px;
         left: 50%;
         transform: translateX(-50%);
-        background: ${type === 'error' ? '#f44336' : type === 'info' ? '#2196F3' : '#4CAF50'};
+        background: ${type === 'error' ? '#dc2626' : type === 'info' ? '#0ea5e9' : '#059669'};
         color: white;
-        padding: 12px 24px;
-        border-radius: 4px;
-        font-size: 14px;
+        padding: 12px 16px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 500;
         z-index: 10000;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        max-width: 280px;
+        text-align: center;
+        line-height: 1.4;
+        animation: slideDown 0.3s ease-out;
     `;
-    notification.textContent = message;
     
+    // Add slide animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    notification.textContent = message;
     document.body.appendChild(notification);
     
+    // Auto-dismiss with fade out
     setTimeout(() => {
         notification.style.opacity = '0';
-        notification.style.transition = 'opacity 0.3s';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
+        notification.style.transform = 'translateX(-50%) translateY(-10px)';
+        notification.style.transition = 'all 0.3s ease-in';
+        setTimeout(() => {
+            notification.remove();
+            style.remove();
+        }, 300);
+    }, type === 'error' ? 5000 : 3000); // Show errors longer
 }
 
 // Setup storage change listener for real-time updates
