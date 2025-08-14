@@ -19,10 +19,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run TypeScript checks
         run: npm run type-check
@@ -45,10 +44,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Run unit tests
         run: npm run test:unit
@@ -78,10 +76,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build extension
         run: npm run build
@@ -92,7 +89,6 @@ jobs:
             echo "manifest.json not found in dist/"
             exit 1
           fi
-
       - name: Check build size
         run: |
           SIZE=$(du -sb dist | cut -f1)
@@ -100,7 +96,6 @@ jobs:
           if [ $SIZE -gt 10485760 ]; then
             echo "Warning: Build size exceeds 10MB"
           fi
-
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
         with:
@@ -167,10 +162,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Download build artifacts
         uses: actions/download-artifact@v3
@@ -187,7 +181,6 @@ jobs:
               echo "$(basename $file): $SIZE bytes"
             fi
           done
-
       - name: Lighthouse CI
         uses: treosh/lighthouse-ci-action@v10
         continue-on-error: true
@@ -210,7 +203,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
 
       - name: Download build artifacts
         uses: actions/download-artifact@v3
@@ -223,7 +218,6 @@ jobs:
           zip -r x-proxy-extension.zip dist/
           echo "Release package created: x-proxy-extension.zip"
           ls -lh x-proxy-extension.zip
-
       - name: Generate release notes
         run: |
           echo "## Release Notes" > RELEASE_NOTES.md
