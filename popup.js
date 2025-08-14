@@ -232,7 +232,7 @@ function attachEventListeners() {
     });
     
     elements.donateBtn?.addEventListener('click', () => {
-        const paypalUrl = 'https://www.paypal.com/paypalme/helebestus';
+        const paypalUrl = 'https://www.paypal.com/paypalme/lehe324';
         chrome.tabs.create({ url: paypalUrl });
     });
     
