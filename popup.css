@@ -637,7 +637,7 @@ body::before {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: var(--space-xl);
+    gap: var(--space-lg);
     padding: var(--space-md) var(--space-lg);
     background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(10px);
@@ -808,3 +808,4 @@ button:focus-visible,
     cursor: not-allowed;
     pointer-events: none;
 }
+

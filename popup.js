@@ -32,6 +32,7 @@ function cacheElements() {
     elements.importBtn = document.getElementById('importBtn');
     elements.exportBtn = document.getElementById('exportBtn');
     elements.helpBtn = document.getElementById('helpBtn');
+    elements.donateBtn = document.getElementById('donateBtn');
 }
 
 // Load data directly from storage (bypassing background service cache)
@@ -228,6 +229,11 @@ function attachEventListeners() {
     elements.exportBtn?.addEventListener('click', handleExport);
     elements.helpBtn?.addEventListener('click', () => {
         chrome.tabs.create({ url: 'https://github.com/helebest/x-proxy' });
+    });
+    
+    elements.donateBtn?.addEventListener('click', () => {
+        const paypalUrl = 'https://www.paypal.com/paypalme/helebestus';
+        chrome.tabs.create({ url: paypalUrl });
     });
     
     // Empty state button
