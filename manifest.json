@@ -5,12 +5,7 @@
   "description": "A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support",
   "permissions": [
     "proxy",
-    "storage",
-    "webRequest",
-    "webRequestAuthProvider",
-    "notifications",
-    "alarms",
-    "contextMenus"
+    "storage"
   ],
   "host_permissions": [
     "<all_urls>"
