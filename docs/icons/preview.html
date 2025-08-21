@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>X-Proxy Icon Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: white;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .icon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .icon-card {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .icon-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.15);
+        }
+        
+        .icon-card h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.5rem;
+        }
+        
+        .icon-card .description {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .icon-sizes {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .icon-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .icon-wrapper img {
+            display: block;
+            image-rendering: -webkit-optimize-contrast;
+            image-rendering: crisp-edges;
+        }
+        
+        .icon-wrapper .size-label {
+            font-size: 0.75rem;
+            color: #999;
+        }
+        
+        .svg-preview {
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0),
+                        linear-gradient(45deg, #f0f0f0 25%, transparent 25%, transparent 75%, #f0f0f0 75%, #f0f0f0);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
+            border-radius: 12px;
+        }
+        
+        .state-active h2 { color: #007AFF; }
+        .state-inactive h2 { color: #8E8E93; }
+        .state-error h2 { color: #FF3B30; }
+        
+        .legend {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+        
+        .legend h2 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .legend-color {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+        }
+        
+        .legend-text {
+            flex: 1;
+        }
+        
+        .legend-text strong {
+            display: block;
+            color: #333;
+            margin-bottom: 3px;
+        }
+        
+        .legend-text span {
+            color: #666;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🌐 X-Proxy Icon Set</h1>
+        
+        <div class="icon-grid">
+            <!-- Active State -->
+            <div class="icon-card state-active">
+                <h2>Active State</h2>
+                <p class="description">Proxy is connected and working</p>
+                
+                <div class="icon-sizes">
+                    <div class="icon-wrapper">
+                        <img src="icon-active-16.png" width="16" height="16" alt="16x16">
+                        <span class="size-label">16×16</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-active-32.png" width="32" height="32" alt="32x32">
+                        <span class="size-label">32×32</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-active-48.png" width="48" height="48" alt="48x48">
+                        <span class="size-label">48×48</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-active-128.png" width="128" height="128" alt="128x128">
+                        <span class="size-label">128×128</span>
+                    </div>
+                </div>
+                
+                <div class="svg-preview">
+                    <img src="proxy-icon-active.svg" width="128" height="128" alt="SVG Source">
+                </div>
+            </div>
+            
+            <!-- Inactive State -->
+            <div class="icon-card state-inactive">
+                <h2>Inactive State</h2>
+                <p class="description">Proxy is disconnected or disabled</p>
+                
+                <div class="icon-sizes">
+                    <div class="icon-wrapper">
+                        <img src="icon-inactive-16.png" width="16" height="16" alt="16x16">
+                        <span class="size-label">16×16</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-inactive-32.png" width="32" height="32" alt="32x32">
+                        <span class="size-label">32×32</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-inactive-48.png" width="48" height="48" alt="48x48">
+                        <span class="size-label">48×48</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-inactive-128.png" width="128" height="128" alt="128x128">
+                        <span class="size-label">128×128</span>
+                    </div>
+                </div>
+                
+                <div class="svg-preview">
+                    <img src="proxy-icon-inactive.svg" width="128" height="128" alt="SVG Source">
+                </div>
+            </div>
+            
+            <!-- Error State -->
+            <div class="icon-card state-error">
+                <h2>Error State</h2>
+                <p class="description">Connection error or authentication failure</p>
+                
+                <div class="icon-sizes">
+                    <div class="icon-wrapper">
+                        <img src="icon-error-16.png" width="16" height="16" alt="16x16">
+                        <span class="size-label">16×16</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-error-32.png" width="32" height="32" alt="32x32">
+                        <span class="size-label">32×32</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-error-48.png" width="48" height="48" alt="48x48">
+                        <span class="size-label">48×48</span>
+                    </div>
+                    <div class="icon-wrapper">
+                        <img src="icon-error-128.png" width="128" height="128" alt="128x128">
+                        <span class="size-label">128×128</span>
+                    </div>
+                </div>
+                
+                <div class="svg-preview">
+                    <img src="proxy-icon-error.svg" width="128" height="128" alt="SVG Source">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Legend -->
+        <div class="legend">
+            <h2>Design System</h2>
+            
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #007AFF, #0051D5);"></div>
+                <div class="legend-text">
+                    <strong>Active Blue</strong>
+                    <span>#007AFF → #0051D5 - Indicates successful connection</span>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #8E8E93, #636366);"></div>
+                <div class="legend-text">
+                    <strong>System Gray</strong>
+                    <span>#8E8E93 → #636366 - Indicates disabled or inactive state</span>
+                </div>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color" style="background: linear-gradient(135deg, #FF453A, #FF3B30);"></div>
+                <div class="legend-text">
+                    <strong>Error Red</strong>
+                    <span>#FF453A → #FF3B30 - Indicates errors or failures</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
