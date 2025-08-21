@@ -38,8 +38,27 @@ X-Proxy uses your information solely to provide the core functionality of the ex
 
 ### Security Measures
 - **Chrome's Security**: Data is protected using Chrome's built-in storage security mechanisms
-- **No External Access**: The extension does not communicate with external servers or APIs for data storage
-- **Local Encryption**: Chrome automatically encrypts stored extension data
+- **No External Access**: The extension does not communicate with external servers or APIs for data storage  
+- **Local Storage Only**: Data stored in chrome.storage.local
+
+### Important Security Considerations
+- **Proxy Credentials**: Authentication credentials (usernames/passwords) are stored in plaintext in local browser storage. Users should:
+  - Use unique, strong passwords for proxy authentication
+  - Regularly rotate proxy credentials
+  - Avoid using personal/primary account passwords
+  
+- **Browser Sync Risk**: If Chrome sync is enabled, extension data may be synchronized across your Google-linked devices and stored on Google's servers
+  
+- **Local Access**: Other extensions with storage permissions or local malware could potentially access stored proxy configurations
+  
+- **Device Security**: On shared or compromised devices, proxy configurations may be accessible to other users
+  
+### User Security Recommendations
+- Use the extension only on trusted, secure devices
+- Enable device-level disk encryption for additional protection
+- Consider disabling Chrome sync for sensitive proxy configurations
+- Regularly review and clean stored proxy profiles
+- Log out of shared devices and clear browser data when necessary
 
 ## Permissions Explanation
 
