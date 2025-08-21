@@ -3,27 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>X-Proxy - Smart Proxy Switcher for Chrome</title>
-    <meta name="description" content="Powerful proxy switcher Chrome extension with SOCKS5/HTTP support, PAC scripts, profiles, and advanced routing. Fast, secure, and easy to use.">
-    <meta name="keywords" content="proxy, chrome extension, socks5, http proxy, pac script, privacy, vpn alternative">
+    <title>X-Proxy - Simple and Reliable Proxy Switcher for Chrome</title>
+    <meta name="description" content="A simple and reliable Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management. Quick switch, clean interface, system integration.">
+    <meta name="keywords" content="proxy, chrome extension, socks5, http proxy, https proxy, proxy switcher, chrome proxy, browser proxy, proxy profiles">
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://x-proxy.com/">
-    <meta property="og:title" content="X-Proxy - Smart Proxy Switcher for Chrome">
-    <meta property="og:description" content="Powerful proxy management extension for Chrome. Support for HTTP, SOCKS5, PAC scripts and more.">
-    <meta property="og:image" content="https://x-proxy.com/images/og-image.png">
+    <meta property="og:url" content="https://helebest.github.io/x-proxy/">
+    <meta property="og:title" content="X-Proxy - Simple and Reliable Proxy Switcher for Chrome">
+    <meta property="og:description" content="A simple and reliable Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management.">
+    <meta property="og:image" content="https://helebest.github.io/x-proxy/public/icons/icon-128.png">
 
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://x-proxy.com/">
-    <meta property="twitter:title" content="X-Proxy - Smart Proxy Switcher">
-    <meta property="twitter:description" content="Powerful proxy management extension for Chrome">
-    <meta property="twitter:image" content="https://x-proxy.com/images/twitter-card.png">
+    <meta property="twitter:url" content="https://helebest.github.io/x-proxy/">
+    <meta property="twitter:title" content="X-Proxy - Simple and Reliable Proxy Switcher">
+    <meta property="twitter:description" content="A simple and reliable Chrome extension for proxy switching">
+    <meta property="twitter:image" content="https://helebest.github.io/x-proxy/public/icons/icon-128.png">
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="public/icons/icon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="public/icons/icon-16.png">
     
     <!-- Styles -->
     <style>
@@ -35,6 +35,8 @@
             --light: #F9FAFB;
             --gray: #6B7280;
             --max-width: 1200px;
+            --border-radius: 8px;
+            --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
 
         * {
@@ -59,7 +61,7 @@
         /* Header */
         header {
             background: white;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
             position: fixed;
             width: 100%;
             top: 0;
@@ -83,8 +85,8 @@
         }
 
         .logo img {
-            width: 40px;
-            height: 40px;
+            width: 32px;
+            height: 32px;
             margin-right: 10px;
         }
 
@@ -108,9 +110,10 @@
             background: var(--primary);
             color: white;
             padding: 0.75rem 1.5rem;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             text-decoration: none;
             transition: background 0.3s;
+            font-weight: 600;
         }
 
         .cta-button:hover {
@@ -136,6 +139,9 @@
             margin-bottom: 2rem;
             opacity: 0.95;
             animation: fadeInUp 0.8s 0.2s both;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .hero-buttons {
@@ -149,7 +155,7 @@
             background: white;
             color: var(--primary);
             padding: 1rem 2rem;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             text-decoration: none;
             font-weight: 600;
             transition: transform 0.3s, box-shadow 0.3s;
@@ -157,7 +163,7 @@
 
         .btn-primary:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
 
         .btn-secondary {
@@ -165,7 +171,7 @@
             color: white;
             padding: 1rem 2rem;
             border: 2px solid white;
-            border-radius: 8px;
+            border-radius: var(--border-radius);
             text-decoration: none;
             font-weight: 600;
             transition: background 0.3s;
@@ -199,6 +205,7 @@
             border-radius: 12px;
             background: var(--light);
             transition: transform 0.3s, box-shadow 0.3s;
+            border: 1px solid #e5e7eb;
         }
 
         .feature-card:hover {
@@ -216,138 +223,145 @@
             justify-content: center;
             margin-bottom: 1rem;
             font-size: 1.5rem;
+            color: white;
         }
 
         .feature-card h3 {
             margin-bottom: 0.5rem;
             color: var(--dark);
+            font-size: 1.25rem;
         }
 
         .feature-card p {
             color: var(--gray);
+            line-height: 1.7;
         }
 
-        /* Screenshots Section */
-        .screenshots {
+        /* Installation Section */
+        .installation {
             padding: 80px 0;
             background: var(--light);
         }
 
-        .screenshot-carousel {
-            display: flex;
+        .install-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
             gap: 2rem;
-            overflow-x: auto;
-            padding: 2rem 0;
+            margin-top: 3rem;
         }
 
-        .screenshot {
-            min-width: 400px;
+        .install-card {
+            background: white;
+            padding: 2rem;
             border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            box-shadow: var(--shadow);
         }
 
-        .screenshot img {
-            width: 100%;
-            height: auto;
-            display: block;
+        .install-card h3 {
+            margin-bottom: 1rem;
+            color: var(--primary);
+            font-size: 1.5rem;
         }
 
-        /* Pricing Section */
-        .pricing {
+        .install-steps {
+            list-style: none;
+            counter-reset: step-counter;
+        }
+
+        .install-steps li {
+            counter-increment: step-counter;
+            margin-bottom: 1rem;
+            padding-left: 3rem;
+            position: relative;
+        }
+
+        .install-steps li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: var(--primary);
+            color: white;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+
+        .code-block {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 1rem;
+            border-radius: var(--border-radius);
+            margin: 1rem 0;
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+            overflow-x: auto;
+        }
+
+        /* Privacy & Compliance */
+        .privacy {
             padding: 80px 0;
             background: white;
         }
 
-        .pricing-card {
-            max-width: 400px;
+        .privacy-content {
+            max-width: 800px;
             margin: 0 auto;
-            padding: 3rem;
-            border-radius: 12px;
-            background: var(--light);
             text-align: center;
         }
 
-        .price {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--primary);
-            margin-bottom: 1rem;
+        .privacy-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
         }
 
-        .price-subtitle {
-            color: var(--gray);
-            margin-bottom: 2rem;
-        }
-
-        .pricing-features {
-            list-style: none;
-            margin-bottom: 2rem;
-        }
-
-        .pricing-features li {
-            padding: 0.75rem 0;
-            border-bottom: 1px solid #e5e5e5;
-        }
-
-        .pricing-features li:last-child {
-            border-bottom: none;
-        }
-
-        /* FAQ Section */
-        .faq {
-            padding: 80px 0;
-            background: var(--light);
-        }
-
-        .faq-list {
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .faq-item {
-            margin-bottom: 1rem;
-            background: white;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .faq-question {
+        .privacy-feature {
             padding: 1.5rem;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.3s;
-        }
-
-        .faq-question:hover {
             background: var(--light);
+            border-radius: var(--border-radius);
         }
 
-        .faq-answer {
-            padding: 0 1.5rem;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s, padding 0.3s;
+        .privacy-feature h4 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
         }
 
-        .faq-item.active .faq-answer {
-            max-height: 200px;
-            padding: 0 1.5rem 1.5rem;
+        /* Performance Stats */
+        .stats {
+            padding: 80px 0;
+            background: var(--dark);
+            color: white;
         }
 
-        .faq-icon {
-            transition: transform 0.3s;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            text-align: center;
         }
 
-        .faq-item.active .faq-icon {
-            transform: rotate(180deg);
+        .stat-item {
+            padding: 1rem;
+        }
+
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--secondary);
+            display: block;
+            margin-bottom: 0.5rem;
         }
 
         /* Footer */
         footer {
-            background: var(--dark);
+            background: #111827;
             color: white;
             padding: 40px 0 20px;
         }
@@ -361,10 +375,15 @@
 
         .footer-section h4 {
             margin-bottom: 1rem;
+            color: var(--secondary);
         }
 
         .footer-section ul {
             list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 0.5rem;
         }
 
         .footer-section a {
@@ -408,14 +427,34 @@
 
             .hero-buttons {
                 flex-direction: column;
+                align-items: center;
             }
 
             .features-grid {
                 grid-template-columns: 1fr;
             }
 
-            .screenshot {
-                min-width: 300px;
+            .install-methods {
+                grid-template-columns: 1fr;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-buttons {
+                gap: 0.5rem;
+            }
+
+            .btn-primary, .btn-secondary {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.875rem;
             }
         }
     </style>
@@ -425,30 +464,30 @@
     <header>
         <nav class="container">
             <a href="#" class="logo">
-                <img src="/images/logo.png" alt="X-Proxy Logo">
+                <img src="public/icons/icon-32.png" alt="X-Proxy Logo">
                 X-Proxy
             </a>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
-                <li><a href="#screenshots">Screenshots</a></li>
-                <li><a href="#faq">FAQ</a></li>
-                <li><a href="https://github.com/yourusername/x-proxy">GitHub</a></li>
+                <li><a href="#installation">Installation</a></li>
+                <li><a href="#privacy">Privacy</a></li>
+                <li><a href="https://github.com/helebest/x-proxy" target="_blank">GitHub</a></li>
             </ul>
-            <a href="https://chrome.google.com/webstore/detail/x-proxy" class="cta-button">Install Now</a>
+            <a href="#installation" class="cta-button">Get Started</a>
         </nav>
     </header>
 
     <!-- Hero Section -->
     <section class="hero">
         <div class="container">
-            <h1>Take Control of Your Proxy Connections</h1>
-            <p>The most powerful proxy switcher for Chrome with advanced routing, PAC scripts, and complete privacy protection.</p>
+            <h1>Simple and Reliable Proxy Switcher</h1>
+            <p>A Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management, quick switching, and clean interface.</p>
             <div class="hero-buttons">
-                <a href="https://chrome.google.com/webstore/detail/x-proxy" class="btn-primary">
-                    Add to Chrome - It's Free
+                <a href="#installation" class="btn-primary">
+                    Install Extension
                 </a>
-                <a href="https://github.com/yourusername/x-proxy" class="btn-secondary">
-                    View on GitHub
+                <a href="https://github.com/helebest/x-proxy" target="_blank" class="btn-secondary">
+                    View Source Code
                 </a>
             </div>
         </div>
@@ -457,130 +496,138 @@
     <!-- Features Section -->
     <section class="features" id="features">
         <div class="container">
-            <h2 class="section-title">Powerful Features for Every Need</h2>
+            <h2 class="section-title">Core Features</h2>
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🔄</div>
-                    <h3>Multiple Proxy Types</h3>
-                    <p>Support for HTTP, HTTPS, SOCKS4, and SOCKS5 proxies with authentication.</p>
+                    <h3>HTTP/HTTPS & SOCKS5 Support</h3>
+                    <p>Support for the most common proxy types with seamless switching between different protocols.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
-                    <h3>One-Click Switching</h3>
-                    <p>Switch between proxies instantly from the toolbar with keyboard shortcuts.</p>
+                    <h3>Quick Switch</h3>
+                    <p>One-click proxy switching from the browser toolbar. Instantly activate or deactivate proxy profiles.</p>
                 </div>
                 <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3>Smart Routing</h3>
-                    <p>Configure different proxies for different websites with PAC scripts.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🔐</div>
-                    <h3>Secure & Private</h3>
-                    <p>Encrypted storage, WebRTC protection, and DNS-over-HTTPS support.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">📊</div>
-                    <h3>Connection Monitoring</h3>
-                    <p>Real-time status, usage statistics, and connection testing tools.</p>
+                    <div class="feature-icon">📝</div>
+                    <h3>Profile Management</h3>
+                    <p>Save and organize multiple proxy configurations. Add, edit, duplicate, and delete profiles easily.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">🎨</div>
-                    <h3>Modern Interface</h3>
-                    <p>Clean design with dark mode support and intuitive controls.</p>
+                    <h3>Clean Interface</h3>
+                    <p>Simple, intuitive UI with consistent styling and easy-to-understand controls.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔧</div>
+                    <h3>System Integration</h3>
+                    <p>Seamless Chrome proxy API integration with system-level proxy management.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h3>Local Storage</h3>
+                    <p>All data stored securely on your device. No external servers, no data transmission.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Screenshots Section -->
-    <section class="screenshots" id="screenshots">
+    <!-- Installation Section -->
+    <section class="installation" id="installation">
         <div class="container">
-            <h2 class="section-title">See It in Action</h2>
-            <div class="screenshot-carousel">
-                <div class="screenshot">
-                    <img src="/images/screenshot-1.png" alt="Main Interface">
+            <h2 class="section-title">Installation Guide</h2>
+            <div class="install-methods">
+                <div class="install-card">
+                    <h3>Manual Installation (Developer Mode)</h3>
+                    <ol class="install-steps">
+                        <li>Download or clone the repository from GitHub</li>
+                        <li>Open Chrome and navigate to <code>chrome://extensions/</code></li>
+                        <li>Enable "Developer mode" in the top right corner</li>
+                        <li>Click "Load unpacked" and select the project folder</li>
+                        <li>The X-Proxy extension will appear in your toolbar</li>
+                    </ol>
                 </div>
-                <div class="screenshot">
-                    <img src="/images/screenshot-2.png" alt="Options Page">
-                </div>
-                <div class="screenshot">
-                    <img src="/images/screenshot-3.png" alt="PAC Script Editor">
+                <div class="install-card">
+                    <h3>Build from Source</h3>
+                    <ol class="install-steps">
+                        <li>Clone the repository and navigate to the directory</li>
+                        <li>Install dependencies with npm</li>
+                        <li>Build the extension for production</li>
+                        <li>Load the built extension from the dist folder</li>
+                    </ol>
+                    <div class="code-block">
+# Clone the repository
+git clone https://github.com/helebest/x-proxy.git
+cd x-proxy
+
+# Install dependencies
+npm install
+
+# Build the extension
+npm run build
+
+# The built extension will be in the `dist` folder
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Pricing Section -->
-    <section class="pricing">
+    <!-- Privacy & Compliance Section -->
+    <section class="privacy" id="privacy">
         <div class="container">
-            <h2 class="section-title">Free Forever</h2>
-            <div class="pricing-card">
-                <div class="price">$0</div>
-                <div class="price-subtitle">No hidden fees, no subscriptions</div>
-                <ul class="pricing-features">
-                    <li>✓ All proxy types supported</li>
-                    <li>✓ Unlimited proxy profiles</li>
-                    <li>✓ PAC script support</li>
-                    <li>✓ Advanced routing rules</li>
-                    <li>✓ Security features</li>
-                    <li>✓ Regular updates</li>
-                    <li>✓ Community support</li>
-                </ul>
-                <a href="https://chrome.google.com/webstore/detail/x-proxy" class="cta-button">Install Now</a>
+            <div class="privacy-content">
+                <h2 class="section-title">Privacy & Security</h2>
+                <p>X-Proxy is designed with privacy in mind. Your proxy configurations and settings are stored locally on your device and never transmitted to external servers.</p>
+                
+                <div class="privacy-features">
+                    <div class="privacy-feature">
+                        <h4>Local Storage Only</h4>
+                        <p>All data stored securely on your device using Chrome's storage API</p>
+                    </div>
+                    <div class="privacy-feature">
+                        <h4>No Data Transmission</h4>
+                        <p>Your proxy configurations never leave your device</p>
+                    </div>
+                    <div class="privacy-feature">
+                        <h4>Minimal Permissions</h4>
+                        <p>Only requests essential permissions for proxy and storage functionality</p>
+                    </div>
+                    <div class="privacy-feature">
+                        <h4>Chrome Web Store Compliant</h4>
+                        <p>Meets all Chrome Web Store privacy and security requirements</p>
+                    </div>
+                </div>
+                
+                <p style="margin-top: 2rem;">
+                    <a href="PRIVACY_POLICY/" style="color: var(--primary); text-decoration: none; font-weight: 600;">
+                        Read Full Privacy Policy →
+                    </a>
+                </p>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section class="faq" id="faq">
+    <!-- Performance Stats -->
+    <section class="stats">
         <div class="container">
-            <h2 class="section-title">Frequently Asked Questions</h2>
-            <div class="faq-list">
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>Is X-Proxy really free?</span>
-                        <span class="faq-icon">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes! X-Proxy is completely free and open-source. There are no hidden fees, premium tiers, or subscriptions. All features are available to everyone.</p>
-                    </div>
+            <h2 class="section-title" style="color: white;">Performance</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span class="stat-number">&lt; 50ms</span>
+                    <span>Startup Time</span>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>What proxy types are supported?</span>
-                        <span class="faq-icon">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>X-Proxy supports HTTP, HTTPS, SOCKS4, and SOCKS5 proxies. All types support authentication with username and password.</p>
-                    </div>
+                <div class="stat-item">
+                    <span class="stat-number">&lt; 100ms</span>
+                    <span>Proxy Switching</span>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>Is my data safe?</span>
-                        <span class="faq-icon">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Absolutely! X-Proxy stores all data locally on your device with encryption. We don't collect any personal information or browsing data.</p>
-                    </div>
+                <div class="stat-item">
+                    <span class="stat-number">&lt; 10MB</span>
+                    <span>Memory Usage</span>
                 </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>Can I use PAC scripts?</span>
-                        <span class="faq-icon">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>Yes! X-Proxy has full PAC script support. You can use URLs, upload files, or write custom scripts with our built-in editor.</p>
-                    </div>
-                </div>
-                <div class="faq-item">
-                    <div class="faq-question">
-                        <span>How do I get support?</span>
-                        <span class="faq-icon">▼</span>
-                    </div>
-                    <div class="faq-answer">
-                        <p>You can get help through our GitHub issues page, community discussions, or check our comprehensive documentation.</p>
-                    </div>
+                <div class="stat-item">
+                    <span class="stat-number">Minimal</span>
+                    <span>CPU Usage</span>
                 </div>
             </div>
         </div>
@@ -591,65 +638,60 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-section">
-                    <h4>Product</h4>
+                    <h4>Extension</h4>
                     <ul>
                         <li><a href="#features">Features</a></li>
-                        <li><a href="#screenshots">Screenshots</a></li>
-                        <li><a href="https://github.com/yourusername/x-proxy/releases">Changelog</a></li>
-                        <li><a href="/roadmap">Roadmap</a></li>
+                        <li><a href="#installation">Installation</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/releases" target="_blank">Releases</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/blob/main/CHANGELOG.md" target="_blank">Changelog</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
-                    <h4>Resources</h4>
+                    <h4>Development</h4>
                     <ul>
-                        <li><a href="/docs">Documentation</a></li>
-                        <li><a href="https://github.com/yourusername/x-proxy">GitHub</a></li>
-                        <li><a href="/api">API Reference</a></li>
-                        <li><a href="/tutorials">Tutorials</a></li>
-                    </ul>
-                </div>
-                <div class="footer-section">
-                    <h4>Community</h4>
-                    <ul>
-                        <li><a href="https://discord.gg/x-proxy">Discord</a></li>
-                        <li><a href="https://github.com/yourusername/x-proxy/discussions">Discussions</a></li>
-                        <li><a href="/contributing">Contributing</a></li>
-                        <li><a href="https://twitter.com/xproxy_ext">Twitter</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy" target="_blank">Source Code</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/issues" target="_blank">Issues</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/blob/main/CONTRIBUTING.md" target="_blank">Contributing</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/blob/main/README.md" target="_blank">Documentation</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">
                     <h4>Legal</h4>
                     <ul>
-                        <li><a href="/privacy">Privacy Policy</a></li>
-                        <li><a href="/terms">Terms of Service</a></li>
-                        <li><a href="/license">License</a></li>
-                        <li><a href="/security">Security</a></li>
+                        <li><a href="PRIVACY_POLICY/">Privacy Policy</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/blob/main/LICENSE" target="_blank">MIT License</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Support</h4>
+                    <ul>
+                        <li><a href="https://github.com/helebest/x-proxy/issues" target="_blank">Report Issues</a></li>
+                        <li><a href="https://github.com/helebest/x-proxy/discussions" target="_blank">Discussions</a></li>
                     </ul>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 X-Proxy. Made with ❤️ by the X-Proxy Team. MIT Licensed.</p>
+                <p>&copy; 2025 X-Proxy. Simple, reliable proxy switching for Chrome. MIT Licensed.</p>
             </div>
         </div>
     </footer>
 
     <!-- Scripts -->
     <script>
-        // FAQ Toggle
-        document.querySelectorAll('.faq-question').forEach(question => {
-            question.addEventListener('click', () => {
-                const item = question.parentElement;
-                item.classList.toggle('active');
-            });
-        });
-
-        // Smooth Scrolling
+        // Smooth Scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
                 const target = document.querySelector(this.getAttribute('href'));
                 if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
+                    const headerOffset = 80;
+                    const elementPosition = target.offsetTop;
+                    const offsetPosition = elementPosition - headerOffset;
+
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
+                    });
                 }
             });
         });
@@ -657,19 +699,41 @@
         // Intersection Observer for animations
         const observerOptions = {
             threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
+            rootMargin: '0px 0px -50px 0px'
         };
 
         const observer = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
-                    entry.target.style.animation = 'fadeInUp 0.8s both';
+                    entry.target.style.animation = 'fadeInUp 0.6s both';
                 }
             });
         }, observerOptions);
 
+        // Observe feature cards
         document.querySelectorAll('.feature-card').forEach(card => {
             observer.observe(card);
+        });
+
+        // Observe installation cards
+        document.querySelectorAll('.install-card').forEach(card => {
+            observer.observe(card);
+        });
+
+        // Observe privacy features
+        document.querySelectorAll('.privacy-feature').forEach(feature => {
+            observer.observe(feature);
+        });
+
+        // Add loading state for external links
+        document.querySelectorAll('a[target="_blank"]').forEach(link => {
+            link.addEventListener('click', function() {
+                // Visual feedback for external link clicks
+                this.style.opacity = '0.7';
+                setTimeout(() => {
+                    this.style.opacity = '1';
+                }, 200);
+            });
         });
     </script>
 </body>
