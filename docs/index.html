@@ -246,7 +246,7 @@
 
         .install-methods {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 2rem;
             margin-top: 3rem;
         }
@@ -484,8 +484,8 @@
             <h1>Simple and Reliable Proxy Switcher</h1>
             <p>A Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management, quick switching, and clean interface.</p>
             <div class="hero-buttons">
-                <a href="#installation" class="btn-primary">
-                    Install Extension
+                <a href="https://chromewebstore.google.com/search/X-Proxy" target="_blank" class="btn-primary">
+                    🛒 Install from Chrome Web Store
                 </a>
                 <a href="https://github.com/helebest/x-proxy" target="_blank" class="btn-secondary">
                     View Source Code
@@ -538,6 +538,22 @@
         <div class="container">
             <h2 class="section-title">Installation Guide</h2>
             <div class="install-methods">
+                <div class="install-card">
+                    <h3>🌟 Chrome Web Store (Recommended)</h3>
+                    <ol class="install-steps">
+                        <li>Visit the Chrome Web Store</li>
+                        <li>Search for "X-Proxy" or use the direct link</li>
+                        <li>Click "Add to Chrome"</li>
+                        <li>Confirm the installation when prompted</li>
+                        <li>The X-Proxy extension will appear in your toolbar</li>
+                    </ol>
+                    <div style="margin-top: 1rem;">
+                        <a href="https://chromewebstore.google.com/search/X-Proxy" target="_blank" 
+                           style="background: #4285F4; color: white; padding: 0.75rem 1.5rem; border-radius: 6px; text-decoration: none; display: inline-block; font-weight: 600;">
+                            🛒 Install from Chrome Web Store
+                        </a>
+                    </div>
+                </div>
                 <div class="install-card">
                     <h3>Manual Installation (Developer Mode)</h3>
                     <ol class="install-steps">
@@ -641,6 +657,7 @@ npm run build
                 <div class="footer-section">
                     <h4>Extension</h4>
                     <ul>
+                        <li><a href="https://chromewebstore.google.com/search/X-Proxy" target="_blank">Chrome Web Store</a></li>
                         <li><a href="#features">Features</a></li>
                         <li><a href="#installation">Installation</a></li>
                         <li><a href="https://github.com/helebest/x-proxy/releases" target="_blank">Releases</a></li>
