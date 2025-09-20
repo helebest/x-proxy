@@ -15,6 +15,18 @@ Future improvements planned:
 - Performance optimizations
 - UI/UX improvements
 
+## [1.0.1] - 2025-09-20
+
+### Added
+- PayPal donate button on GitHub Pages site in Hero section
+- Consistent styling with existing button components
+- Responsive design support for mobile devices
+
+### Technical
+- Added `.btn-donate` CSS class with PayPal brand colors (#0070ba)
+- Integrated existing PayPal link from extension popup
+- Maintained design consistency across all buttons
+
 ## [1.0.0] - 2025-08-13
 
 ### Added
