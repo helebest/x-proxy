@@ -182,6 +182,25 @@
             background: rgba(255,255,255,0.1);
         }
 
+        .btn-donate {
+            background: #0070ba;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s, transform 0.3s, box-shadow 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-donate:hover {
+            background: #005a9e;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
         /* Features Section */
         .features {
             padding: 80px 0;
@@ -431,6 +450,10 @@
                 align-items: center;
             }
 
+            .hero-buttons .btn-donate {
+                margin-top: 0.5rem;
+            }
+
             .features-grid {
                 grid-template-columns: 1fr;
             }
@@ -453,7 +476,7 @@
                 gap: 0.5rem;
             }
 
-            .btn-primary, .btn-secondary {
+            .btn-primary, .btn-secondary, .btn-donate {
                 padding: 0.75rem 1.5rem;
                 font-size: 0.875rem;
             }
@@ -489,6 +512,9 @@
                 </a>
                 <a href="https://github.com/helebest/x-proxy" target="_blank" class="btn-secondary">
                     View Source Code
+                </a>
+                <a href="https://www.paypal.com/paypalme/lehe324" target="_blank" class="btn-donate">
+                    💝 Donate
                 </a>
             </div>
         </div>
