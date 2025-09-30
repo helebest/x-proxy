@@ -54,11 +54,7 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 
 ### Option 1: Chrome Web Store (Recommended)
 
-<a href="https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf" target="_blank">
-  <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png" alt="Available in the Chrome Web Store" height="60">
-</a>
-
-**Quick Install**: Visit the [Chrome Web Store](https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf) and click "Add to Chrome"
+Visit the [Chrome Web Store - X-Proxy](https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf) and click "Add to Chrome"
 
 ### Option 2: Build from Source
 
