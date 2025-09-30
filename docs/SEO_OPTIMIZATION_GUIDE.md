@@ -263,7 +263,7 @@ Before publishing, validate:
 - Website: https://helebest.github.io/x-proxy/
 - GitHub: https://github.com/helebest/x-proxy
 - Sitemap: https://helebest.github.io/x-proxy/sitemap.xml
-- Chrome Store: https://chromewebstore.google.com/search/X-Proxy
+- Chrome Store: https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf
 
 ### Contact for SEO Support
 - GitHub Issues: https://github.com/helebest/x-proxy/issues

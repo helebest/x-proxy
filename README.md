@@ -52,10 +52,15 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 
 ## 📥 Installation
 
-### Option 1: Chrome Web Store *(Coming Soon)*
-<!-- Once published, add Chrome Web Store link here -->
+### Option 1: Chrome Web Store (Recommended)
 
-### Option 2: Build from Source (Recommended for now)
+<a href="https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf" target="_blank">
+  <img src="https://storage.googleapis.com/web-dev-uploads/image/WlD8wC6g8khYWPJUsQceQkhXSlv1/iNEddTyWiMfLSwFD6qGq.png" alt="Available in the Chrome Web Store" height="60">
+</a>
+
+**Quick Install**: Visit the [Chrome Web Store](https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf) and click "Add to Chrome"
+
+### Option 2: Build from Source
 
 ```bash
 # Clone the repository
@@ -77,6 +82,8 @@ npm run build
 
 ### Option 3: Download Release
 Download the latest release from [GitHub Releases](https://github.com/helebest/x-proxy/releases) and load it in Chrome developer mode.
+
+**Works on all Chromium browsers**: Chrome, Edge, Brave, Opera, and more!
 
 ## 🚀 Quick Start
 
@@ -267,6 +274,7 @@ If you find X-Proxy useful, consider:
 - [x] Clean, intuitive UI
 - [x] TypeScript + Manifest V3
 - [x] Comprehensive test suite
+- [x] Chrome Web Store publication ✅
 
 ### v1.1.0 ✅ (GitHub Pages & SEO)
 - [x] SEO optimization for GitHub Pages
@@ -275,10 +283,10 @@ If you find X-Proxy useful, consider:
 - [x] Enhanced README and documentation
 
 ### v1.2.0 (Planned)
-- [ ] Chrome Web Store publication
 - [ ] PAC script support
 - [ ] Auto-switch rules by domain
 - [ ] Import/export profiles
+- [ ] Profile import/export via JSON
 
 ### v2.0.0 (Future)
 - [ ] Firefox support (WebExtensions)
