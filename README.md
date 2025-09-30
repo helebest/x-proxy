@@ -137,7 +137,7 @@ x-proxy/
 - **Options Page**: Full-featured profile management
 - **Local Storage**: Chrome storage API for data persistence
 
-See [CLAUDE.md](CLAUDE.md) for detailed architecture documentation.
+See the codebase for detailed implementation. Key files: `background.js`, `popup.js`, `options.js`.
 
 ## 🛠️ Development
 
@@ -260,11 +260,19 @@ If you find X-Proxy useful, consider:
 
 ## 📈 Roadmap
 
-### v1.1.0 ✅ (Current)
+### v1.0.0 ✅ (Current - Extension Release)
+- [x] Core proxy switching functionality
+- [x] HTTP/HTTPS & SOCKS5 support
+- [x] Profile management (create, edit, delete)
+- [x] Clean, intuitive UI
+- [x] TypeScript + Manifest V3
+- [x] Comprehensive test suite
+
+### v1.1.0 ✅ (GitHub Pages & SEO)
 - [x] SEO optimization for GitHub Pages
 - [x] Unified button styling
 - [x] FAQ section with schema markup
-- [x] Performance improvements
+- [x] Enhanced README and documentation
 
 ### v1.2.0 (Planned)
 - [ ] Chrome Web Store publication
