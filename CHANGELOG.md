@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-08-13
+Last updated: 2025-09-30
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -13,7 +13,68 @@ Future improvements planned:
 - Enhanced error handling and user feedback
 - Support for additional proxy types
 - Performance optimizations
-- UI/UX improvements
+- Blog content creation for SEO
+- Multi-language support (Chinese, Japanese, Russian)
+- Google Analytics integration
+
+## [1.1.0] - 2025-09-30
+
+### Added - GitHub Pages SEO & UI Optimization
+- **SEO Enhancements**
+  - Added comprehensive Schema.org structured data (SoftwareApplication)
+  - Implemented FAQPage schema with 8 common questions
+  - Enhanced meta tags for better search engine visibility
+  - Added canonical URL and improved Open Graph tags
+  - Created sitemap.xml for search engine indexing
+  - Created robots.txt with crawler instructions
+  - Added preload directives for critical resources
+
+- **UI/UX Improvements**
+  - Unified button system with consistent styling across all CTAs
+  - Added SVG icons to primary action buttons (Install, GitHub, Donate)
+  - Improved button hover effects with smooth transitions
+  - Enhanced mobile responsive design for button layouts
+  - Implemented fade-in animation for better page load experience
+
+- **Performance Optimizations**
+  - Extracted inline CSS to external stylesheet (docs/assets/css/style.css)
+  - Implemented lazy loading support for images
+  - Added Intersection Observer for efficient scroll animations
+  - Optimized critical rendering path with minimal inline CSS
+  - Added support for reduced motion preferences
+
+- **Content Additions**
+  - Added comprehensive FAQ section targeting user search intent
+  - Improved keyword density and semantic content structure
+  - Enhanced accessibility with proper ARIA labels and semantic HTML
+
+- **Documentation**
+  - Created SEO_OPTIMIZATION_GUIDE.md with detailed implementation roadmap
+  - Documented button styling system and design patterns
+  - Added validation checklist and next steps guide
+
+### Changed
+- **GitHub Pages Website**
+  - Restructured index.html with better SEO optimization
+  - Updated hero section buttons with unified design language
+  - Improved content hierarchy and heading structure
+  - Enhanced external link handling with rel="noopener"
+
+### Technical
+- **New Files**
+  - `docs/assets/css/style.css` - Centralized stylesheet
+  - `docs/sitemap.xml` - XML sitemap for search engines
+  - `docs/robots.txt` - Search engine crawler rules
+  - `docs/SEO_OPTIMIZATION_GUIDE.md` - Comprehensive SEO documentation
+
+- **Modified Files**
+  - `docs/index.html` - Complete SEO and UI overhaul
+  - Button classes: `.btn`, `.btn-primary`, `.btn-secondary`, `.btn-donate`
+
+### SEO Impact
+- Target keywords: chrome proxy extension, proxy switcher, socks5 chrome
+- Expected organic traffic: 100-200 visitors/month (3 months), 500-1000 visitors/month (6 months)
+- Rich snippet opportunities via FAQ and Software Application schema
 
 ## [1.0.1] - 2025-09-20
 

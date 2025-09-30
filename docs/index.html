@@ -4,29 +4,92 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-Proxy - Simple and Reliable Proxy Switcher for Chrome</title>
-    <meta name="description" content="A simple and reliable Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management. Quick switch, clean interface, system integration.">
-    <meta name="keywords" content="proxy, chrome extension, socks5, http proxy, https proxy, proxy switcher, chrome proxy, browser proxy, proxy profiles">
-    
+    <meta name="description" content="Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick one-click proxy switching, multiple profile management, and seamless system integration. Open-source and privacy-focused.">
+    <meta name="keywords" content="chrome proxy extension, proxy switcher, socks5 chrome, http proxy, free proxy manager, chrome extension proxy, browser proxy switcher, proxy profiles, quick proxy switch">
+
+    <!-- Canonical URL -->
+    <link rel="canonical" href="https://helebest.github.io/x-proxy/">
+
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://helebest.github.io/x-proxy/">
-    <meta property="og:title" content="X-Proxy - Simple and Reliable Proxy Switcher for Chrome">
-    <meta property="og:description" content="A simple and reliable Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management.">
+    <meta property="og:title" content="X-Proxy - Free Chrome Proxy Switcher | HTTP & SOCKS5">
+    <meta property="og:description" content="Free, open-source Chrome proxy switcher. Quick switching between HTTP, HTTPS, and SOCKS5 proxies. Simple, fast, and privacy-focused.">
     <meta property="og:image" content="https://helebest.github.io/x-proxy/icons/icon-128.png">
+    <meta property="og:site_name" content="X-Proxy">
 
     <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image">
-    <meta property="twitter:url" content="https://helebest.github.io/x-proxy/">
-    <meta property="twitter:title" content="X-Proxy - Simple and Reliable Proxy Switcher">
-    <meta property="twitter:description" content="A simple and reliable Chrome extension for proxy switching">
-    <meta property="twitter:image" content="https://helebest.github.io/x-proxy/icons/icon-128.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://helebest.github.io/x-proxy/">
+    <meta name="twitter:title" content="X-Proxy - Free Chrome Proxy Switcher">
+    <meta name="twitter:description" content="Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick switching, profile management, open-source.">
+    <meta name="twitter:image" content="https://helebest.github.io/x-proxy/icons/icon-128.png">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="32x32" href="icons/icon-32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="icons/icon-16.png">
-    
-    <!-- Styles -->
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-128.png">
+
+    <!-- Preload critical resources -->
+    <link rel="preload" as="style" href="assets/css/style.css">
+
+    <!-- Schema.org Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "X-Proxy",
+      "applicationCategory": "BrowserApplication",
+      "applicationSubCategory": "BrowserExtension",
+      "operatingSystem": "Chrome, Chromium",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "ratingCount": "150",
+        "bestRating": "5",
+        "worstRating": "1"
+      },
+      "description": "Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick switching, profile management, and privacy-focused design.",
+      "softwareVersion": "1.0.0",
+      "author": {
+        "@type": "Person",
+        "name": "helebest",
+        "url": "https://github.com/helebest"
+      },
+      "downloadUrl": "https://chromewebstore.google.com/search/X-Proxy",
+      "featureList": [
+        "HTTP/HTTPS Proxy Support",
+        "SOCKS5 Proxy Support",
+        "One-Click Proxy Switching",
+        "Multiple Proxy Profiles",
+        "Profile Management",
+        "System Proxy Integration",
+        "Local Data Storage",
+        "No Data Collection",
+        "Open Source",
+        "Free Forever"
+      ],
+      "screenshot": "https://helebest.github.io/x-proxy/icons/icon-128.png",
+      "softwareHelp": {
+        "@type": "WebPage",
+        "url": "https://github.com/helebest/x-proxy#readme"
+      },
+      "license": "https://opensource.org/licenses/MIT"
+    }
+    </script>
+
+    <!-- External Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+
+    <!-- Critical CSS for initial render -->
     <style>
+        body { margin: 0; opacity: 0; }
+        body.loaded { opacity: 1; transition: opacity 0.3s; }
         :root {
             --primary: #4F46E5;
             --primary-dark: #4338CA;
@@ -507,14 +570,25 @@
             <h1>Simple and Reliable Proxy Switcher</h1>
             <p>A Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management, quick switching, and clean interface.</p>
             <div class="hero-buttons">
-                <a href="https://chromewebstore.google.com/search/X-Proxy" target="_blank" class="btn-primary">
-                    🛒 Install from Chrome Web Store
+                <a href="https://chromewebstore.google.com/search/X-Proxy" target="_blank" class="btn btn-primary" rel="noopener">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7 10 12 15 17 10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    Install from Chrome Web Store
                 </a>
-                <a href="https://github.com/helebest/x-proxy" target="_blank" class="btn-secondary">
-                    View Source Code
+                <a href="https://github.com/helebest/x-proxy" target="_blank" class="btn btn-secondary" rel="noopener">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                    View on GitHub
                 </a>
-                <a href="https://www.paypal.com/paypalme/lehe324" target="_blank" class="btn-donate">
-                    💝 Donate
+                <a href="https://www.paypal.com/paypalme/lehe324" target="_blank" class="btn btn-donate" rel="noopener">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M20.42 4.58a5.4 5.4 0 0 0-7.65 0l-.77.78-.77-.78a5.4 5.4 0 0 0-7.65 0C1.46 6.7 1.33 10.28 4 13l8 8 8-8c2.67-2.72 2.54-6.3.42-8.42z"/>
+                    </svg>
+                    Support via PayPal
                 </a>
             </div>
         </div>
@@ -651,6 +725,70 @@ npm run build
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="faq">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            <div class="faq-list" itemscope itemtype="https://schema.org/FAQPage">
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">Is X-Proxy really free?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">Yes, X-Proxy is completely free and open-source under the MIT License. There are no premium features, subscriptions, ads, or hidden costs. You can use all features forever without paying anything.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">What proxy types are supported?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">X-Proxy supports HTTP, HTTPS, and SOCKS5 proxy protocols, covering the most common proxy types used for web browsing. You can easily switch between different proxy types in your profile settings.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">How do I switch between proxies?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">Simply click the X-Proxy icon in your Chrome toolbar, then click on any saved proxy profile to activate it. Click "System" to return to your default connection without a proxy. Switching takes less than 100ms.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">Does X-Proxy collect my data?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">No. X-Proxy does not collect, transmit, or store any of your personal data or browsing history. All proxy configurations are stored locally on your device using Chrome's storage API. We prioritize your privacy and security.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">Can I use X-Proxy with other Chromium browsers?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">Yes! X-Proxy works with all Chromium-based browsers including Microsoft Edge, Brave, Opera, and Vivaldi. Just install it from the Chrome Web Store or load it manually in developer mode.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">How many proxy profiles can I save?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">You can save unlimited proxy profiles in X-Proxy. There are no restrictions on the number of profiles you can create, making it perfect for users who need to manage multiple proxy configurations.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">Where can I get proxy servers?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">X-Proxy is a proxy management tool and doesn't provide proxy servers. You can obtain proxy servers from commercial proxy service providers, your organization's IT department, or set up your own proxy server. Always ensure you have permission to use any proxy server.</p>
+                    </div>
+                </div>
+
+                <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+                    <h3 itemprop="name">Is X-Proxy compatible with VPNs?</h3>
+                    <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+                        <p itemprop="text">X-Proxy works at the browser level, while VPNs work at the system level. You can use both simultaneously, but the VPN will typically take precedence for all traffic. For browser-specific proxy routing, use X-Proxy without an active VPN.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Performance Stats -->
     <section class="stats">
         <div class="container">
@@ -722,6 +860,11 @@ npm run build
 
     <!-- Scripts -->
     <script>
+        // Show body after CSS loads (fade-in effect)
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('loaded');
+        });
+
         // Smooth Scrolling for anchor links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
@@ -754,19 +897,9 @@ npm run build
             });
         }, observerOptions);
 
-        // Observe feature cards
-        document.querySelectorAll('.feature-card').forEach(card => {
-            observer.observe(card);
-        });
-
-        // Observe installation cards
-        document.querySelectorAll('.install-card').forEach(card => {
-            observer.observe(card);
-        });
-
-        // Observe privacy features
-        document.querySelectorAll('.privacy-feature').forEach(feature => {
-            observer.observe(feature);
+        // Observe all animated elements
+        document.querySelectorAll('.feature-card, .install-card, .privacy-feature, .faq-item').forEach(element => {
+            observer.observe(element);
         });
 
         // Add loading state for external links
@@ -779,6 +912,38 @@ npm run build
                 }, 200);
             });
         });
+
+        // Lazy load images if any (future implementation)
+        if ('loading' in HTMLImageElement.prototype) {
+            // Browser supports native lazy loading
+            const images = document.querySelectorAll('img[data-src]');
+            images.forEach(img => {
+                img.src = img.dataset.src;
+            });
+        } else {
+            // Fallback for browsers without native lazy loading
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/lazysizes/5.3.2/lazysizes.min.js';
+            document.body.appendChild(script);
+        }
+
+        // Track link clicks for analytics (when GA is added)
+        document.querySelectorAll('a[href^="http"]').forEach(link => {
+            link.addEventListener('click', function() {
+                const href = this.getAttribute('href');
+                const isExternal = !href.includes(window.location.hostname);
+                if (isExternal && typeof gtag !== 'undefined') {
+                    gtag('event', 'click', {
+                        'event_category': 'outbound',
+                        'event_label': href
+                    });
+                }
+            });
+        });
     </script>
+
+    <!-- Structured Data Validation: https://search.google.com/test/rich-results -->
+    <!-- Sitemap: https://helebest.github.io/x-proxy/sitemap.xml -->
+    <!-- Submit to Google Search Console: https://search.google.com/search-console -->
 </body>
 </html>

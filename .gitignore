@@ -85,6 +85,9 @@ debug.log
 # Claude Code directory
 .claude
 
+# Claude Code guidance file (local development only)
+CLAUDE.md
+
 # Misc
 *.orig
 *.bak

@@ -1,0 +1,25 @@
+# X-Proxy - Robots.txt
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://helebest.github.io/x-proxy/sitemap.xml
+
+# Disallow crawling of assets directory (optional)
+# Uncomment if you want to prevent indexing of images/css/js
+# Disallow: /assets/
+
+# Disallow crawling of icons (already indexed via main pages)
+# Disallow: /icons/
+
+# Block specific bad bots (optional - uncomment if needed)
+# User-agent: AhrefsBot
+# Disallow: /
+
+# User-agent: SemrushBot
+# Disallow: /
+
+# Crawl-delay for respectful bots (optional)
+# Crawl-delay: 1
