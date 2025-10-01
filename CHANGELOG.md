@@ -39,6 +39,12 @@ Future improvements planned:
   - Better discoverability through optimized meta descriptions
   - Improved user experience with consistent navigation
 
+### Fixed
+- **Privacy Policy List Alignment**
+  - Corrected list items alignment from center to left for better readability
+  - Updated `docs/PRIVACY_POLICY/index.html` inline styles
+  - Updated `docs/assets/css/style.css` for consistent alignment
+
 ## [1.1.0] - 2025-09-30
 
 ### Added - GitHub Pages SEO & UI Optimization
