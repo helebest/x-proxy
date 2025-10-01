@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-09-30
+Last updated: 2025-10-01
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -16,6 +16,28 @@ Future improvements planned:
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
 - Google Analytics integration
+
+## [1.1.1] - 2025-10-01
+
+### Enhanced - Privacy Policy Page SEO
+- **Privacy Policy HTML Version**
+  - Created SEO-optimized HTML version of privacy policy (`docs/PRIVACY_POLICY/index.html`)
+  - Added comprehensive meta tags (title, description, Open Graph, Twitter Card)
+  - Implemented consistent header/footer styling with main site
+  - Added breadcrumb navigation for improved UX and SEO
+  - Ensured mobile responsiveness and accessibility
+
+- **Content Organization**
+  - Preserved Markdown source as `policy.md` for easy maintenance
+  - Applied highlight boxes for key privacy statements
+  - Improved content hierarchy with proper heading structure
+  - Enhanced link accessibility with rel="noopener" for external links
+
+- **SEO Benefits**
+  - Independent meta tag control for search engines
+  - Unified design language across all GitHub Pages
+  - Better discoverability through optimized meta descriptions
+  - Improved user experience with consistent navigation
 
 ## [1.1.0] - 2025-09-30
 

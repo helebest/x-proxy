@@ -7,7 +7,7 @@
     <!-- Homepage - Highest Priority -->
     <url>
         <loc>https://helebest.github.io/x-proxy/</loc>
-        <lastmod>2025-09-30</lastmod>
+        <lastmod>2025-10-01</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
@@ -15,9 +15,9 @@
     <!-- Privacy Policy -->
     <url>
         <loc>https://helebest.github.io/x-proxy/PRIVACY_POLICY/</loc>
-        <lastmod>2025-09-30</lastmod>
+        <lastmod>2025-10-01</lastmod>
         <changefreq>monthly</changefreq>
-        <priority>0.6</priority>
+        <priority>0.7</priority>
     </url>
 
     <!-- GitHub Repository -->
