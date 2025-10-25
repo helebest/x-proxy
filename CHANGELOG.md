@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-10-01
+Last updated: 2025-10-25
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
