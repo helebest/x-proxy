@@ -8,6 +8,38 @@ let activeProfile = null;
 let isInitialized = false;
 let keepAliveTimeout = null;
 
+/**
+ * Generate PAC (Proxy Auto-Configuration) script for domain-based routing
+ * @param {Object} profile - Proxy profile configuration
+ * @returns {string} PAC script content
+ */
+function generatePAC(profile) {
+  const { type, host, port } = profile.config;
+  const { domains } = profile.config.routingRules;
+
+  // Determine proxy server string based on type
+  const proxyServer = type === 'socks5'
+    ? `SOCKS5 ${host}:${port}`
+    : `PROXY ${host}:${port}`;
+
+  // Generate PAC script with whitelist logic
+  return `
+function FindProxyForURL(url, host) {
+  // Whitelist domains - only these use proxy
+  var whitelist = ${JSON.stringify(domains)};
+
+  // Check if host matches any whitelist pattern
+  for (var i = 0; i < whitelist.length; i++) {
+    if (shExpMatch(host, whitelist[i])) {
+      return "${proxyServer}";
+    }
+  }
+
+  // All other traffic goes direct
+  return "DIRECT";
+}`.trim();
+}
+
 // Keep service worker alive during active operations
 function keepAlive() {
   if (keepAliveTimeout) {
@@ -38,36 +70,76 @@ function updateIcon(isSystemProxy = true) {
 // Activate proxy profile
 async function activateProxy(profileId) {
   keepAlive(); // Keep service worker alive during operation
-  
+
   try {
     // Get profile data from storage
     const result = await chrome.storage.local.get(['x-proxy-data']);
     const data = result['x-proxy-data'] || {};
     const profile = data.profiles?.find(p => p.id === profileId);
-    
+
     if (!profile) {
       throw new Error('Profile not found');
+    }
+
+    // Normalize profile structure (support both old flat and new nested structure)
+    const proxyType = profile.config?.type || profile.type || 'http';
+    const proxyHost = profile.config?.host || profile.host;
+    const proxyPort = profile.config?.port || profile.port;
+
+    if (!proxyHost || !proxyPort) {
+      throw new Error('Invalid proxy configuration: missing host or port');
     }
 
     // Clear any existing proxy configuration first
     await chrome.proxy.settings.clear({
       scope: 'regular'
     });
-    
+
     // Small delay to ensure clear operation completes
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Set Chrome proxy configuration
-    const config = {
-      mode: "fixed_servers",
-      rules: {
-        singleProxy: {
-          scheme: profile.config.type,
-          host: profile.config.host,
-          port: profile.config.port
+    // Check if routing rules are enabled
+    const routingRules = profile.config?.routingRules;
+    const useRouting = routingRules?.enabled && routingRules?.domains?.length > 0;
+
+    let config;
+
+    if (useRouting) {
+      // Use PAC script mode for domain-based routing
+      // Create normalized profile for PAC generation
+      const normalizedProfile = {
+        ...profile,
+        config: {
+          type: proxyType,
+          host: proxyHost,
+          port: parseInt(proxyPort),
+          routingRules: routingRules
         }
-      }
-    };
+      };
+      const pacScript = generatePAC(normalizedProfile);
+      config = {
+        mode: "pac_script",
+        pacScript: {
+          data: pacScript
+        }
+      };
+      console.log('Using PAC mode with routing rules for:', profile.name);
+      console.log('PAC script:', pacScript);
+    } else {
+      // Use fixed_servers mode (all traffic through proxy)
+      config = {
+        mode: "fixed_servers",
+        rules: {
+          singleProxy: {
+            scheme: proxyType,
+            host: proxyHost,
+            port: parseInt(proxyPort)
+          }
+        }
+      };
+      console.log('Using fixed_servers mode for:', profile.name);
+      console.log('Proxy config:', { scheme: proxyType, host: proxyHost, port: proxyPort });
+    }
 
     await chrome.proxy.settings.set({
       value: config,
@@ -77,14 +149,14 @@ async function activateProxy(profileId) {
     // Update storage with active profile
     data.activeProfileId = profileId;
     await chrome.storage.local.set({ 'x-proxy-data': data });
-    
+
     // Update internal state and icon
     activeProfile = profile;
     updateIcon(false); // Blue icon for active proxy
-    
+
     console.log('Activated proxy:', profile.name);
     return { success: true };
-    
+
   } catch (error) {
     console.error('Failed to activate proxy:', error);
     const errorMessage = error?.message || String(error) || 'Unknown error';

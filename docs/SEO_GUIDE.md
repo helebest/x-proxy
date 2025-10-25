@@ -112,7 +112,7 @@ docs/
 - ✅ Google Search Console验证文件已创建并提交验证
 - ✅ Sitemap已提交到Google Search Console
 - ✅ Sitemap.xml和Robots.txt已部署并可访问
-- ✅ Chrome Web Store已发布扩展
+- ✅ Chrome Web Store已发布扩展并完善列表信息
 - ✅ Product Hunt已发布 (https://www.producthunt.com/products/x-proxy-a-modern-proxy-switcher/launches)
 - ✅ 专业OG图片已生成并部署 (1200x630px)
 - ✅ 所有HTML页面OG标签已更新使用新图片
@@ -177,7 +177,7 @@ docs/
 - [x] ✅ Product Hunt - 已发布 (https://www.producthunt.com/products/x-proxy-a-modern-proxy-switcher/launches)
 - [ ] AlternativeTo - 软件列表
 - [x] ✅ Chrome Web Store - 已发布 (ID: efbckpjdlnojgnggdilgddeemgkoccaf)
-- [ ] Chrome Web Store - 完善列表信息（添加更多截图和详细说明）
+- [x] ✅ Chrome Web Store - 列表信息已完善（截图和详细说明已添加）
 - [ ] GitHub Topics - 添加相关标签
 
 ### Phase 2: 内容扩展（1-2个月）

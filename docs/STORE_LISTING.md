@@ -32,6 +32,13 @@ X-Proxy is a clean, lightweight proxy switcher that makes managing your proxy co
 • Delete unused profiles
 • Color-coded organization
 
+**🎯 Domain Routing (New in v1.2.0)**
+• Configure specific domains to use proxy
+• Whitelist mode - only listed sites use proxy
+• Supports wildcard patterns (*.google.com)
+• Automatically reactivates when editing active profiles
+• Perfect for selective proxy usage
+
 **🎨 Clean Interface**
 • Simple, modern design
 • Consistent styling throughout
@@ -80,11 +87,16 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.0.0**
-• Initial stable release
-• HTTP/HTTPS and SOCKS5 support
-• Basic profile management
-• Clean, intuitive interface
+**Version 1.2.0** - Domain Routing Update
+• Domain-based routing rules (whitelist mode)
+• Wildcard domain matching (*.example.com)
+• Auto-reactivate when editing active profiles
+• Improved UI with polished toggle switches
+• Copy routing rules when duplicating profiles
+• Better data normalization and compatibility
+
+**Previous Updates:**
+• v1.0.0: Initial stable release with HTTP/HTTPS and SOCKS5 support
 • Full Chrome Manifest V3 compliance
 
 ### 📝 Permissions Explained
