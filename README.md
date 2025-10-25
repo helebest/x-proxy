@@ -40,6 +40,7 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 - **🔄 HTTP/HTTPS & SOCKS5**: Full support for common proxy protocols
 - **📝 Unlimited Profiles**: Save and organize as many proxy configurations as you need
 - **⚡ Instant Switching**: Activate profiles with a single click from toolbar
+- **🎯 Domain Routing**: Configure specific domains to use proxy (whitelist mode)
 - **🔧 System Integration**: Seamless Chrome proxy API integration
 - **💾 Local Storage**: All data stays on your device, no cloud sync
 
@@ -97,6 +98,26 @@ Download the latest release from [GitHub Releases](https://github.com/helebest/x
 4. **Click Save** and then click the profile to activate
 5. **Click "System"** to return to direct connection
 
+### Domain Routing (New in v1.2.0)
+
+Configure specific domains to use proxy while others go direct:
+
+1. **Open Options** (right-click extension icon → Options)
+2. **Edit or create a profile**
+3. **Enable "Domain Routing Rules"** toggle
+4. **Add domains** (one per line):
+   ```
+   *.google.com
+   github.com
+   *.youtube.com
+   ```
+5. **Save** and activate the profile
+
+**How it works**:
+- ✅ Listed domains → Use proxy
+- ⏭️ All other domains → Direct connection
+- 🔸 Supports wildcards: `*.example.com` matches all subdomains
+
 ### Example Configurations
 
 **SOCKS5 Proxy**:
@@ -106,11 +127,16 @@ Host: 127.0.0.1
 Port: 1080
 ```
 
-**HTTP Proxy**:
+**HTTP Proxy with Domain Routing**:
 ```
 Type: HTTP
 Host: proxy.company.com
 Port: 8080
+Domain Routing: Enabled
+Domains:
+  *.google.com
+  *.github.com
+  *.stackoverflow.com
 ```
 
 ## 🎯 Use Cases
@@ -198,11 +224,11 @@ Contributions are welcome! Here's how you can help:
 - ✨ UI/UX enhancements
 
 ### Wanted Features
-- PAC script support
-- Auto-switch rules by domain/URL
 - Import/export profiles
 - Firefox port (WebExtensions)
 - Dark mode theme
+- Profile sharing via URL
+- Connection testing
 
 ### How to Contribute
 
@@ -278,11 +304,18 @@ If you find X-Proxy useful, consider:
 - [x] FAQ section with schema markup
 - [x] Enhanced README and documentation
 
-### v1.2.0 (Planned)
-- [ ] PAC script support
-- [ ] Auto-switch rules by domain
-- [ ] Import/export profiles
-- [ ] Profile import/export via JSON
+### v1.2.0 ✅ (Current - Domain Routing)
+- [x] PAC script support
+- [x] Domain-based routing rules (whitelist mode)
+- [x] Wildcard domain matching
+- [x] Profile-level routing configuration
+- [x] Automatic PAC script generation
+
+### v1.3.0 (Planned)
+- [ ] Import/export profiles (JSON format)
+- [ ] Profile sharing via URL
+- [ ] Connection testing
+- [ ] Dark mode theme
 
 ### v2.0.0 (Future)
 - [ ] Firefox support (WebExtensions)

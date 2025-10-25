@@ -65,7 +65,7 @@
             </div>
             
             <div class="about-info">
-              <h3>X-Proxy v1.0.0</h3>
+              <h3>X-Proxy v1.2.0</h3>
               <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
               
               <div class="about-details">
@@ -160,14 +160,39 @@
               <label for="proxyHost">Host *</label>
               <input type="text" id="proxyHost" class="form-input" placeholder="proxy.example.com" required>
             </div>
-            
+
             <div class="form-group">
               <label for="proxyPort">Port *</label>
               <input type="number" id="proxyPort" class="form-input" placeholder="8080" required>
             </div>
-            
           </div>
-          
+
+          <!-- Domain Routing Rules Section -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h4>Domain Routing Rules</h4>
+              <label class="switch">
+                <input type="checkbox" id="enableRoutingRules">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div id="routingRulesPanel" style="display: none;">
+              <div class="form-group">
+                <label>Whitelist Domains (only these sites use proxy)</label>
+
+                <textarea
+                  id="domainListTextarea"
+                  class="form-textarea"
+                  rows="6"
+                  placeholder="Enter one domain per line:
+*.google.com
+github.com
+*.youtube.com"></textarea>
+              </div>
+            </div>
+          </div>
+
         </form>
       </div>
       <div class="modal-footer">

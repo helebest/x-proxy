@@ -17,6 +17,52 @@ Future improvements planned:
 - Multi-language support (Chinese, Japanese, Russian)
 - Google Analytics integration
 
+## [1.2.0] - 2025-10-25
+
+### Added - Domain-Based Routing (Issue #5)
+- **Profile-Level Routing Rules**
+  - Added domain whitelist configuration for each proxy profile
+  - Only specified domains use the proxy, all others go direct
+  - Supports wildcard patterns (e.g., `*.google.com`, `*.youtube.com`)
+  - Toggle switch to enable/disable routing rules per profile
+  - Textarea input for domain list (one domain per line)
+
+- **PAC Script Generation**
+  - Automatic PAC (Proxy Auto-Configuration) script generation
+  - Uses `shExpMatch()` for efficient wildcard domain matching
+  - Seamless switching between PAC mode (with routing) and fixed_servers mode (all traffic)
+
+- **User Interface**
+  - Clean, intuitive routing rules section in profile editor
+  - Polished toggle switch with proper sizing and shadow effects
+  - Unified font styling across all input fields
+  - Domain validation with clear error messages
+  - Auto-clear domain list when routing toggle is disabled
+  - English-only UI for simplicity
+
+- **User Experience Improvements**
+  - Auto-reactivate when editing currently active profile (changes apply immediately)
+  - Copy routing rules when duplicating profiles
+  - Visual feedback with status messages (success/warning/error)
+
+### Changed
+- **Proxy Activation Logic**
+  - `activateProxy()` now detects routing rules and uses appropriate proxy mode
+  - PAC mode when routing rules enabled, fixed_servers mode otherwise
+  - Maintains backward compatibility with existing profiles
+  - Improved data normalization for both old and new profile formats
+
+### Technical
+- Extended profile data model with `config.routingRules: { enabled, domains }`
+- Added domain validation helper (`isValidDomain()`)
+- Normalized profile data handling across options and popup
+- Updated Chrome proxy API usage to support both PAC and fixed_servers modes
+
+### Backward Compatibility
+- Existing profiles without routing rules work unchanged
+- Default routing rules: `{ enabled: false, domains: [] }`
+- All existing functionality preserved
+
 ## [1.1.1] - 2025-10-01
 
 ### Enhanced - Privacy Policy Page SEO

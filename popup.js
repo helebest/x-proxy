@@ -114,7 +114,7 @@ function getDefaultData() {
 // Normalize profile data format (handle different storage formats)
 function normalizeProfile(profile) {
     if (!profile) return null;
-    
+
     // Handle both new format (with config object) and old format (flat structure)
     return {
         id: profile.id,
@@ -132,7 +132,11 @@ function normalizeProfile(profile) {
                 password: profile.password || ''
             } : undefined,
             bypassList: profile.bypassList || [],
-            pacUrl: profile.pacUrl
+            pacUrl: profile.pacUrl,
+            routingRules: profile.config?.routingRules || {
+                enabled: false,
+                domains: []
+            }
         },
         createdAt: profile.createdAt ? new Date(profile.createdAt) : new Date(),
         updatedAt: profile.updatedAt ? new Date(profile.updatedAt) : new Date(),

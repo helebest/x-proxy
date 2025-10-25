@@ -1056,6 +1056,10 @@ html {
   color: var(--danger-color);
 }
 
+.status.warning {
+  color: #ff9800;
+}
+
 /* Modal */
 .modal {
   display: none;
@@ -1273,4 +1277,109 @@ html {
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Domain Routing Rules Styles */
+.form-section {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.form-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.form-section-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Toggle Switch */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 51px;
+  height: 31px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .3s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 25px;
+  width: 25px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(20px);
+}
+
+/* Textarea for domain list */
+.form-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: 14px;
+  resize: vertical;
+  line-height: 1.5;
+  transition: border-color var(--transition-base), box-shadow var(--transition-base);
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.form-textarea::placeholder {
+  color: var(--text-tertiary);
+  font-style: normal;
+  font-family: inherit;
+}
+
+/* Hint text */
+.hint {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+  padding: 8px 12px;
+  background: var(--primary-light);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid var(--primary-color);
+  line-height: 1.5;
 }

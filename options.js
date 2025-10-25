@@ -73,7 +73,11 @@ class OptionsManager {
         type: profile.type || 'http',
         host: profile.host || '',
         port: parseInt(profile.port) || 8080,
-        bypassList: profile.bypassList || []
+        bypassList: profile.bypassList || [],
+        routingRules: profile.config?.routingRules || {
+          enabled: false,
+          domains: []
+        }
       },
       createdAt: this.safeParseDate(profile.createdAt),
       updatedAt: this.safeParseDate(profile.updatedAt),
@@ -134,7 +138,11 @@ class OptionsManager {
         type: config.type || profile.type || 'http',
         host: config.host || profile.host || '',
         port: parseInt(config.port || profile.port) || 8080,
-        bypassList: config.bypassList || profile.bypassList || []
+        bypassList: config.bypassList || profile.bypassList || [],
+        routingRules: config.routingRules || profile.routingRules || {
+          enabled: false,
+          domains: []
+        }
       },
       createdAt: this.normalizeDate(profile.createdAt),
       updatedAt: new Date().toISOString(),
@@ -172,6 +180,17 @@ class OptionsManager {
 
     // Proxy type change handler
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
+
+    // Routing rules toggle
+    document.getElementById('enableRoutingRules').addEventListener('change', (e) => {
+      const isEnabled = e.target.checked;
+      document.getElementById('routingRulesPanel').style.display = isEnabled ? 'block' : 'none';
+
+      // Clear textarea when disabled
+      if (!isEnabled) {
+        document.getElementById('domainListTextarea').value = '';
+      }
+    });
     
 
 
@@ -301,11 +320,11 @@ class OptionsManager {
     this.editingProfile = profile;
     const modal = document.getElementById('profileModal');
     const title = document.getElementById('profileModalTitle');
-    
+
     if (profile) {
       title.textContent = 'Edit Proxy Profile';
       document.getElementById('profileName').value = profile.name || '';
-      
+
       // Handle color palette selection
       const profileColor = profile.color || '#007AFF';
       const colorRadio = document.querySelector(`input[name="profileColor"][value="${profileColor}"]`);
@@ -315,7 +334,7 @@ class OptionsManager {
         // Default to blue if color not found in palette
         document.getElementById('color-blue').checked = true;
       }
-      
+
       // Access config from either the new nested structure or old flat structure
       const config = profile.config || {};
       let type = config.type || profile.type || 'http';
@@ -323,14 +342,24 @@ class OptionsManager {
       if (type === 'https') type = 'http';
       if (type === 'socks4') type = 'socks5';
       document.getElementById('proxyType').value = type;
-      
+
       document.getElementById('proxyHost').value = config.host || profile.host || '';
       document.getElementById('proxyPort').value = config.port || profile.port || '';
+
+      // Load routing rules
+      const routingRules = config.routingRules || { enabled: false, domains: [] };
+      document.getElementById('enableRoutingRules').checked = routingRules.enabled || false;
+      document.getElementById('routingRulesPanel').style.display = routingRules.enabled ? 'block' : 'none';
+      document.getElementById('domainListTextarea').value = (routingRules.domains || []).join('\n');
     } else {
       title.textContent = 'Add Proxy Profile';
       document.getElementById('profileForm').reset();
+      // Reset routing rules for new profile
+      document.getElementById('enableRoutingRules').checked = false;
+      document.getElementById('routingRulesPanel').style.display = 'none';
+      document.getElementById('domainListTextarea').value = '';
     }
-    
+
     this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
     modal.classList.add('show');
   }
@@ -345,44 +374,86 @@ class OptionsManager {
     document.getElementById('proxyDetails').style.display = 'block';
   }
 
+  // Validate domain format (supports wildcards)
+  isValidDomain(domain) {
+    // Allow wildcard patterns like *.google.com or just *
+    const pattern = /^(\*\.)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
+    return pattern.test(domain) || domain === '*';
+  }
+
   async saveProfile() {
     const name = document.getElementById('profileName').value.trim();
     const colorRadio = document.querySelector('input[name="profileColor"]:checked');
     const color = colorRadio ? colorRadio.value : '#007AFF';
     const type = document.getElementById('proxyType').value;
-    
+    const host = document.getElementById('proxyHost').value.trim();
+    const port = document.getElementById('proxyPort').value.trim();
+
     if (!name) {
       alert('Please enter a profile name');
       return;
     }
-    
+
+    if (!host || !port) {
+      alert('Please enter host and port');
+      return;
+    }
+
+    // Collect routing rules
+    const routingEnabled = document.getElementById('enableRoutingRules').checked;
+    const domainsText = document.getElementById('domainListTextarea').value;
+    const domains = domainsText
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && this.isValidDomain(line));
+
+    // Validate: if routing is enabled, must have at least one valid domain
+    if (routingEnabled && domains.length === 0) {
+      alert('Please enter at least one valid domain for routing rules, or disable routing');
+      return;
+    }
+
+    // Create profile with correct nested structure
     const profile = {
       id: this.editingProfile?.id || Date.now().toString(),
       name,
       color,
-      type,
+      config: {
+        type: type,
+        host: host,
+        port: parseInt(port),
+        bypassList: this.editingProfile?.config?.bypassList || [],
+        routingRules: {
+          enabled: routingEnabled,
+          domains: domains
+        }
+      },
       createdAt: this.editingProfile?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      tags: this.editingProfile?.tags || []
     };
-    
-    profile.host = document.getElementById('proxyHost').value.trim();
-    profile.port = document.getElementById('proxyPort').value.trim();
-    
-    if (!profile.host || !profile.port) {
-      alert('Please enter host and port');
-      return;
-    }
-    
+
+    const isEditing = !!this.editingProfile;
+    const profileId = profile.id;
+
     if (this.editingProfile) {
       const index = this.profiles.findIndex(p => p.id === this.editingProfile.id);
       this.profiles[index] = profile;
+      console.log('Updating existing profile:', profile.name, 'ID:', profileId);
     } else {
       this.profiles.push(profile);
+      console.log('Creating new profile:', profile.name, 'ID:', profileId);
     }
-    
+
     await this.saveData();
     this.renderProfiles();
     this.hideProfileModal();
+
+    // If the saved profile is currently active, reactivate it to apply changes
+    if (isEditing) {
+      console.log('Profile was edited, checking if it needs reactivation...');
+      await this.reactivateIfActive(profileId);
+    }
   }
 
   editProfile(index) {
@@ -391,7 +462,7 @@ class OptionsManager {
 
   duplicateProfile(index) {
     const original = this.profiles[index];
-    
+
     // Create a proper deep copy with correct structure
     const duplicate = {
       id: Date.now().toString(),
@@ -409,13 +480,20 @@ class OptionsManager {
         })(),
         host: original.config?.host || original.host || '',
         port: parseInt(original.config?.port || original.port) || 8080,
-        bypassList: original.config?.bypassList || original.bypassList || []
+        bypassList: original.config?.bypassList || original.bypassList || [],
+        routingRules: original.config?.routingRules ? {
+          enabled: original.config.routingRules.enabled || false,
+          domains: [...(original.config.routingRules.domains || [])]
+        } : {
+          enabled: false,
+          domains: []
+        }
       },
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       tags: original.tags || []
     };
-    
+
     this.profiles.push(duplicate);
     console.log('Created duplicate profile:', duplicate);
     this.saveData();
@@ -487,12 +565,42 @@ class OptionsManager {
 
 
 
+  // Reactivate profile if it's currently active (to apply changes immediately)
+  async reactivateIfActive(profileId) {
+    try {
+      const result = await chrome.storage.local.get(['x-proxy-data']);
+      const data = result['x-proxy-data'] || this.getDefaultData();
+
+      // Check if this profile is currently active
+      if (data.activeProfileId === profileId) {
+        console.log('Profile is currently active, reactivating to apply changes...');
+
+        // Send message to background to reactivate
+        const response = await chrome.runtime.sendMessage({
+          type: 'ACTIVATE_PROFILE',
+          payload: { id: profileId }
+        });
+
+        if (response && response.success) {
+          this.showStatus('Profile updated and reactivated successfully', 'success');
+          console.log('Profile reactivated successfully');
+        } else {
+          console.warn('Failed to reactivate profile:', response?.error);
+          this.showStatus('Profile saved, but reactivation failed. Please reactivate manually.', 'warning');
+        }
+      }
+    } catch (error) {
+      console.error('Error checking/reactivating profile:', error);
+      // Don't show error to user - the save was successful, just reactivation failed
+    }
+  }
+
   // Utility Functions
   showStatus(message, type = 'info') {
     const status = document.getElementById('saveStatus');
     status.textContent = message;
     status.className = `status ${type}`;
-    
+
     setTimeout(() => {
       status.textContent = '';
       status.className = 'status';
