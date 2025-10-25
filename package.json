@@ -45,7 +45,7 @@
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
     "chrome-mock": "^0.0.9",
-    "happy-dom": "^18.0.1",
+    "happy-dom": "^20.0.8",
     "jsdom": "^26.1.0",
     "sharp": "^0.34.3",
     "typescript": "^5.9.2",
