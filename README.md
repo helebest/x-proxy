@@ -344,7 +344,7 @@ Inspired by projects like SwitchyOmega and FoxyProxy, but with a focus on simpli
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/helebest">helebest</a>
+  Made with ❤️ by <a href="https://github.com/helebest">helebest</a> • <a href="https://www.paypal.com/paypalme/lehe324">💝 Donate</a>
 </p>
 
 <p align="center">
