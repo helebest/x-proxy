@@ -87,7 +87,7 @@ Download the latest release from [GitHub Releases](https://github.com/helebest/x
 ### Basic Usage
 
 1. **Click the X-Proxy icon** in your Chrome toolbar
-2. **Add a profile** by clicking "➕ Add Profile"
+2. **Add a profile** by clicking "Add Profile"
 3. **Configure your proxy**:
    ```
    Name: My Proxy

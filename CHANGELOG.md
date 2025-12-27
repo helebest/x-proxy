@@ -30,6 +30,8 @@ Future improvements planned:
   - Clean radio button design with visual feedback
   - Mode-specific placeholder text with example domains
   - Help text for domain pattern syntax
+  - Profile color now displayed in Popup (matches Options page)
+  - Simplified "Add Profile" button text
 
 ### Changed
 - **PAC Script Generation**

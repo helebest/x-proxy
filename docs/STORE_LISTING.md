@@ -63,7 +63,7 @@ X-Proxy respects your privacy:
 ### 📱 How to Use
 
 1. Click the X-Proxy icon in your toolbar
-2. Click "➕ Add Profile" to create a new proxy
+2. Click "Add Profile" to create a new proxy
 3. Enter your proxy details (name, type, host, port)
 4. Click "Save" to add the profile
 5. Click any profile to activate it

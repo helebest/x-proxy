@@ -400,7 +400,7 @@ class OptionsManager {
     const textarea = document.getElementById('domainListTextarea');
 
     if (mode === 'blacklist') {
-      label.textContent = 'Bypass Domains (these sites bypass proxy)';
+      label.textContent = 'Blacklist Domains (these sites bypass proxy)';
       textarea.placeholder = `Enter one domain per line:
 localhost
 127.0.0.1
