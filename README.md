@@ -304,14 +304,20 @@ If you find X-Proxy useful, consider:
 - [x] FAQ section with schema markup
 - [x] Enhanced README and documentation
 
-### v1.2.0 ✅ (Current - Domain Routing)
+### v1.2.0 ✅ (Domain Routing)
 - [x] PAC script support
 - [x] Domain-based routing rules (whitelist mode)
 - [x] Wildcard domain matching
 - [x] Profile-level routing configuration
 - [x] Automatic PAC script generation
 
-### v1.3.0 (Planned)
+### v1.3.0 ✅ (Current - Bypass List)
+- [x] Whitelist/Blacklist mode selection (Issue #6)
+- [x] Dynamic UI based on routing mode
+- [x] Enhanced PAC script for blacklist mode
+- [x] Backward compatible with existing profiles
+
+### v1.4.0 (Planned)
 - [ ] Import/export profiles (JSON format)
 - [ ] Profile sharing via URL
 - [ ] Connection testing

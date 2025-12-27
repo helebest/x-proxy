@@ -191,9 +191,13 @@ class OptionsManager {
         document.getElementById('domainListTextarea').value = '';
       }
     });
-    
 
-
+    // Routing mode radio button change handler
+    document.querySelectorAll('input[name="routingMode"]').forEach(radio => {
+      radio.addEventListener('change', (e) => {
+        this.updateDomainListLabel(e.target.value);
+      });
+    });
 
     // Import/Export - removed importBtn, exportBtn, backupBtn, restoreBtn (features offline)
 
@@ -347,9 +351,16 @@ class OptionsManager {
       document.getElementById('proxyPort').value = config.port || profile.port || '';
 
       // Load routing rules
-      const routingRules = config.routingRules || { enabled: false, domains: [] };
+      const routingRules = config.routingRules || { enabled: false, mode: 'whitelist', domains: [] };
       document.getElementById('enableRoutingRules').checked = routingRules.enabled || false;
       document.getElementById('routingRulesPanel').style.display = routingRules.enabled ? 'block' : 'none';
+
+      // Set routing mode radio button
+      const routingMode = routingRules.mode || 'whitelist';
+      const modeRadio = document.getElementById(routingMode === 'blacklist' ? 'routingModeBlacklist' : 'routingModeWhitelist');
+      if (modeRadio) modeRadio.checked = true;
+      this.updateDomainListLabel(routingMode);
+
       document.getElementById('domainListTextarea').value = (routingRules.domains || []).join('\n');
     } else {
       title.textContent = 'Add Proxy Profile';
@@ -357,6 +368,8 @@ class OptionsManager {
       // Reset routing rules for new profile
       document.getElementById('enableRoutingRules').checked = false;
       document.getElementById('routingRulesPanel').style.display = 'none';
+      document.getElementById('routingModeWhitelist').checked = true;
+      this.updateDomainListLabel('whitelist');
       document.getElementById('domainListTextarea').value = '';
     }
 
@@ -381,6 +394,27 @@ class OptionsManager {
     return pattern.test(domain) || domain === '*';
   }
 
+  // Update the domain list label and placeholder based on routing mode
+  updateDomainListLabel(mode) {
+    const label = document.getElementById('domainListLabel');
+    const textarea = document.getElementById('domainListTextarea');
+
+    if (mode === 'blacklist') {
+      label.textContent = 'Bypass Domains (these sites bypass proxy)';
+      textarea.placeholder = `Enter one domain per line:
+localhost
+127.0.0.1
+192.168.*
+*.local`;
+    } else {
+      label.textContent = 'Whitelist Domains (only these sites use proxy)';
+      textarea.placeholder = `Enter one domain per line:
+*.google.com
+github.com
+*.youtube.com`;
+    }
+  }
+
   async saveProfile() {
     const name = document.getElementById('profileName').value.trim();
     const colorRadio = document.querySelector('input[name="profileColor"]:checked');
@@ -401,6 +435,7 @@ class OptionsManager {
 
     // Collect routing rules
     const routingEnabled = document.getElementById('enableRoutingRules').checked;
+    const routingMode = document.querySelector('input[name="routingMode"]:checked')?.value || 'whitelist';
     const domainsText = document.getElementById('domainListTextarea').value;
     const domains = domainsText
       .split('\n')
@@ -425,6 +460,7 @@ class OptionsManager {
         bypassList: this.editingProfile?.config?.bypassList || [],
         routingRules: {
           enabled: routingEnabled,
+          mode: routingMode,
           domains: domains
         }
       },
@@ -483,9 +519,11 @@ class OptionsManager {
         bypassList: original.config?.bypassList || original.bypassList || [],
         routingRules: original.config?.routingRules ? {
           enabled: original.config.routingRules.enabled || false,
+          mode: original.config.routingRules.mode || 'whitelist',
           domains: [...(original.config.routingRules.domains || [])]
         } : {
           enabled: false,
+          mode: 'whitelist',
           domains: []
         }
       },

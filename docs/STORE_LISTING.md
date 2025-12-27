@@ -87,17 +87,15 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.2.0** - Domain Routing Update
-• Domain-based routing rules (whitelist mode)
-• Wildcard domain matching (*.example.com)
-• Auto-reactivate when editing active profiles
-• Improved UI with polished toggle switches
-• Copy routing rules when duplicating profiles
-• Better data normalization and compatibility
+**Version 1.3.0** - Bypass List Update
+• Whitelist/Blacklist routing mode selection
+• Blacklist mode: listed domains bypass proxy
+• Dynamic UI labels based on selected mode
+• Backward compatible with existing profiles
 
 **Previous Updates:**
+• v1.2.0: Domain-based routing rules (whitelist mode)
 • v1.0.0: Initial stable release with HTTP/HTTPS and SOCKS5 support
-• Full Chrome Manifest V3 compliance
 
 ### 📝 Permissions Explained
 

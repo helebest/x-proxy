@@ -1383,3 +1383,102 @@ input:checked + .slider:before {
   border-left: 3px solid var(--primary-color);
   line-height: 1.5;
 }
+
+/* ===========================
+   v1.3.0 - Routing Mode Styles
+   =========================== */
+
+/* Routing Mode Group */
+.routing-mode-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.routing-mode-label {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 14px;
+  margin: 0;
+}
+
+.routing-mode-options {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+/* Radio Option Container */
+.radio-option {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  margin-bottom: 0;
+  background: var(--surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+
+.radio-option:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.radio-option input[type="radio"] {
+  display: none;
+}
+
+/* Custom Radio Checkmark */
+.radio-checkmark {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.radio-checkmark::after {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  transform: scale(0);
+  transition: transform 0.2s ease;
+}
+
+.radio-option input[type="radio"]:checked + .radio-checkmark {
+  border-color: var(--primary-color);
+}
+
+.radio-option input[type="radio"]:checked + .radio-checkmark::after {
+  transform: scale(1);
+}
+
+.radio-text {
+  font-weight: 500;
+  color: var(--text-primary);
+  font-size: 13px;
+}
+
+/* Selected state for radio option */
+.radio-option:has(input[type="radio"]:checked) {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+/* Form Help Text */
+.form-help {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
