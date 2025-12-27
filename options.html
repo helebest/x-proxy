@@ -42,7 +42,7 @@
           <div class="section-header">
             <p class="section-description">Manage your proxy server configurations</p>
             <button id="addProfileBtn" class="btn btn-primary" aria-label="Add new proxy profile">
-              ➕ Add Profile
+              Add Profile
             </button>
           </div>
 
@@ -65,7 +65,7 @@
             </div>
             
             <div class="about-info">
-              <h3>X-Proxy v1.2.0</h3>
+              <h3>X-Proxy v1.3.0</h3>
               <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
               
               <div class="about-details">
@@ -178,9 +178,25 @@
             </div>
 
             <div id="routingRulesPanel" style="display: none;">
-              <div class="form-group">
-                <label>Whitelist Domains (only these sites use proxy)</label>
+              <!-- Mode Selection Radio Buttons -->
+              <div class="form-group routing-mode-group">
+                <label class="routing-mode-label">Routing Mode</label>
+                <div class="routing-mode-options">
+                  <label class="radio-option">
+                    <input type="radio" name="routingMode" id="routingModeWhitelist" value="whitelist" checked>
+                    <span class="radio-checkmark"></span>
+                    <span class="radio-text">Whitelist</span>
+                  </label>
+                  <label class="radio-option">
+                    <input type="radio" name="routingMode" id="routingModeBlacklist" value="blacklist">
+                    <span class="radio-checkmark"></span>
+                    <span class="radio-text">Blacklist</span>
+                  </label>
+                </div>
+              </div>
 
+              <div class="form-group">
+                <label id="domainListLabel">Whitelist Domains (only these sites use proxy)</label>
                 <textarea
                   id="domainListTextarea"
                   class="form-textarea"
@@ -189,6 +205,7 @@
 *.google.com
 github.com
 *.youtube.com"></textarea>
+                <div class="form-help">Supports wildcards: *.example.com matches all subdomains</div>
               </div>
             </div>
           </div>

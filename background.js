@@ -15,15 +15,19 @@ let keepAliveTimeout = null;
  */
 function generatePAC(profile) {
   const { type, host, port } = profile.config;
-  const { domains } = profile.config.routingRules;
+  const { domains, mode } = profile.config.routingRules;
+
+  // Default to whitelist mode for backward compatibility
+  const routingMode = mode || 'whitelist';
 
   // Determine proxy server string based on type
   const proxyServer = type === 'socks5'
     ? `SOCKS5 ${host}:${port}`
     : `PROXY ${host}:${port}`;
 
-  // Generate PAC script with whitelist logic
-  return `
+  if (routingMode === 'whitelist') {
+    // Whitelist mode: only listed domains use proxy, all others go direct
+    return `
 function FindProxyForURL(url, host) {
   // Whitelist domains - only these use proxy
   var whitelist = ${JSON.stringify(domains)};
@@ -38,6 +42,24 @@ function FindProxyForURL(url, host) {
   // All other traffic goes direct
   return "DIRECT";
 }`.trim();
+  } else {
+    // Blacklist mode: listed domains bypass proxy, all others use proxy
+    return `
+function FindProxyForURL(url, host) {
+  // Blacklist domains - these bypass proxy (go direct)
+  var blacklist = ${JSON.stringify(domains)};
+
+  // Check if host matches any blacklist pattern
+  for (var i = 0; i < blacklist.length; i++) {
+    if (shExpMatch(host, blacklist[i])) {
+      return "DIRECT";
+    }
+  }
+
+  // All other traffic uses proxy
+  return "${proxyServer}";
+}`.trim();
+  }
 }
 
 // Keep service worker alive during active operations

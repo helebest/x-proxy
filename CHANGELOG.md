@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-10-25
+Last updated: 2025-12-27
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -16,6 +16,42 @@ Future improvements planned:
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
 - Google Analytics integration
+
+## [1.3.0] - 2025-12-27
+
+### Added - Bypass List Feature (Issue #6)
+- **Routing Mode Selection**
+  - Added radio buttons for whitelist/blacklist mode selection
+  - Whitelist mode: only listed domains use proxy (existing behavior)
+  - Blacklist mode: listed domains bypass proxy, all others use proxy
+  - Dynamic label and placeholder updates based on selected mode
+
+- **User Interface Enhancements**
+  - Clean radio button design with visual feedback
+  - Mode-specific placeholder text with example domains
+  - Help text for domain pattern syntax
+  - Profile color now displayed in Popup (matches Options page)
+  - Simplified "Add Profile" button text
+
+### Changed
+- **PAC Script Generation**
+  - Enhanced `generatePAC()` to support both whitelist and blacklist modes
+  - Blacklist mode reverses proxy logic (matched domains go direct)
+  - Maintains backward compatibility with existing whitelist-only profiles
+
+- **Data Model**
+  - Extended `routingRules` with `mode` property ("whitelist" | "blacklist")
+  - Default mode: `'whitelist'` for backward compatibility
+  - Profile duplication now copies routing mode
+
+### Technical
+- New helper method: `updateDomainListLabel()`
+- CSS styling for radio button components
+- Updated profile normalization to include `mode` property
+
+### Backward Compatibility
+- Existing profiles without `mode` default to whitelist behavior
+- No migration required for existing configurations
 
 ## [1.2.0] - 2025-10-25
 

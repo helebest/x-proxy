@@ -421,9 +421,10 @@ function createProfileElement(profile) {
     const type = profile.config?.type || 'PROXY';
     const host = profile.config?.host || '';
     const port = profile.config?.port || '';
-    
+    const color = profile.color || '#007AFF';
+
     div.innerHTML = `
-        <div class="profile-icon">
+        <div class="profile-icon" style="color: ${color}">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10"></circle>
                 <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
