@@ -56,7 +56,6 @@ vite.config.ts.timestamp-*
 # Package manager files
 .npm
 .yarn-integrity
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
