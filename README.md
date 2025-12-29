@@ -311,11 +311,16 @@ If you find X-Proxy useful, consider:
 - [x] Profile-level routing configuration
 - [x] Automatic PAC script generation
 
-### v1.3.0 ✅ (Current - Bypass List)
+### v1.3.0 ✅ (Bypass List)
 - [x] Whitelist/Blacklist mode selection (Issue #6)
 - [x] Dynamic UI based on routing mode
 - [x] Enhanced PAC script for blacklist mode
 - [x] Backward compatible with existing profiles
+
+### v1.3.1 ✅ (Current - Bug Fix)
+- [x] Fixed domain validation for blacklist mode (Issue #9)
+- [x] Added IPv4/IPv6 address support in routing rules
+- [x] Added localhost and simple hostname support
 
 ### v1.4.0 (Planned)
 - [ ] Import/export profiles (JSON format)
