@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-12-27
+Last updated: 2025-12-29
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -16,6 +16,19 @@ Future improvements planned:
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
 - Google Analytics integration
+
+## [1.3.1] - 2025-12-29
+
+### Fixed - Domain Validation Bug (Issue #9)
+- **Enhanced `isValidDomain()` method**
+  - Added IPv4 address support (e.g., `127.0.0.1`, `192.168.*`, `10.0.0.0/24`)
+  - Added IPv6 address support (e.g., `::1`, `fe80::1`)
+  - Added simple hostname support (e.g., `localhost`)
+  - Added single-level wildcard support (e.g., `*.local`)
+  - Fixed: blacklist domains like `localhost`, `127.0.0.1` can now be saved
+
+### Credits
+- Thanks to [@jasonliaotw](https://github.com/jasonliaotw) for reporting the issue and contributing the regex patterns
 
 ## [1.3.0] - 2025-12-27
 

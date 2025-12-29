@@ -387,11 +387,22 @@ class OptionsManager {
     document.getElementById('proxyDetails').style.display = 'block';
   }
 
-  // Validate domain format (supports wildcards)
+  // Validate domain/IP format (supports wildcards, CIDR, localhost, etc.)
+  // Credit: Pattern contributed by @jasonliaotw in issue #9
   isValidDomain(domain) {
-    // Allow wildcard patterns like *.google.com or just *
-    const pattern = /^(\*\.)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+\.[a-zA-Z]{2,}$/;
-    return pattern.test(domain) || domain === '*';
+    // IPv4 address with optional wildcard segments or CIDR notation
+    // Examples: 127.0.0.1, 192.168.*, 192.168.0.0/24, 10.*
+    const ipv4Pattern = /^(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d|\*)){0,3}|(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\/(?:[0-9]|[1-2][0-9]|3[0-2]))$/;
+
+    // IPv6 address (simplified pattern for common formats)
+    // Examples: ::1, fe80::1, 2001:db8::1
+    const ipv6Pattern = /^(?:[0-9A-Fa-f]{0,4}:){2,7}[0-9A-Fa-f]{0,4}(?:\/\d{1,3})?$/;
+
+    // Domain name pattern (supports wildcards, localhost, *.local, etc.)
+    // Examples: localhost, *.google.com, github.com, *.local, example.*
+    const domainPattern = /^(?:\*|(?:\*\.)?[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*(?:\.\*)?)$/;
+
+    return ipv4Pattern.test(domain) || ipv6Pattern.test(domain) || domainPattern.test(domain);
   }
 
   // Update the domain list label and placeholder based on routing mode
