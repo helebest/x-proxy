@@ -199,9 +199,12 @@ class OptionsManager {
       });
     });
 
-    // Import/Export - removed importBtn, exportBtn, backupBtn, restoreBtn (features offline)
-
-    // File inputs - removed (import/export features offline)
+    // Import/Export
+    document.getElementById('exportProfilesBtn').addEventListener('click', () => this.exportProfiles());
+    document.getElementById('importProfilesBtn').addEventListener('click', () => {
+      document.getElementById('importFileInput').click();
+    });
+    document.getElementById('importFileInput').addEventListener('change', (e) => this.handleImportFile(e));
 
 
     // Save All Button
@@ -606,7 +609,177 @@ github.com
     // Settings UI removed, but keep default settings in storage
   }
 
-  // Import/Export methods removed (features offline)
+  // Export profiles as JSON file
+  exportProfiles() {
+    if (this.profiles.length === 0) {
+      this.showStatus('No profiles to export', 'warning');
+      return;
+    }
+
+    const exportData = {
+      format: 'x-proxy-export',
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      profileCount: this.profiles.length,
+      profiles: this.profiles.map(p => {
+        const normalized = this.normalizeProfileForSave(p);
+        return {
+          name: normalized.name,
+          color: normalized.color,
+          config: normalized.config,
+          tags: normalized.tags || []
+        };
+      })
+    };
+
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const date = new Date().toISOString().slice(0, 10);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `x-proxy-profiles-${date}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+
+    this.showStatus(`Exported ${this.profiles.length} profile(s) successfully`, 'success');
+  }
+
+  // Handle import file selection
+  async handleImportFile(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      let data;
+      try {
+        data = JSON.parse(text);
+      } catch {
+        this.showStatus('Invalid JSON file', 'error');
+        event.target.value = '';
+        return;
+      }
+
+      const validation = this.validateImportData(data);
+      if (!validation.valid) {
+        this.showStatus(validation.error, 'error');
+        event.target.value = '';
+        return;
+      }
+
+      const result = this.importProfiles(validation.profiles);
+      await this.saveData();
+      this.renderProfiles();
+
+      if (validation.skipped > 0) {
+        this.showStatus(`Imported ${result.count} profile(s), skipped ${validation.skipped} invalid`, 'warning');
+      } else {
+        this.showStatus(`Imported ${result.count} profile(s) successfully`, 'success');
+      }
+    } catch (error) {
+      console.error('Import error:', error);
+      this.showStatus('Error reading import file', 'error');
+    }
+
+    event.target.value = '';
+  }
+
+  // Validate import data structure
+  validateImportData(data) {
+    if (!data || typeof data !== 'object') {
+      return { valid: false, error: 'Invalid file format' };
+    }
+
+    if (data.format !== 'x-proxy-export') {
+      return { valid: false, error: 'Not a valid X-Proxy export file' };
+    }
+
+    if (typeof data.version !== 'number' || data.version > 1) {
+      return { valid: false, error: 'Unsupported export version' };
+    }
+
+    if (!Array.isArray(data.profiles) || data.profiles.length === 0) {
+      return { valid: false, error: 'No profiles found in import file' };
+    }
+
+    const validColors = ['#007AFF', '#4CAF50', '#F44336', '#FF9800', '#9C27B0', '#009688', '#FFC107', '#607D8B'];
+    const validProfiles = [];
+    let skipped = 0;
+
+    for (const profile of data.profiles) {
+      // Validate required fields
+      if (!profile.name || typeof profile.name !== 'string' || !profile.name.trim()) {
+        skipped++;
+        continue;
+      }
+
+      const config = profile.config;
+      if (!config || typeof config !== 'object') {
+        skipped++;
+        continue;
+      }
+
+      if (!['http', 'socks5'].includes(config.type)) {
+        skipped++;
+        continue;
+      }
+
+      if (!config.host || typeof config.host !== 'string' || !config.host.trim()) {
+        skipped++;
+        continue;
+      }
+
+      const port = parseInt(config.port);
+      if (isNaN(port) || port < 1 || port > 65535) {
+        skipped++;
+        continue;
+      }
+
+      // Sanitize profile
+      const sanitized = {
+        name: profile.name.trim(),
+        color: validColors.includes(profile.color) ? profile.color : '#007AFF',
+        config: {
+          type: config.type,
+          host: config.host.trim(),
+          port: port,
+          bypassList: Array.isArray(config.bypassList) ? config.bypassList : [],
+          routingRules: {
+            enabled: config.routingRules?.enabled === true,
+            mode: ['whitelist', 'blacklist'].includes(config.routingRules?.mode) ? config.routingRules.mode : 'whitelist',
+            domains: Array.isArray(config.routingRules?.domains)
+              ? config.routingRules.domains.filter(d => typeof d === 'string' && d.trim() && this.isValidDomain(d.trim()))
+              : []
+          }
+        },
+        tags: Array.isArray(profile.tags) ? profile.tags : []
+      };
+
+      validProfiles.push(sanitized);
+    }
+
+    if (validProfiles.length === 0) {
+      return { valid: false, error: 'No valid profiles found in import file' };
+    }
+
+    return { valid: true, profiles: validProfiles, skipped };
+  }
+
+  // Import validated profiles (append with new IDs)
+  importProfiles(profiles) {
+    const now = new Date().toISOString();
+    for (const profile of profiles) {
+      this.profiles.push({
+        ...profile,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        createdAt: now,
+        updatedAt: now
+      });
+    }
+    return { count: profiles.length };
+  }
 
 
 

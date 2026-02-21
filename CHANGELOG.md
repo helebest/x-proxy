@@ -17,6 +17,21 @@ Future improvements planned:
 - Multi-language support (Chinese, Japanese, Russian)
 - Google Analytics integration
 
+## [1.4.0] - 2026-02-15
+
+### Added - Import/Export Profiles (Issue #11)
+- **Export Profiles**
+  - Export all proxy profiles as JSON file
+  - Clean export format with version metadata for forward compatibility
+  - Automatic filename with date: `x-proxy-profiles-YYYY-MM-DD.json`
+
+- **Import Profiles**
+  - Import profiles from JSON export file
+  - Strict validation of file format and profile data
+  - Non-destructive append mode (existing profiles preserved)
+  - Partial import support with skip count for invalid profiles
+  - Graceful error handling with user-friendly messages
+
 ## [1.3.1] - 2025-12-29
 
 ### Fixed - Domain Validation Bug (Issue #9)

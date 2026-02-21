@@ -41,9 +41,13 @@
           <h2>Proxy Profiles</h2>
           <div class="section-header">
             <p class="section-description">Manage your proxy server configurations</p>
-            <button id="addProfileBtn" class="btn btn-primary" aria-label="Add new proxy profile">
-              Add Profile
-            </button>
+            <div class="section-header-actions">
+              <button id="importProfilesBtn" class="btn btn-secondary">Import</button>
+              <button id="exportProfilesBtn" class="btn btn-secondary">Export</button>
+              <button id="addProfileBtn" class="btn btn-primary" aria-label="Add new proxy profile">
+                Add Profile
+              </button>
+            </div>
           </div>
 
           <div id="profilesList" class="profiles-list">
@@ -65,7 +69,7 @@
             </div>
             
             <div class="about-info">
-              <h3>X-Proxy v1.3.1</h3>
+              <h3>X-Proxy v1.4.0</h3>
               <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
               
               <div class="about-details">
@@ -75,6 +79,7 @@
                   <li>✓ SOCKS5 & HTTP(S) proxy support</li>
                   <li>✓ System proxy integration</li>
                   <li>✓ Simple profile management</li>
+                  <li>✓ Import/Export profiles</li>
                 </ul>
               </div>
               
@@ -220,7 +225,7 @@ github.com
   </div>
 
 
-  <!-- Import/Export file inputs removed (features offline) -->
+  <input type="file" id="importFileInput" accept=".json" style="display: none;">
 
   <script src="options.js" type="module"></script>
 </body>

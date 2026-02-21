@@ -87,13 +87,15 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.3.0** - Bypass List Update
-• Whitelist/Blacklist routing mode selection
-• Blacklist mode: listed domains bypass proxy
-• Dynamic UI labels based on selected mode
-• Backward compatible with existing profiles
+**Version 1.4.0** - Import/Export Profiles
+• Export all proxy profiles as JSON file for backup
+• Import profiles from JSON file (non-destructive append)
+• Strict validation with graceful error handling
+• Automatic filename with date: `x-proxy-profiles-YYYY-MM-DD.json`
 
 **Previous Updates:**
+• v1.3.1: Fixed domain validation for blacklist mode (IPv4/IPv6/localhost support)
+• v1.3.0: Whitelist/Blacklist routing mode selection
 • v1.2.0: Domain-based routing rules (whitelist mode)
 • v1.0.0: Initial stable release with HTTP/HTTPS and SOCKS5 support
 
