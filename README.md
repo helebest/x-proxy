@@ -42,6 +42,7 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 - **⚡ Instant Switching**: Activate profiles with a single click from toolbar
 - **🎯 Domain Routing**: Configure specific domains to use proxy (whitelist mode)
 - **🔧 System Integration**: Seamless Chrome proxy API integration
+- **📤 Import/Export**: Backup and restore proxy configurations as JSON
 - **💾 Local Storage**: All data stays on your device, no cloud sync
 
 ### Developer-Friendly
@@ -224,7 +225,6 @@ Contributions are welcome! Here's how you can help:
 - ✨ UI/UX enhancements
 
 ### Wanted Features
-- Import/export profiles
 - Firefox port (WebExtensions)
 - Dark mode theme
 - Profile sharing via URL
@@ -322,8 +322,8 @@ If you find X-Proxy useful, consider:
 - [x] Added IPv4/IPv6 address support in routing rules
 - [x] Added localhost and simple hostname support
 
-### v1.4.0 (Planned)
-- [ ] Import/export profiles (JSON format)
+### v1.4.0 ✅ (Import/Export)
+- [x] Import/export profiles (JSON format)
 - [ ] Profile sharing via URL
 - [ ] Connection testing
 - [ ] Dark mode theme
