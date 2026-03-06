@@ -239,6 +239,12 @@ nav {
     line-height: 1.7;
 }
 
+/* Providers Section */
+.providers {
+    padding: 80px 0;
+    background: #EEF2FF;
+}
+
 /* Installation Section */
 .installation {
     padding: 80px 0;

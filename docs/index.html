@@ -7,6 +7,15 @@
     <meta name="description" content="Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick one-click proxy switching, multiple profile management, and seamless system integration. Open-source and privacy-focused.">
     <meta name="keywords" content="chrome proxy extension, proxy switcher, socks5 chrome, http proxy, free proxy manager, chrome extension proxy, browser proxy switcher, proxy profiles, quick proxy switch">
 
+    <!-- Google Analytics 4 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-P6ZK97CGXR"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-P6ZK97CGXR');
+    </script>
+
     <!-- Canonical URL -->
     <link rel="canonical" href="https://helebest.github.io/x-proxy/">
 
@@ -52,8 +61,8 @@
       },
       "aggregateRating": {
         "@type": "AggregateRating",
-        "ratingValue": "4.8",
-        "ratingCount": "150",
+        "ratingValue": "4.0",
+        "ratingCount": "3",
         "bestRating": "5",
         "worstRating": "1"
       },
@@ -71,6 +80,8 @@
         "One-Click Proxy Switching",
         "Multiple Proxy Profiles",
         "Profile Management",
+        "Import/Export Profiles",
+        "Domain Routing (Whitelist/Blacklist)",
         "System Proxy Integration",
         "Local Data Storage",
         "No Data Collection",
@@ -323,6 +334,12 @@
             line-height: 1.7;
         }
 
+        /* Providers Section */
+        .providers {
+            padding: 80px 0;
+            background: #EEF2FF;
+        }
+
         /* Installation Section */
         .installation {
             padding: 80px 0;
@@ -560,6 +577,7 @@
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#installation">Installation</a></li>
+                <li><a href="#providers">Providers</a></li>
                 <li><a href="#privacy">Privacy</a></li>
                 <li><a href="https://github.com/helebest/x-proxy" target="_blank">GitHub</a></li>
             </ul>
@@ -636,6 +654,11 @@
                     <div class="feature-icon">🔒</div>
                     <h3>Local Storage</h3>
                     <p>All data stored securely on your device. No external servers, no data transmission.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📤</div>
+                    <h3>Import & Export</h3>
+                    <p>Backup and restore your proxy profiles as JSON. Share configurations across devices or with your team.</p>
                 </div>
             </div>
         </div>
@@ -783,7 +806,7 @@ npm run build
                 <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <h3 itemprop="name">Where can I get proxy servers?</h3>
                     <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p itemprop="text">X-Proxy is a proxy management tool and doesn't provide proxy servers. You can obtain proxy servers from commercial proxy service providers, your organization's IT department, or set up your own proxy server. Always ensure you have permission to use any proxy server.</p>
+                        <p itemprop="text">X-Proxy is a proxy management tool and doesn't provide proxy servers. You can obtain proxy servers from trusted commercial providers such as NordVPN (offers SOCKS5 proxies), Bright Data (for developers and businesses), or Smartproxy (residential proxies). You can also get proxies from your organization's IT department, or set up your own proxy server using open-source tools like Squid, Shadowsocks, or V2Ray. Always ensure you have permission to use any proxy server.</p>
                     </div>
                 </div>
 
@@ -792,6 +815,34 @@ npm run build
                     <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
                         <p itemprop="text">X-Proxy works at the browser level, while VPNs work at the system level. You can use both simultaneously, but the VPN will typically take precedence for all traffic. For browser-specific proxy routing, use X-Proxy without an active VPN.</p>
                     </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recommended Proxy Providers -->
+    <section class="providers" id="providers">
+        <div class="container">
+            <h2 class="section-title">Recommended Proxy Providers</h2>
+            <p style="text-align: center; color: var(--gray); margin-bottom: 2rem; max-width: 700px; margin-left: auto; margin-right: auto;">X-Proxy helps you manage proxy connections. Need a proxy server? Here are some trusted providers that work great with X-Proxy.</p>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #4687ff;">P</div>
+                    <h3>For Personal Use</h3>
+                    <p>VPN providers like <strong>NordVPN</strong> and <strong>Surfshark</strong> offer SOCKS5 proxy servers included with their subscriptions. Great for privacy-focused browsing and bypassing geo-restrictions.</p>
+                    <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--gray);">Typical cost: $3-12/month</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #10B981;">D</div>
+                    <h3>For Developers</h3>
+                    <p><strong>Bright Data</strong> and <strong>Smartproxy</strong> provide residential and datacenter proxies for web scraping, testing, and development. Enterprise-grade reliability with API access.</p>
+                    <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--gray);">Typical cost: $10-500/month</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon" style="background: #8B5CF6;">S</div>
+                    <h3>Self-Hosted</h3>
+                    <p>Run your own proxy server using open-source tools like <strong>Squid</strong>, <strong>Shadowsocks</strong>, or <strong>V2Ray</strong>. Full control over your proxy infrastructure with zero recurring costs.</p>
+                    <p style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--gray);">Cost: VPS hosting ($3-10/month)</p>
                 </div>
             </div>
         </div>
@@ -861,7 +912,7 @@ npm run build
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2025 X-Proxy. Simple, reliable proxy switching for Chrome. MIT Licensed.</p>
+                <p>&copy; 2025-2026 X-Proxy. Simple, reliable proxy switching for Chrome. MIT Licensed.</p>
             </div>
         </div>
     </footer>
