@@ -15,7 +15,33 @@ Future improvements planned:
 - Performance optimizations
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
-- Google Analytics integration
+
+## [1.4.1] - 2026-03-09
+
+### Fixed - Domain Routing Bug
+- **Missing `mode` property in routingRules normalization**
+  - `normalizeProfile()` in options.js and popup.js did not include `mode` in fallback defaults
+  - `normalizeProfileForSave()` in options.js had the same issue
+  - This caused PAC script generation to receive `mode: undefined`, breaking domain-based routing
+  - Users reported: "Proxy doesn't work by domains although such settings exist"
+
+### Added - Unit Tests
+- **Profile normalization tests** (`tests/normalize.test.js`)
+  - Tests for routingRules fallback defaults including `mode` property
+  - Round-trip normalization tests (normalize → save → reload → normalize)
+  - Tests for both options.js and popup.js normalization functions
+- **PAC script generation tests** (`tests/pac.test.js`)
+  - Whitelist mode: whitelisted domains use proxy, others go direct
+  - Blacklist mode: blacklisted domains go direct, others use proxy
+  - Wildcard domain matching tests
+  - Proxy type formatting (HTTP vs SOCKS5)
+  - Mode fallback behavior when `mode` is undefined
+- **Vitest configuration** (`vitest.config.ts`)
+  - Configured vitest for running unit tests
+  - Updated npm scripts: `test`, `test:watch`, `test:coverage`
+
+### Changed
+- Updated npm test scripts to use vitest instead of placeholder echo commands
 
 ## [1.4.0] - 2026-02-15
 

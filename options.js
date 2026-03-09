@@ -76,6 +76,7 @@ class OptionsManager {
         bypassList: profile.bypassList || [],
         routingRules: profile.config?.routingRules || {
           enabled: false,
+          mode: 'whitelist',
           domains: []
         }
       },
@@ -141,6 +142,7 @@ class OptionsManager {
         bypassList: config.bypassList || profile.bypassList || [],
         routingRules: config.routingRules || profile.routingRules || {
           enabled: false,
+          mode: 'whitelist',
           domains: []
         }
       },
