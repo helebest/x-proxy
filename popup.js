@@ -135,6 +135,7 @@ function normalizeProfile(profile) {
             pacUrl: profile.pacUrl,
             routingRules: profile.config?.routingRules || {
                 enabled: false,
+                mode: 'whitelist',
                 domains: []
             }
         },
