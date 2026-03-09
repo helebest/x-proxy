@@ -20,7 +20,7 @@
     "test:watch": "vitest",
     "test:unit": "vitest run",
     "test:integration": "vitest run",
-    "test:coverage": "vitest run --coverage"
+    "test:coverage": "vitest run"
   },
   "keywords": [
     "vite",
