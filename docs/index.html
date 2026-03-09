@@ -340,6 +340,47 @@
             background: #EEF2FF;
         }
 
+        /* Support Section */
+        .support {
+            padding: 80px 0;
+            background: white;
+            text-align: center;
+        }
+
+        .support-content {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .support-content p {
+            color: var(--gray);
+            line-height: 1.7;
+            margin-bottom: 2rem;
+        }
+
+        .kofi-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #FF5E5B;
+            color: white;
+            padding: 14px 32px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .kofi-button:hover {
+            background: #e54e4b;
+            transform: translateY(-2px);
+        }
+
+        .kofi-button img {
+            height: 24px;
+        }
+
         /* Installation Section */
         .installation {
             padding: 80px 0;
@@ -873,6 +914,20 @@ npm run build
         </div>
     </section>
 
+    <!-- Support / Donate -->
+    <section class="support" id="support">
+        <div class="container">
+            <h2 class="section-title">Support X-Proxy</h2>
+            <div class="support-content">
+                <p>X-Proxy is free and open-source. If it helps you, consider buying me a coffee to support ongoing development and new features.</p>
+                <a href="https://ko-fi.com/lehe0324" target="_blank" rel="noopener" class="kofi-button">
+                    <img src="https://storage.ko-fi.com/cdn/cup-border.png" alt="Ko-fi">
+                    Buy me a Coffee
+                </a>
+            </div>
+        </div>
+    </section>
+
     <!-- Footer -->
     <footer>
         <div class="container">
@@ -908,6 +963,7 @@ npm run build
                     <ul>
                         <li><a href="https://github.com/helebest/x-proxy/issues" target="_blank">Report Issues</a></li>
                         <li><a href="https://github.com/helebest/x-proxy/discussions" target="_blank">Discussions</a></li>
+                        <li><a href="https://ko-fi.com/lehe0324" target="_blank" rel="noopener">Donate</a></li>
                     </ul>
                 </div>
             </div>
