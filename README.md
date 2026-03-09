@@ -285,7 +285,7 @@ If you find X-Proxy useful, consider:
 - ⭐ **Starring** the repository
 - 🐛 **Reporting bugs** or suggesting features
 - 🤝 **Contributing** code or documentation
-- 💝 **Donating** via [PayPal](https://www.paypal.com/paypalme/lehe324)
+- 💝 **Donating** via [Ko-fi](https://ko-fi.com/lehe0324) or [PayPal](https://www.paypal.com/paypalme/lehe324)
 
 ## 📈 Roadmap
 
@@ -324,11 +324,16 @@ If you find X-Proxy useful, consider:
 
 ### v1.4.0 ✅ (Import/Export)
 - [x] Import/export profiles (JSON format)
+
+### v1.4.1 ✅ (Bug Fix + Tests)
+- [x] Fixed domain routing bug (missing `mode` in normalization)
+- [x] Added unit tests for normalization and PAC script generation
+- [x] Configured vitest with real test scripts
+
+### v2.0.0 (Future)
 - [ ] Profile sharing via URL
 - [ ] Connection testing
 - [ ] Dark mode theme
-
-### v2.0.0 (Future)
 - [ ] Firefox support (WebExtensions)
 - [ ] Advanced proxy features
 - [ ] Statistics and analytics (local only)
@@ -355,7 +360,7 @@ Inspired by projects like SwitchyOmega and FoxyProxy, but with a focus on simpli
 ---
 
 <p align="center">
-  Made with ❤️ by <a href="https://github.com/helebest">helebest</a> • <a href="https://www.paypal.com/paypalme/lehe324">💝 Donate</a>
+  Made with ❤️ by <a href="https://github.com/helebest">helebest</a> • <a href="https://ko-fi.com/lehe0324">☕ Ko-fi</a> • <a href="https://www.paypal.com/paypalme/lehe324">💝 PayPal</a>
 </p>
 
 <p align="center">
