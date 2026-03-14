@@ -73,6 +73,7 @@ class OptionsManager {
         type: profile.type || 'http',
         host: profile.host || '',
         port: parseInt(profile.port) || 8080,
+        auth: profile.config?.auth || { username: '', password: '' },
         bypassList: profile.bypassList || [],
         routingRules: profile.config?.routingRules || {
           enabled: false,
@@ -139,6 +140,7 @@ class OptionsManager {
         type: config.type || profile.type || 'http',
         host: config.host || profile.host || '',
         port: parseInt(config.port || profile.port) || 8080,
+        auth: config.auth || { username: '', password: '' },
         bypassList: config.bypassList || profile.bypassList || [],
         routingRules: config.routingRules || profile.routingRules || {
           enabled: false,
@@ -182,6 +184,16 @@ class OptionsManager {
 
     // Proxy type change handler
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
+
+    // Password visibility toggle
+    document.getElementById('togglePassword').addEventListener('click', () => {
+      const input = document.getElementById('proxyPassword');
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      document.getElementById('eyeIcon').style.display = isPassword ? 'none' : 'inline';
+      document.getElementById('eyeOffIcon').style.display = isPassword ? 'inline' : 'none';
+      document.getElementById('toggleText').textContent = isPassword ? 'Hide' : 'Show';
+    });
 
     // Routing rules toggle
     document.getElementById('enableRoutingRules').addEventListener('change', (e) => {
@@ -367,6 +379,11 @@ class OptionsManager {
       this.updateDomainListLabel(routingMode);
 
       document.getElementById('domainListTextarea').value = (routingRules.domains || []).join('\n');
+
+      // Load auth fields
+      const auth = config.auth || { username: '', password: '' };
+      document.getElementById('proxyUsername').value = auth.username || '';
+      document.getElementById('proxyPassword').value = auth.password || '';
     } else {
       title.textContent = 'Add Proxy Profile';
       document.getElementById('profileForm').reset();
@@ -464,6 +481,10 @@ github.com
       return;
     }
 
+    // Collect auth credentials
+    const username = document.getElementById('proxyUsername').value.trim();
+    const password = document.getElementById('proxyPassword').value;
+
     // Create profile with correct nested structure
     const profile = {
       id: this.editingProfile?.id || Date.now().toString(),
@@ -473,6 +494,7 @@ github.com
         type: type,
         host: host,
         port: parseInt(port),
+        auth: { username, password },
         bypassList: this.editingProfile?.config?.bypassList || [],
         routingRules: {
           enabled: routingEnabled,

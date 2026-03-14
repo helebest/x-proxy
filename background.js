@@ -299,6 +299,51 @@ chrome.runtime.onStartup.addListener(() => {
   initializeProxyState();
 });
 
+// Handle proxy authentication requests
+// Uses asyncBlocking because service worker may restart and lose in-memory activeProfile
+chrome.webRequest.onAuthRequired.addListener(
+  (details, asyncCallback) => {
+    if (!details.isProxy) {
+      asyncCallback({});
+      return;
+    }
+
+    // Try in-memory profile first (fast path)
+    if (activeProfile) {
+      const auth = activeProfile.config?.auth;
+      if (auth && auth.username) {
+        console.log('Auth provided from memory for:', activeProfile.name);
+        asyncCallback({ authCredentials: { username: auth.username, password: auth.password } });
+        return;
+      }
+      asyncCallback({});
+      return;
+    }
+
+    // Fallback: read from storage (service worker may have restarted)
+    chrome.storage.local.get(['x-proxy-data']).then(result => {
+      const data = result['x-proxy-data'] || {};
+      if (data.activeProfileId && data.profiles) {
+        const profile = data.profiles.find(p => p.id === data.activeProfileId);
+        if (profile) {
+          activeProfile = profile; // Restore in-memory state
+          const auth = profile.config?.auth;
+          if (auth && auth.username) {
+            console.log('Auth provided from storage for:', profile.name);
+            asyncCallback({ authCredentials: { username: auth.username, password: auth.password } });
+            return;
+          }
+        }
+      }
+      asyncCallback({});
+    }).catch(() => {
+      asyncCallback({});
+    });
+  },
+  { urls: ["<all_urls>"] },
+  ["asyncBlocking"]
+);
+
 // Handle messages from popup and options with improved error handling
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Background received message:', request);

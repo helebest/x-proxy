@@ -69,7 +69,7 @@
             </div>
             
             <div class="about-info">
-              <h3>X-Proxy v1.4.1</h3>
+              <h3>X-Proxy v1.4.2</h3>
               <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
               
               <div class="about-details">
@@ -80,6 +80,7 @@
                   <li>✓ System proxy integration</li>
                   <li>✓ Simple profile management</li>
                   <li>✓ Import/Export profiles</li>
+                  <li>✓ Proxy authentication (username/password)</li>
                 </ul>
               </div>
               
@@ -169,6 +170,37 @@
             <div class="form-group">
               <label for="proxyPort">Port *</label>
               <input type="number" id="proxyPort" class="form-input" placeholder="8080" required>
+            </div>
+          </div>
+
+          <!-- Authentication (Optional) -->
+          <div class="form-section">
+            <div class="form-section-header">
+              <h4>Authentication (Optional)</h4>
+            </div>
+            <div class="form-group">
+              <label for="proxyUsername">Username</label>
+              <input type="text" id="proxyUsername" class="form-input"
+                     placeholder="Leave empty if not required" autocomplete="off">
+            </div>
+            <div class="form-group">
+              <div class="password-label-row">
+                <label for="proxyPassword">Password</label>
+                <button type="button" id="togglePassword" class="password-toggle">
+                  <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                    <circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                  <svg id="eyeOffIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none">
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"></path>
+                    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"></path>
+                    <line x1="1" y1="1" x2="23" y2="23"></line>
+                  </svg>
+                  <span id="toggleText">Show</span>
+                </button>
+              </div>
+              <input type="password" id="proxyPassword" class="form-input"
+                     placeholder="Leave empty if not required" autocomplete="off">
             </div>
           </div>
 
