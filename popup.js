@@ -127,12 +127,8 @@ function normalizeProfile(profile) {
             type: profile.type || 'http',
             host: profile.host || '',
             port: parseInt(profile.port) || 8080,
-            auth: profile.auth ? {
-                username: profile.username || '',
-                password: profile.password || ''
-            } : undefined,
+            auth: profile.config?.auth || { username: '', password: '' },
             bypassList: profile.bypassList || [],
-            pacUrl: profile.pacUrl,
             routingRules: profile.config?.routingRules || {
                 enabled: false,
                 mode: 'whitelist',

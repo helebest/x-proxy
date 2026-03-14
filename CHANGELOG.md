@@ -16,6 +16,17 @@ Future improvements planned:
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
 
+## [1.4.2] - 2026-03-14
+
+### Added - Proxy Authentication (Issue #17)
+- **Username/Password authentication for proxy servers**
+  - Optional username and password fields in profile configuration
+  - Handled via `chrome.webRequest.onAuthRequired` (Manifest V3)
+  - Works with both HTTP/HTTPS and SOCKS5 proxy types
+  - Credentials stored locally, never transmitted externally
+- **New permissions**: `webRequest`, `webRequestAuthProvider`
+- **Unit Tests**: auth normalization tests + auth handler tests (TDD)
+
 ## [1.4.1] - 2026-03-09
 
 ### Fixed - Domain Routing Bug

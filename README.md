@@ -42,6 +42,7 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 - **⚡ Instant Switching**: Activate profiles with a single click from toolbar
 - **🎯 Domain Routing**: Configure specific domains to use proxy (whitelist mode)
 - **🔧 System Integration**: Seamless Chrome proxy API integration
+- **🔐 Proxy Authentication**: Username/password support for authenticated proxies
 - **📤 Import/Export**: Backup and restore proxy configurations as JSON
 - **💾 Local Storage**: All data stays on your device, no cloud sync
 
@@ -329,6 +330,11 @@ If you find X-Proxy useful, consider:
 - [x] Fixed domain routing bug (missing `mode` in normalization)
 - [x] Added unit tests for normalization and PAC script generation
 - [x] Configured vitest with real test scripts
+
+### v1.4.2 ✅ (Proxy Authentication)
+- [x] Username/password authentication for proxy servers (Issue #17)
+- [x] `chrome.webRequest.onAuthRequired` handler
+- [x] Auth normalization and handler unit tests (TDD)
 
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
