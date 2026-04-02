@@ -255,10 +255,24 @@
             <li><strong>Usage:</strong> Used to persist your configurations between browser sessions</li>
         </ul>
 
+        <h3>"webRequest" Permission</h3>
+        <ul>
+            <li><strong>Purpose:</strong> Required to intercept proxy authentication challenges (HTTP 407 responses) so the extension can automatically provide credentials</li>
+            <li><strong>Usage:</strong> The extension listens only to <code>chrome.webRequest.onAuthRequired</code> events. It does not read, modify, redirect, or block any web request content</li>
+            <li><strong>Scope:</strong> Only proxy authentication events are handled (<code>details.isProxy === true</code>); all other authentication requests are ignored</li>
+        </ul>
+
+        <h3>"webRequestAuthProvider" Permission</h3>
+        <ul>
+            <li><strong>Purpose:</strong> Required to programmatically respond to proxy server authentication requests using the username and password saved in the user's proxy profile</li>
+            <li><strong>Usage:</strong> When a proxy server requests authentication, this permission allows the extension to supply the stored credentials automatically, avoiding repeated browser login popups</li>
+            <li><strong>Data Access:</strong> Only the stored proxy credentials (username/password) are used; no other web request data is accessed</li>
+        </ul>
+
         <h3>Host Permissions ("<all_urls>")</h3>
         <ul>
-            <li><strong>Purpose:</strong> Required to apply proxy settings to all websites you visit</li>
-            <li><strong>Usage:</strong> Necessary for the proxy to function across all web traffic as intended</li>
+            <li><strong>Purpose:</strong> Required by the proxy and webRequest APIs to apply proxy settings and handle proxy authentication challenges across all websites</li>
+            <li><strong>Usage:</strong> Necessary for the proxy to function across all web traffic. The webRequest permission requires host_permissions to intercept proxy auth challenges, which can occur on any URL</li>
             <li><strong>Note:</strong> This permission does not allow the extension to access, read, or modify website content</li>
         </ul>
 

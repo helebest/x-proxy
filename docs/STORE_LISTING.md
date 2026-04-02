@@ -106,9 +106,19 @@ X-Proxy respects your privacy:
 X-Proxy requires minimal permissions to function:
 • **proxy**: To configure browser proxy settings
 • **storage**: To save your proxy profiles locally
-• **action**: To update the extension icon badge
+• **webRequest**: To intercept proxy authentication challenges (HTTP 407) and provide credentials automatically
+• **webRequestAuthProvider**: To respond to proxy server authentication requests using the username/password saved in your proxy profile
+• **host_permissions (<all_urls>)**: Required by webRequest to handle proxy auth challenges on any URL, since proxy authentication can occur on any web request
 
-All permissions are used solely for core functionality. No personal data is collected or transmitted.
+All permissions are used solely for core functionality. No personal data is collected or transmitted. The webRequest and webRequestAuthProvider permissions are used exclusively for proxy authentication — the extension does not read, modify, or log any web request content.
+
+### 🔒 Privacy Justification for webRequest & webRequestAuthProvider
+
+**Why webRequest is needed:** X-Proxy uses `chrome.webRequest.onAuthRequired` to detect when a proxy server requests authentication (HTTP 407 response). Without this permission, users with password-protected proxies would see repeated authentication popups from Chrome.
+
+**Why webRequestAuthProvider is needed:** This permission allows the extension to programmatically supply proxy credentials (username and password) that the user has configured in their proxy profile. The extension only responds to proxy authentication challenges (`details.isProxy === true`) and ignores all other authentication requests.
+
+**What data is accessed:** Only the proxy authentication challenge event. The extension does not read, modify, redirect, or block any web request content. Credentials are stored locally via `chrome.storage.local` and are never transmitted to any external server.
 
 ### 🆘 Support
 

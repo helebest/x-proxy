@@ -72,9 +72,19 @@ X-Proxy requests the following permissions, which are essential for its function
 - **Purpose**: Required to save your proxy profiles, preferences, and settings locally on your device
 - **Usage**: Used to persist your configurations between browser sessions
 
+### "webRequest" Permission
+- **Purpose**: Required to intercept proxy authentication challenges (HTTP 407 responses) so the extension can automatically provide credentials
+- **Usage**: The extension listens only to `chrome.webRequest.onAuthRequired` events. It does not read, modify, redirect, or block any web request content
+- **Scope**: Only proxy authentication events are handled (`details.isProxy === true`); all other authentication requests are ignored
+
+### "webRequestAuthProvider" Permission
+- **Purpose**: Required to programmatically respond to proxy server authentication requests using the username and password saved in the user's proxy profile
+- **Usage**: When a proxy server requests authentication, this permission allows the extension to supply the stored credentials automatically, avoiding repeated browser login popups
+- **Data Access**: Only the stored proxy credentials (username/password) are used; no other web request data is accessed
+
 ### Host Permissions ("<all_urls>")
-- **Purpose**: Required to apply proxy settings to all websites you visit
-- **Usage**: Necessary for the proxy to function across all web traffic as intended
+- **Purpose**: Required by the proxy and webRequest APIs to apply proxy settings and handle proxy authentication challenges across all websites
+- **Usage**: Necessary for the proxy to function across all web traffic as intended. The webRequest permission requires host_permissions to intercept proxy auth challenges, which can occur on any URL
 - **Note**: This permission does not allow the extension to access, read, or modify website content
 
 ## Data Sharing and Disclosure
