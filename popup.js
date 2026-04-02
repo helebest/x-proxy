@@ -123,12 +123,13 @@ function normalizeProfile(profile) {
         color: profile.color || '#007AFF',
         isActive: profile.isActive || false,
         isDefault: profile.isDefault || false,
-        config: profile.config || {
+        config: profile.config ? { ...profile.config, pacUrl: profile.config.pacUrl || '' } : {
             type: profile.type || 'http',
             host: profile.host || '',
             port: parseInt(profile.port) || 8080,
             auth: profile.config?.auth || { username: '', password: '' },
             bypassList: profile.bypassList || [],
+            pacUrl: '',
             routingRules: profile.config?.routingRules || {
                 enabled: false,
                 mode: 'whitelist',
@@ -418,7 +419,16 @@ function createProfileElement(profile) {
     const type = profile.config?.type || 'PROXY';
     const host = profile.config?.host || '';
     const port = profile.config?.port || '';
+    const pacUrl = profile.config?.pacUrl || '';
     const color = profile.color || '#007AFF';
+
+    let displayInfo;
+    if (type === 'pac') {
+        const truncatedUrl = pacUrl.length > 30 ? pacUrl.substring(0, 27) + '...' : pacUrl;
+        displayInfo = `PAC • ${escapeHtml(truncatedUrl)}`;
+    } else {
+        displayInfo = `${type} • ${host}:${port}`;
+    }
 
     div.innerHTML = `
         <div class="profile-icon" style="color: ${color}">
@@ -429,7 +439,7 @@ function createProfileElement(profile) {
         </div>
         <div class="profile-content">
             <h4>${escapeHtml(profile.name)}</h4>
-            <p>${type} • ${host}:${port}</p>
+            <p>${displayInfo}</p>
         </div>
         <div class="profile-actions">
             <button class="profile-edit" title="Edit">

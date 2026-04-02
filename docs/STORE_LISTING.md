@@ -4,7 +4,7 @@
 X-Proxy - Simple Proxy Switcher
 
 ## Short Description (132 characters max)
-Simple and reliable proxy switcher for Chrome with HTTP/HTTPS and SOCKS5 support. Easy profile management and quick switching.
+Simple and reliable proxy switcher for Chrome with HTTP/HTTPS, SOCKS5, and PAC file support. Easy profile management and quick switching.
 
 ## Detailed Description
 
@@ -17,6 +17,7 @@ X-Proxy is a clean, lightweight proxy switcher that makes managing your proxy co
 **🔄 Core Proxy Support**
 • HTTP/HTTPS proxy support (combined as one type for simplicity)
 • SOCKS5 proxy support
+• PAC (Proxy Auto-Configuration) file support via URL or local file path
 • System proxy mode (direct connection)
 
 **⚡ Easy to Use**
@@ -47,7 +48,7 @@ X-Proxy is a clean, lightweight proxy switcher that makes managing your proxy co
 
 ### 💡 Perfect For
 
-• **Basic Proxy Needs**: Simple HTTP/SOCKS5 proxy switching
+• **Basic Proxy Needs**: Simple HTTP/SOCKS5 proxy switching or PAC file configuration
 • **Developers**: Test applications with different proxy configurations
 • **Privacy Users**: Route traffic through trusted proxies
 • **Network Testing**: Quickly switch between different proxy servers
@@ -87,13 +88,14 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.4.0** - Import/Export Profiles
-• Export all proxy profiles as JSON file for backup
-• Import profiles from JSON file (non-destructive append)
-• Strict validation with graceful error handling
-• Automatic filename with date: `x-proxy-profiles-YYYY-MM-DD.json`
+**Version 1.5.0** - PAC File Support
+• Custom PAC (Proxy Auto-Configuration) file support
+• HTTP/HTTPS URLs and local file paths supported
+• Dedicated PAC URL input in profile editor
 
 **Previous Updates:**
+• v1.4.2: Proxy authentication (username/password)
+• v1.4.0: Import/Export profiles as JSON
 • v1.3.1: Fixed domain validation for blacklist mode (IPv4/IPv6/localhost support)
 • v1.3.0: Whitelist/Blacklist routing mode selection
 • v1.2.0: Domain-based routing rules (whitelist mode)

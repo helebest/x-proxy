@@ -1,4 +1,17 @@
 // Options Page JavaScript
+
+function createPacConfig(pacUrl) {
+  return {
+    type: 'pac',
+    pacUrl,
+    host: '',
+    port: 0,
+    auth: { username: '', password: '' },
+    bypassList: [],
+    routingRules: { enabled: false, mode: 'whitelist', domains: [] }
+  };
+}
+
 class OptionsManager {
   constructor() {
     this.profiles = [];
@@ -69,12 +82,13 @@ class OptionsManager {
       color: profile.color || '#007AFF',
       isActive: profile.isActive || false,
       isDefault: profile.isDefault || false,
-      config: profile.config || {
+      config: profile.config ? { ...profile.config, pacUrl: profile.config.pacUrl || '' } : {
         type: profile.type || 'http',
         host: profile.host || '',
         port: parseInt(profile.port) || 8080,
         auth: profile.config?.auth || { username: '', password: '' },
         bypassList: profile.bypassList || [],
+        pacUrl: '',
         routingRules: profile.config?.routingRules || {
           enabled: false,
           mode: 'whitelist',
@@ -142,6 +156,7 @@ class OptionsManager {
         port: parseInt(config.port || profile.port) || 8080,
         auth: config.auth || { username: '', password: '' },
         bypassList: config.bypassList || profile.bypassList || [],
+        pacUrl: config.pacUrl || '',
         routingRules: config.routingRules || profile.routingRules || {
           enabled: false,
           mode: 'whitelist',
@@ -277,9 +292,19 @@ class OptionsManager {
       // Normalize deprecated types since they're now combined/removed
       if (type === 'https') type = 'http';
       if (type === 'socks4') type = 'socks5';
-      const host = config.host || profile.host || '';
-      const port = config.port || profile.port || '';
-      
+
+      let displayType, displayDetails;
+      if (type === 'pac') {
+        displayType = 'PAC';
+        const pacUrl = config.pacUrl || '';
+        displayDetails = pacUrl.length > 50 ? pacUrl.substring(0, 47) + '...' : pacUrl;
+      } else {
+        displayType = type === 'http' ? 'HTTP/HTTPS' : type.toUpperCase();
+        const host = config.host || profile.host || '';
+        const port = config.port || profile.port || '';
+        displayDetails = `${host}:${port}`;
+      }
+
       card.innerHTML = `
         <div class="profile-header">
           <div class="profile-info">
@@ -287,11 +312,11 @@ class OptionsManager {
               <span class="profile-color-indicator" style="background: ${profile.color}"></span>
               ${profile.name}
             </div>
-            <div class="profile-type">${type === 'http' ? 'HTTP/HTTPS' : type.toUpperCase()}</div>
+            <div class="profile-type">${displayType}</div>
           </div>
         </div>
         <div class="profile-details">
-          ${host}:${port}
+          ${displayDetails}
         </div>
         <div class="profile-actions">
           <button class="btn btn-secondary" data-action="edit" data-index="${index}">Edit</button>
@@ -384,6 +409,9 @@ class OptionsManager {
       const auth = config.auth || { username: '', password: '' };
       document.getElementById('proxyUsername').value = auth.username || '';
       document.getElementById('proxyPassword').value = auth.password || '';
+
+      // Load PAC URL
+      document.getElementById('pacUrl').value = config.pacUrl || '';
     } else {
       title.textContent = 'Add Proxy Profile';
       document.getElementById('profileForm').reset();
@@ -393,6 +421,7 @@ class OptionsManager {
       document.getElementById('routingModeWhitelist').checked = true;
       this.updateDomainListLabel('whitelist');
       document.getElementById('domainListTextarea').value = '';
+      document.getElementById('pacUrl').value = '';
     }
 
     this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
@@ -405,8 +434,11 @@ class OptionsManager {
   }
 
   handleProxyTypeChange(e) {
-    // No need to handle PAC type anymore
-    document.getElementById('proxyDetails').style.display = 'block';
+    const isPac = e.target.value === 'pac';
+    document.getElementById('proxyDetails').style.display = isPac ? 'none' : 'block';
+    document.getElementById('pacDetails').style.display = isPac ? 'block' : 'none';
+    document.getElementById('authSection').style.display = isPac ? 'none' : 'block';
+    document.getElementById('routingSection').style.display = isPac ? 'none' : 'block';
   }
 
   // Validate domain/IP format (supports wildcards, CIDR, localhost, etc.)
@@ -461,7 +493,13 @@ github.com
       return;
     }
 
-    if (!host || !port) {
+    if (type === 'pac') {
+      const pacUrlValue = document.getElementById('pacUrl').value.trim();
+      if (!pacUrlValue) {
+        alert('Please enter a PAC URL or file path');
+        return;
+      }
+    } else if (!host || !port) {
       alert('Please enter host and port');
       return;
     }
@@ -490,11 +528,12 @@ github.com
       id: this.editingProfile?.id || Date.now().toString(),
       name,
       color,
-      config: {
+      config: type === 'pac' ? createPacConfig(document.getElementById('pacUrl').value.trim()) : {
         type: type,
         host: host,
         port: parseInt(port),
         auth: { username, password },
+        pacUrl: '',
         bypassList: this.editingProfile?.config?.bypassList || [],
         routingRules: {
           enabled: routingEnabled,
@@ -554,6 +593,7 @@ github.com
         })(),
         host: original.config?.host || original.host || '',
         port: parseInt(original.config?.port || original.port) || 8080,
+        pacUrl: original.config?.pacUrl || '',
         bypassList: original.config?.bypassList || original.bypassList || [],
         routingRules: original.config?.routingRules ? {
           enabled: original.config.routingRules.enabled || false,
@@ -745,30 +785,38 @@ github.com
         continue;
       }
 
-      if (!['http', 'socks5'].includes(config.type)) {
+      if (!['http', 'socks5', 'pac'].includes(config.type)) {
         skipped++;
         continue;
       }
 
-      if (!config.host || typeof config.host !== 'string' || !config.host.trim()) {
-        skipped++;
-        continue;
-      }
+      if (config.type === 'pac') {
+        if (!config.pacUrl || typeof config.pacUrl !== 'string' || !config.pacUrl.trim()) {
+          skipped++;
+          continue;
+        }
+      } else {
+        if (!config.host || typeof config.host !== 'string' || !config.host.trim()) {
+          skipped++;
+          continue;
+        }
 
-      const port = parseInt(config.port);
-      if (isNaN(port) || port < 1 || port > 65535) {
-        skipped++;
-        continue;
+        const port = parseInt(config.port);
+        if (isNaN(port) || port < 1 || port > 65535) {
+          skipped++;
+          continue;
+        }
       }
 
       // Sanitize profile
       const sanitized = {
         name: profile.name.trim(),
         color: validColors.includes(profile.color) ? profile.color : '#007AFF',
-        config: {
+        config: config.type === 'pac' ? createPacConfig(config.pacUrl.trim()) : {
           type: config.type,
           host: config.host.trim(),
-          port: port,
+          port: parseInt(config.port),
+          pacUrl: '',
           bypassList: Array.isArray(config.bypassList) ? config.bypassList : [],
           routingRules: {
             enabled: config.routingRules?.enabled === true,

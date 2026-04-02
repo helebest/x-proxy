@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2025-12-29
+Last updated: 2026-04-02
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -11,10 +11,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Future improvements planned:
 - Enhanced error handling and user feedback
-- Support for additional proxy types
 - Performance optimizations
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
+
+## [1.5.0] - 2026-04-02
+
+### Added - PAC File Support (Issue #19)
+- **Custom PAC (Proxy Auto-Configuration) file support**
+  - New `PAC (Auto-Config)` proxy type alongside HTTP/HTTPS and SOCKS5
+  - Supports HTTP/HTTPS URLs (e.g., `http://example.com/proxy.pac`)
+  - Supports local file paths (e.g., `C:\data\proxy.pac`, `/etc/proxy.pac`)
+  - Supports `file://` URLs directly
+  - Automatic conversion of local file paths to `file://` URLs
+- **Options page UI updates**
+  - PAC type option in proxy type dropdown
+  - Dedicated PAC URL input field (shown when PAC type selected)
+  - Host/port/auth/routing fields hidden for PAC profiles
+- **Import/Export**: PAC profiles supported in JSON import/export
+- **Unit Tests**: 28 new test cases for PAC URL conversion, normalization, and proxy config building (TDD)
+  - New test file: `tests/pac-url.test.js` (18 tests)
+  - Extended: `tests/pac.test.js` (+8 tests), `tests/normalize.test.js` (+10 tests)
 
 ## [1.4.2] - 2026-03-14
 

@@ -9,6 +9,20 @@ let isInitialized = false;
 let keepAliveTimeout = null;
 
 /**
+ * Convert user-provided PAC URL or file path to Chrome proxy API format.
+ * @param {string} input - URL, file:// URL, or local file path
+ * @returns {{ url: string } | null}
+ */
+function toPacUrl(input) {
+  if (!input || !input.trim()) return null;
+  const trimmed = input.trim();
+  if (/^https?:\/\//i.test(trimmed) || /^file:\/\//i.test(trimmed)) return { url: trimmed };
+  if (/^[a-zA-Z]:[\\\/]/.test(trimmed)) return { url: 'file:///' + trimmed.replace(/\\/g, '/') };
+  if (trimmed.startsWith('/')) return { url: 'file://' + trimmed };
+  return null;
+}
+
+/**
  * Generate PAC (Proxy Auto-Configuration) script for domain-based routing
  * @param {Object} profile - Proxy profile configuration
  * @returns {string} PAC script content
@@ -105,12 +119,6 @@ async function activateProxy(profileId) {
 
     // Normalize profile structure (support both old flat and new nested structure)
     const proxyType = profile.config?.type || profile.type || 'http';
-    const proxyHost = profile.config?.host || profile.host;
-    const proxyPort = profile.config?.port || profile.port;
-
-    if (!proxyHost || !proxyPort) {
-      throw new Error('Invalid proxy configuration: missing host or port');
-    }
 
     // Clear any existing proxy configuration first
     await chrome.proxy.settings.clear({
@@ -120,47 +128,73 @@ async function activateProxy(profileId) {
     // Small delay to ensure clear operation completes
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Check if routing rules are enabled
-    const routingRules = profile.config?.routingRules;
-    const useRouting = routingRules?.enabled && routingRules?.domains?.length > 0;
-
     let config;
 
-    if (useRouting) {
-      // Use PAC script mode for domain-based routing
-      // Create normalized profile for PAC generation
-      const normalizedProfile = {
-        ...profile,
-        config: {
-          type: proxyType,
-          host: proxyHost,
-          port: parseInt(proxyPort),
-          routingRules: routingRules
-        }
-      };
-      const pacScript = generatePAC(normalizedProfile);
+    if (proxyType === 'pac') {
+      // PAC profile: use user-provided PAC URL/file path
+      const pacUrl = profile.config?.pacUrl;
+      if (!pacUrl) {
+        throw new Error('Invalid PAC configuration: missing PAC URL');
+      }
+      const resolved = toPacUrl(pacUrl);
+      if (!resolved) {
+        throw new Error('Invalid PAC URL format');
+      }
       config = {
         mode: "pac_script",
         pacScript: {
-          data: pacScript
+          url: resolved.url
         }
       };
-      console.log('Using PAC mode with routing rules for:', profile.name);
-      console.log('PAC script:', pacScript);
+      console.log('Using PAC URL mode for:', profile.name, resolved.url);
     } else {
-      // Use fixed_servers mode (all traffic through proxy)
-      config = {
-        mode: "fixed_servers",
-        rules: {
-          singleProxy: {
-            scheme: proxyType,
+      // HTTP/SOCKS5 profiles
+      const proxyHost = profile.config?.host || profile.host;
+      const proxyPort = profile.config?.port || profile.port;
+
+      if (!proxyHost || !proxyPort) {
+        throw new Error('Invalid proxy configuration: missing host or port');
+      }
+
+      // Check if routing rules are enabled
+      const routingRules = profile.config?.routingRules;
+      const useRouting = routingRules?.enabled && routingRules?.domains?.length > 0;
+
+      if (useRouting) {
+        // Use PAC script mode for domain-based routing
+        const normalizedProfile = {
+          ...profile,
+          config: {
+            type: proxyType,
             host: proxyHost,
-            port: parseInt(proxyPort)
+            port: parseInt(proxyPort),
+            routingRules: routingRules
           }
-        }
-      };
-      console.log('Using fixed_servers mode for:', profile.name);
-      console.log('Proxy config:', { scheme: proxyType, host: proxyHost, port: proxyPort });
+        };
+        const pacScript = generatePAC(normalizedProfile);
+        config = {
+          mode: "pac_script",
+          pacScript: {
+            data: pacScript
+          }
+        };
+        console.log('Using PAC mode with routing rules for:', profile.name);
+        console.log('PAC script:', pacScript);
+      } else {
+        // Use fixed_servers mode (all traffic through proxy)
+        config = {
+          mode: "fixed_servers",
+          rules: {
+            singleProxy: {
+              scheme: proxyType,
+              host: proxyHost,
+              port: parseInt(proxyPort)
+            }
+          }
+        };
+        console.log('Using fixed_servers mode for:', profile.name);
+        console.log('Proxy config:', { scheme: proxyType, host: proxyHost, port: proxyPort });
+      }
     }
 
     await chrome.proxy.settings.set({
@@ -265,6 +299,7 @@ async function initializeProxyState() {
       if (profile) {
         activeProfile = profile;
         updateIcon(false); // Blue icon for active proxy
+        isInitialized = true;
         console.log('Restored active proxy:', profile.name);
         return;
       }

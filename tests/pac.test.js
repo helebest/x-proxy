@@ -1,6 +1,71 @@
 import { describe, it, expect } from 'vitest'
 
 /**
+ * Extracted toPacUrl() from background.js for testing.
+ */
+function toPacUrl(input) {
+  if (!input || !input.trim()) return null
+  const trimmed = input.trim()
+  if (/^https?:\/\//i.test(trimmed) || /^file:\/\//i.test(trimmed)) return { url: trimmed }
+  if (/^[a-zA-Z]:[\\\/]/.test(trimmed)) return { url: 'file:///' + trimmed.replace(/\\/g, '/') }
+  if (trimmed.startsWith('/')) return { url: 'file://' + trimmed }
+  return null
+}
+
+/**
+ * Builds Chrome proxy config from a profile, extracted from activateProxy() for testing.
+ */
+function buildProxyConfig(profile) {
+  const proxyType = profile.config?.type || profile.type || 'http'
+
+  if (proxyType === 'pac') {
+    const pacUrl = profile.config?.pacUrl
+    if (!pacUrl) throw new Error('Invalid PAC configuration: missing PAC URL')
+    const resolved = toPacUrl(pacUrl)
+    if (!resolved) throw new Error('Invalid PAC URL format')
+    return {
+      mode: 'pac_script',
+      pacScript: { url: resolved.url }
+    }
+  }
+
+  const proxyHost = profile.config?.host || profile.host
+  const proxyPort = profile.config?.port || profile.port
+  if (!proxyHost || !proxyPort) throw new Error('Invalid proxy configuration: missing host or port')
+
+  const routingRules = profile.config?.routingRules
+  const useRouting = routingRules?.enabled && routingRules?.domains?.length > 0
+
+  if (useRouting) {
+    const normalizedProfile = {
+      ...profile,
+      config: {
+        type: proxyType,
+        host: proxyHost,
+        port: parseInt(proxyPort),
+        routingRules: routingRules
+      }
+    }
+    const pacScript = generatePAC(normalizedProfile)
+    return {
+      mode: 'pac_script',
+      pacScript: { data: pacScript }
+    }
+  }
+
+  return {
+    mode: 'fixed_servers',
+    rules: {
+      singleProxy: {
+        scheme: proxyType,
+        host: proxyHost,
+        port: parseInt(proxyPort)
+      }
+    }
+  }
+}
+
+/**
  * Extracted PAC script generation logic from background.js for testing.
  * This mirrors the actual generatePAC() function.
  */
@@ -183,6 +248,115 @@ describe('generatePAC', () => {
       // Blacklist: listed domains go direct, others use proxy
       expect(evalPAC(pac, 'https://app.test.com', 'app.test.com')).toBe('DIRECT')
       expect(evalPAC(pac, 'https://other.com', 'other.com')).toBe('PROXY proxy.test.com:3128')
+    })
+  })
+})
+
+// ============================================================
+// buildProxyConfig tests
+// ============================================================
+
+describe('buildProxyConfig', () => {
+  describe('PAC type profiles', () => {
+    it('should return pac_script mode with url for HTTP PAC URL', () => {
+      const profile = {
+        config: {
+          type: 'pac',
+          pacUrl: 'http://example.com/proxy.pac'
+        }
+      }
+      const config = buildProxyConfig(profile)
+      expect(config).toEqual({
+        mode: 'pac_script',
+        pacScript: { url: 'http://example.com/proxy.pac' }
+      })
+    })
+
+    it('should return pac_script mode with url for file:// PAC URL', () => {
+      const profile = {
+        config: {
+          type: 'pac',
+          pacUrl: 'file:///C:/data/proxy.pac'
+        }
+      }
+      const config = buildProxyConfig(profile)
+      expect(config).toEqual({
+        mode: 'pac_script',
+        pacScript: { url: 'file:///C:/data/proxy.pac' }
+      })
+    })
+
+    it('should convert Windows path to file:// URL', () => {
+      const profile = {
+        config: {
+          type: 'pac',
+          pacUrl: 'C:\\data\\proxy.pac'
+        }
+      }
+      const config = buildProxyConfig(profile)
+      expect(config).toEqual({
+        mode: 'pac_script',
+        pacScript: { url: 'file:///C:/data/proxy.pac' }
+      })
+    })
+
+    it('should throw error when pacUrl is missing', () => {
+      const profile = {
+        config: { type: 'pac' }
+      }
+      expect(() => buildProxyConfig(profile)).toThrow('missing PAC URL')
+    })
+
+    it('should throw error when pacUrl is invalid', () => {
+      const profile = {
+        config: { type: 'pac', pacUrl: 'not-a-valid-path' }
+      }
+      expect(() => buildProxyConfig(profile)).toThrow('Invalid PAC URL format')
+    })
+  })
+
+  describe('http/socks5 profiles (existing behavior)', () => {
+    it('should return fixed_servers for http without routing rules', () => {
+      const profile = {
+        config: {
+          type: 'http',
+          host: 'proxy.example.com',
+          port: 8080
+        }
+      }
+      const config = buildProxyConfig(profile)
+      expect(config).toEqual({
+        mode: 'fixed_servers',
+        rules: {
+          singleProxy: { scheme: 'http', host: 'proxy.example.com', port: 8080 }
+        }
+      })
+    })
+
+    it('should return pac_script with data for http with routing rules', () => {
+      const profile = {
+        config: {
+          type: 'http',
+          host: 'proxy.example.com',
+          port: 8080,
+          routingRules: {
+            enabled: true,
+            mode: 'whitelist',
+            domains: ['*.google.com']
+          }
+        }
+      }
+      const config = buildProxyConfig(profile)
+      expect(config.mode).toBe('pac_script')
+      expect(config.pacScript.data).toBeDefined()
+      expect(config.pacScript.url).toBeUndefined()
+    })
+
+    it('should throw error when host/port missing for http type', () => {
+      const profile = {
+        config: { type: 'http' }
+      }
+      expect(() => buildProxyConfig(profile)).toThrow('missing host or port')
     })
   })
 })

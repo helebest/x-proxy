@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>X-Proxy - Simple and Reliable Proxy Switcher for Chrome</title>
-    <meta name="description" content="Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick one-click proxy switching, multiple profile management, and seamless system integration. Open-source and privacy-focused.">
+    <meta name="description" content="Free Chrome proxy switcher with HTTP, HTTPS, SOCKS5, and PAC file support. Quick one-click proxy switching, multiple profile management, and seamless system integration. Open-source and privacy-focused.">
     <meta name="keywords" content="chrome proxy extension, proxy switcher, socks5 chrome, http proxy, free proxy manager, chrome extension proxy, browser proxy switcher, proxy profiles, quick proxy switch">
 
     <!-- Google Analytics 4 -->
@@ -23,7 +23,7 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://helebest.github.io/x-proxy/">
     <meta property="og:title" content="X-Proxy - Free Chrome Proxy Switcher | HTTP & SOCKS5">
-    <meta property="og:description" content="Free, open-source Chrome proxy switcher. Quick switching between HTTP, HTTPS, and SOCKS5 proxies. Simple, fast, and privacy-focused.">
+    <meta property="og:description" content="Free, open-source Chrome proxy switcher. Quick switching between HTTP, HTTPS, SOCKS5 proxies, and PAC files. Simple, fast, and privacy-focused.">
     <meta property="og:image" content="https://helebest.github.io/x-proxy/assets/images/og-image.png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
@@ -34,7 +34,7 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:url" content="https://helebest.github.io/x-proxy/">
     <meta name="twitter:title" content="X-Proxy - Free Chrome Proxy Switcher">
-    <meta name="twitter:description" content="Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick switching, profile management, open-source.">
+    <meta name="twitter:description" content="Free Chrome proxy switcher with HTTP, HTTPS, SOCKS5, and PAC file support. Quick switching, profile management, open-source.">
     <meta name="twitter:image" content="https://helebest.github.io/x-proxy/assets/images/og-image.png">
 
     <!-- Favicon -->
@@ -66,8 +66,8 @@
         "bestRating": "5",
         "worstRating": "1"
       },
-      "description": "Free Chrome proxy switcher with HTTP, HTTPS, and SOCKS5 support. Quick switching, profile management, and privacy-focused design.",
-      "softwareVersion": "1.4.0",
+      "description": "Free Chrome proxy switcher with HTTP, HTTPS, SOCKS5, and PAC file support. Quick switching, profile management, and privacy-focused design.",
+      "softwareVersion": "1.5.0",
       "author": {
         "@type": "Person",
         "name": "helebest",
@@ -77,6 +77,7 @@
       "featureList": [
         "HTTP/HTTPS Proxy Support",
         "SOCKS5 Proxy Support",
+        "PAC (Auto-Config) File Support",
         "One-Click Proxy Switching",
         "Multiple Proxy Profiles",
         "Profile Management",
@@ -630,7 +631,7 @@
     <section class="hero">
         <div class="container">
             <h1>Simple and Reliable Proxy Switcher</h1>
-            <p>A Chrome extension for HTTP/HTTPS & SOCKS5 proxy switching with profile management, quick switching, and clean interface.</p>
+            <p>A Chrome extension for HTTP/HTTPS, SOCKS5 & PAC proxy switching with profile management, quick switching, and clean interface.</p>
             <div class="hero-buttons">
                 <a href="https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf" target="_blank" class="btn btn-primary" rel="noopener">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -663,8 +664,8 @@
             <div class="features-grid">
                 <div class="feature-card">
                     <div class="feature-icon">🔄</div>
-                    <h3>HTTP/HTTPS & SOCKS5 Support</h3>
-                    <p>Support for the most common proxy types with seamless switching between different protocols.</p>
+                    <h3>HTTP/HTTPS, SOCKS5 & PAC Support</h3>
+                    <p>Support for the most common proxy types and PAC auto-config files with seamless switching between different protocols.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">⚡</div>
@@ -700,6 +701,11 @@
                     <div class="feature-icon">🔐</div>
                     <h3>Proxy Authentication</h3>
                     <p>Username and password support for authenticated proxy servers. Works with both HTTP/HTTPS and SOCKS5 proxies.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📄</div>
+                    <h3>PAC File Support</h3>
+                    <p>Use custom PAC (Proxy Auto-Configuration) scripts via HTTP/HTTPS URLs or local file paths for advanced routing.</p>
                 </div>
                 <div class="feature-card">
                     <div class="feature-icon">📤</div>
@@ -817,7 +823,7 @@ npm run build
                 <div class="faq-item" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
                     <h3 itemprop="name">What proxy types are supported?</h3>
                     <div itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
-                        <p itemprop="text">X-Proxy supports HTTP, HTTPS, and SOCKS5 proxy protocols, covering the most common proxy types used for web browsing. You can easily switch between different proxy types in your profile settings.</p>
+                        <p itemprop="text">X-Proxy supports HTTP, HTTPS, and SOCKS5 proxy protocols, as well as custom PAC (Proxy Auto-Configuration) files via URL or local file path. You can easily switch between different proxy types in your profile settings.</p>
                     </div>
                 </div>
 
