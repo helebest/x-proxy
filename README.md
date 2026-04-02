@@ -337,6 +337,13 @@ If you find X-Proxy useful, consider:
 - [x] `chrome.webRequest.onAuthRequired` handler
 - [x] Auth normalization and handler unit tests (TDD)
 
+### v1.5.0 ✅ (PAC File Support)
+- [x] Custom PAC (Proxy Auto-Configuration) file support (Issue #19)
+- [x] HTTP/HTTPS URLs and local file paths (e.g., `C:\data\proxy.pac`)
+- [x] Dedicated PAC URL input in profile editor
+- [x] Import/Export support for PAC profiles
+- [x] 28 new unit tests + 44 E2E Playwright tests
+
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
 - [ ] Connection testing
