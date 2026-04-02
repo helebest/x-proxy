@@ -1,6 +1,6 @@
 {
   "name": "x-proxy",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -20,7 +20,9 @@
     "test:watch": "vitest",
     "test:unit": "vitest run",
     "test:integration": "vitest run",
-    "test:coverage": "vitest run"
+    "test:coverage": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
   },
   "keywords": [
     "vite",
@@ -39,6 +41,7 @@
     "url": "https://github.com/helebest/x-proxy/issues"
   },
   "devDependencies": {
+    "@playwright/test": "^1.59.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/user-event": "^14.6.1",
     "@types/chrome": "^0.1.3",

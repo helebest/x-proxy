@@ -69,14 +69,15 @@
             </div>
             
             <div class="about-info">
-              <h3>X-Proxy v1.4.2</h3>
-              <p>A modern proxy switcher for Chrome with HTTP(S) and SOCKS5 support</p>
-              
+              <h3>X-Proxy v1.5.0</h3>
+              <p>A modern proxy switcher for Chrome with HTTP(S), SOCKS5, and PAC support</p>
+
               <div class="about-details">
                 <h4>Features:</h4>
                 <ul>
                   <li>✓ Multiple proxy profiles</li>
                   <li>✓ SOCKS5 & HTTP(S) proxy support</li>
+                  <li>✓ PAC (Auto-Config) file support</li>
                   <li>✓ System proxy integration</li>
                   <li>✓ Simple profile management</li>
                   <li>✓ Import/Export profiles</li>
@@ -158,6 +159,7 @@
             <select id="proxyType" class="form-select" required>
               <option value="http">HTTP/HTTPS</option>
               <option value="socks5">SOCKS5</option>
+              <option value="pac">PAC (Auto-Config)</option>
             </select>
           </div>
           
@@ -173,8 +175,17 @@
             </div>
           </div>
 
+          <div id="pacDetails" style="display: none;">
+            <div class="form-group">
+              <label for="pacUrl">PAC URL or File Path *</label>
+              <input type="text" id="pacUrl" class="form-input"
+                     placeholder="http://example.com/proxy.pac or C:\data\proxy.pac">
+              <div class="form-help">Supports HTTP/HTTPS URLs and local file paths</div>
+            </div>
+          </div>
+
           <!-- Authentication (Optional) -->
-          <div class="form-section">
+          <div id="authSection" class="form-section">
             <div class="form-section-header">
               <h4>Authentication (Optional)</h4>
             </div>
@@ -205,7 +216,7 @@
           </div>
 
           <!-- Domain Routing Rules Section -->
-          <div class="form-section">
+          <div id="routingSection" class="form-section">
             <div class="form-section-header">
               <h4>Domain Routing Rules</h4>
               <label class="switch">

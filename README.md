@@ -37,7 +37,8 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 ## 🌟 Features
 
 ### Core Functionality
-- **🔄 HTTP/HTTPS & SOCKS5**: Full support for common proxy protocols
+- **🔄 HTTP/HTTPS, SOCKS5 & PAC**: Full support for common proxy protocols and PAC auto-config files
+- **📄 PAC File Support**: Use custom PAC (Proxy Auto-Configuration) scripts via URL or local file path
 - **📝 Unlimited Profiles**: Save and organize as many proxy configurations as you need
 - **⚡ Instant Switching**: Activate profiles with a single click from toolbar
 - **🎯 Domain Routing**: Configure specific domains to use proxy (whitelist mode)
@@ -49,7 +50,7 @@ Managing multiple proxy configurations shouldn't be complicated. X-Proxy makes i
 ### Developer-Friendly
 - **TypeScript** with strict mode for type safety
 - **Manifest V3** compliant for future compatibility
-- **Comprehensive tests** with 48+ test cases
+- **Comprehensive tests** with 71+ test cases
 - **Modern tooling** with Vite and Vitest
 - **Clean codebase** that's easy to contribute to
 
@@ -292,7 +293,7 @@ If you find X-Proxy useful, consider:
 
 ### v1.0.0 ✅ (Current - Extension Release)
 - [x] Core proxy switching functionality
-- [x] HTTP/HTTPS & SOCKS5 support
+- [x] HTTP/HTTPS, SOCKS5 & PAC support
 - [x] Profile management (create, edit, delete)
 - [x] Clean, intuitive UI
 - [x] TypeScript + Manifest V3

@@ -13,7 +13,7 @@ X-Proxy collects and stores the following information that you provide:
 
 - **Proxy Server Details**: Server addresses (hostnames/IP addresses), port numbers, and authentication credentials (usernames and passwords) for your proxy configurations
 - **Profile Information**: Names and descriptions you assign to your proxy profiles for organization purposes
-- **Connection Settings**: Proxy types (HTTP, HTTPS, SOCKS5) and related configuration parameters
+- **Connection Settings**: Proxy types (HTTP, HTTPS, SOCKS5, PAC) and related configuration parameters including PAC file URLs or local file paths
 
 ### Application Preferences
 - **User Interface Settings**: Theme preferences, layout choices, and other customization options

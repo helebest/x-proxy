@@ -7,17 +7,19 @@ import { describe, it, expect } from 'vitest'
 
 // From options.js: OptionsManager.normalizeProfile()
 function normalizeProfile(profile) {
+  const config = profile.config || {}
   return {
     id: profile.id || crypto.randomUUID(),
     name: profile.name || 'Unnamed Profile',
     color: profile.color || '#007AFF',
     config: {
-      type: profile.type || 'http',
-      host: profile.host || '',
-      port: parseInt(profile.port) || 8080,
-      auth: profile.config?.auth || { username: '', password: '' },
-      bypassList: profile.bypassList || [],
-      routingRules: profile.config?.routingRules || {
+      type: config.type || profile.type || 'http',
+      host: config.host || profile.host || '',
+      port: parseInt(config.port || profile.port) || 8080,
+      auth: config.auth || { username: '', password: '' },
+      bypassList: config.bypassList || profile.bypassList || [],
+      pacUrl: config.pacUrl || '',
+      routingRules: config.routingRules || {
         enabled: false,
         mode: 'whitelist',
         domains: []
@@ -39,6 +41,7 @@ function normalizeProfileForSave(profile) {
       port: parseInt(config.port || profile.port) || 8080,
       auth: config.auth || { username: '', password: '' },
       bypassList: config.bypassList || profile.bypassList || [],
+      pacUrl: config.pacUrl || '',
       routingRules: config.routingRules || profile.routingRules || {
         enabled: false,
         mode: 'whitelist',
@@ -59,6 +62,7 @@ function popupNormalizeProfile(profile) {
       host: profile.config?.host || profile.host || '',
       port: parseInt(profile.config?.port || profile.port) || 8080,
       auth: profile.config?.auth || { username: '', password: '' },
+      pacUrl: profile.config?.pacUrl || '',
       routingRules: profile.config?.routingRules || {
         enabled: false,
         mode: 'whitelist',
@@ -324,5 +328,143 @@ describe('normalizeProfile (popup.js)', () => {
     expect(result.config.auth).toEqual({ username: '', password: '' })
     expect(result.config.host).toBe('proxy.example.com')
     expect(result.config.routingRules.enabled).toBe(true)
+  })
+})
+
+// ============================================================
+// PAC Profile Tests
+// ============================================================
+
+describe('normalizeProfile with PAC type (options.js)', () => {
+  it('should preserve pacUrl in config', () => {
+    const profile = {
+      id: '1',
+      name: 'PAC Profile',
+      config: {
+        type: 'pac',
+        pacUrl: 'http://example.com/proxy.pac'
+      }
+    }
+    const result = normalizeProfile(profile)
+
+    expect(result.config.type).toBe('pac')
+    expect(result.config.pacUrl).toBe('http://example.com/proxy.pac')
+  })
+
+  it('should default pacUrl to empty string when missing', () => {
+    const profile = { id: '1', name: 'Test' }
+    const result = normalizeProfile(profile)
+
+    expect(result.config.pacUrl).toBe('')
+  })
+
+  it('should not affect existing http profiles (no pacUrl pollution)', () => {
+    const profile = {
+      id: '1',
+      name: 'HTTP Proxy',
+      config: {
+        type: 'http',
+        host: 'proxy.example.com',
+        port: 8080
+      }
+    }
+    const result = normalizeProfile(profile)
+
+    expect(result.config.type).toBe('http')
+    expect(result.config.pacUrl).toBe('')
+    expect(result.config.host).toBe('proxy.example.com')
+  })
+})
+
+describe('normalizeProfileForSave with PAC type (options.js)', () => {
+  it('should save PAC profile with type pac and pacUrl', () => {
+    const profile = {
+      id: '1',
+      name: 'PAC Profile',
+      config: {
+        type: 'pac',
+        pacUrl: 'C:\\data\\proxy.pac'
+      }
+    }
+    const result = normalizeProfileForSave(profile)
+
+    expect(result.config.type).toBe('pac')
+    expect(result.config.pacUrl).toBe('C:\\data\\proxy.pac')
+  })
+
+  it('should preserve pacUrl through save round-trip', () => {
+    const original = {
+      id: '1',
+      name: 'PAC Profile',
+      config: {
+        type: 'pac',
+        pacUrl: 'https://corp.example.com/proxy.pac'
+      }
+    }
+
+    const normalized = normalizeProfile(original)
+    const saved = normalizeProfileForSave(normalized)
+    const reloaded = normalizeProfile(saved)
+
+    expect(reloaded.config.type).toBe('pac')
+    expect(reloaded.config.pacUrl).toBe('https://corp.example.com/proxy.pac')
+  })
+
+  it('should not add pacUrl to non-PAC profiles', () => {
+    const profile = {
+      id: '1',
+      name: 'SOCKS Proxy',
+      config: {
+        type: 'socks5',
+        host: '127.0.0.1',
+        port: 1080
+      }
+    }
+    const result = normalizeProfileForSave(profile)
+
+    expect(result.config.pacUrl).toBe('')
+    expect(result.config.type).toBe('socks5')
+  })
+})
+
+describe('normalizeProfile with PAC type (popup.js)', () => {
+  it('should normalize PAC profile with pacUrl', () => {
+    const profile = {
+      id: '1',
+      name: 'PAC Profile',
+      config: {
+        type: 'pac',
+        pacUrl: 'http://example.com/proxy.pac',
+        host: '',
+        port: 0
+      }
+    }
+    const result = popupNormalizeProfile(profile)
+
+    expect(result.config.type).toBe('pac')
+    expect(result.config.pacUrl).toBe('http://example.com/proxy.pac')
+  })
+
+  it('should handle PAC profile without host/port gracefully', () => {
+    const profile = {
+      id: '1',
+      name: 'PAC Profile',
+      config: {
+        type: 'pac',
+        pacUrl: '/etc/proxy.pac'
+      }
+    }
+    const result = popupNormalizeProfile(profile)
+
+    expect(result.config.host).toBe('')
+    expect(result.config.port).toBe(8080) // default, unused for PAC
+    expect(result.config.pacUrl).toBe('/etc/proxy.pac')
+  })
+
+  it('should default pacUrl to empty string for non-PAC profiles', () => {
+    const profile = { id: '1', name: 'Test' }
+    const result = popupNormalizeProfile(profile)
+
+    expect(result.config.pacUrl).toBe('')
   })
 })

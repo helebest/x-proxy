@@ -1,7 +1,7 @@
 # X-Proxy Technical Documentation
 
 ## Overview
-X-Proxy is a simple and reliable Chrome extension for proxy management. It provides basic proxy switching functionality with support for HTTP/HTTPS and SOCKS5 proxies.
+X-Proxy is a simple and reliable Chrome extension for proxy management. It provides basic proxy switching functionality with support for HTTP/HTTPS, SOCKS5 proxies, and PAC (Proxy Auto-Configuration) files.
 
 ## Architecture
 
