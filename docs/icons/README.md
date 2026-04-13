@@ -15,10 +15,11 @@ This directory contains all the visual assets for the X-Proxy Chrome extension. 
 
 ## Icon States
 
-### Active State (`icon-active-*.png`)
-- **Color**: Blue gradient (#007AFF to #0051D5)
+### Active State (`icon-active-{COLOR}-*.png`)
+- **Color**: Tinted to the selected profile color
 - **Usage**: When proxy is connected and working
 - **Visual**: Full opacity connections with bright nodes
+- **Naming**: `icon-active-{name}-{size}.png` — e.g. `icon-active-blue-32.png`
 
 ### Inactive State (`icon-inactive-*.png`)
 - **Color**: Gray gradient (#8E8E93 to #636366)
@@ -43,32 +44,35 @@ All icons are available in the following sizes required by Chrome:
 ```
 icons/
 ├── SVG Sources (Scalable)
-│   ├── proxy-icon-active.svg    # Active state master
-│   ├── proxy-icon-inactive.svg  # Inactive state master
-│   └── proxy-icon-error.svg     # Error state master
+│   ├── proxy-icon-active.svg          # Active state master
+│   ├── proxy-icon-inactive.svg        # Inactive state master
+│   └── proxy-icon-error.svg           # Error state master
 │
 ├── PNG Exports (Chrome Extension)
-│   ├── icon-16.png              # Default icon 16x16
-│   ├── icon-32.png              # Default icon 32x32
-│   ├── icon-48.png              # Default icon 48x48
-│   ├── icon-128.png             # Default icon 128x128
+│   ├── icon-16.png                    # Default icon 16x16
+│   ├── icon-32.png                    # Default icon 32x32
+│   ├── icon-48.png                    # Default icon 48x48
+│   ├── icon-128.png                   # Default icon 128x128
 │   │
-│   ├── icon-active-16.png       # Active state 16x16
-│   ├── icon-active-32.png       # Active state 32x32
-│   ├── icon-active-48.png       # Active state 48x48
-│   ├── icon-active-128.png      # Active state 128x128
+│   ├── icon-active-{COLOR}-16.png     # Active state 16x16  (8 colors)
+│   ├── icon-active-{COLOR}-32.png     # Active state 32x32  (8 colors)
+│   ├── icon-active-{COLOR}-48.png     # Active state 48x48  (8 colors)
+│   ├── icon-active-{COLOR}-128.png    # Active state 128x128 (8 colors)
 │   │
-│   ├── icon-inactive-16.png     # Inactive state 16x16
-│   ├── icon-inactive-32.png     # Inactive state 32x32
-│   ├── icon-inactive-48.png     # Inactive state 48x48
-│   ├── icon-inactive-128.png    # Inactive state 128x128
+│   │   Profile colors: blue  green  red  orange
+│   │                   purple  teal  yellow  gray
 │   │
-│   ├── icon-error-16.png        # Error state 16x16
-│   ├── icon-error-32.png        # Error state 32x32
-│   ├── icon-error-48.png        # Error state 48x48
-│   └── icon-error-128.png       # Error state 128x128
+│   ├── icon-inactive-16.png           # Inactive state 16x16
+│   ├── icon-inactive-32.png           # Inactive state 32x32
+│   ├── icon-inactive-48.png           # Inactive state 48x48
+│   ├── icon-inactive-128.png          # Inactive state 128x128
+│   │
+│   ├── icon-error-16.png              # Error state 16x16
+│   ├── icon-error-32.png              # Error state 32x32
+│   ├── icon-error-48.png              # Error state 48x48
+│   └── icon-error-128.png             # Error state 128x128
 │
-└── README.md                     # This file
+└── README.md                          # This file
 ```
 
 ## Generating Icons
@@ -100,33 +104,34 @@ This will:
 
 ### Dynamic Icon Updates (background.js)
 ```javascript
-// Set active state
+// Set active state — name is the profile color name
+// e.g. 'blue', 'green', 'red', 'orange', 'purple', 'teal', 'yellow', 'gray'
 chrome.action.setIcon({
   path: {
-    "16": "icons/icon-active-16.png",
-    "32": "icons/icon-active-32.png",
-    "48": "icons/icon-active-48.png",
-    "128": "icons/icon-active-128.png"
+    "16":  `icons/icon-active-${name}-16.png`,
+    "32":  `icons/icon-active-${name}-32.png`,
+    "48":  `icons/icon-active-${name}-48.png`,
+    "128": `icons/icon-active-${name}-128.png`,
   }
 });
 
 // Set inactive state
 chrome.action.setIcon({
   path: {
-    "16": "icons/icon-inactive-16.png",
-    "32": "icons/icon-inactive-32.png",
-    "48": "icons/icon-inactive-48.png",
-    "128": "icons/icon-inactive-128.png"
+    "16":  "icons/icon-inactive-16.png",
+    "32":  "icons/icon-inactive-32.png",
+    "48":  "icons/icon-inactive-48.png",
+    "128": "icons/icon-inactive-128.png",
   }
 });
 
 // Set error state
 chrome.action.setIcon({
   path: {
-    "16": "icons/icon-error-16.png",
-    "32": "icons/icon-error-32.png",
-    "48": "icons/icon-error-48.png",
-    "128": "icons/icon-error-128.png"
+    "16":  "icons/icon-error-16.png",
+    "32":  "icons/icon-error-32.png",
+    "48":  "icons/icon-error-48.png",
+    "128": "icons/icon-error-128.png",
   }
 });
 ```
