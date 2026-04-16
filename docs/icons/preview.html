@@ -106,6 +106,30 @@
         .state-active h2 { color: #007AFF; }
         .state-inactive h2 { color: #8E8E93; }
         .state-error h2 { color: #FF3B30; }
+
+        .color-variants {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin-bottom: 15px;
+        }
+
+        .color-variant {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .color-variant .color-label {
+            font-size: 0.7rem;
+            color: #999;
+            font-family: monospace;
+        }
         
         .legend {
             background: white;
@@ -156,32 +180,73 @@
             <!-- Active State -->
             <div class="icon-card state-active">
                 <h2>Active State</h2>
-                <p class="description">Proxy is connected and working</p>
-                
+                <p class="description">Proxy is connected and working (default blue — icon-active-blue-*.png)</p>
+
                 <div class="icon-sizes">
                     <div class="icon-wrapper">
-                        <img src="icon-active-16.png" width="16" height="16" alt="16x16">
+                        <img src="icon-active-blue-16.png" width="16" height="16" alt="16x16">
                         <span class="size-label">16×16</span>
                     </div>
                     <div class="icon-wrapper">
-                        <img src="icon-active-32.png" width="32" height="32" alt="32x32">
+                        <img src="icon-active-blue-32.png" width="32" height="32" alt="32x32">
                         <span class="size-label">32×32</span>
                     </div>
                     <div class="icon-wrapper">
-                        <img src="icon-active-48.png" width="48" height="48" alt="48x48">
+                        <img src="icon-active-blue-48.png" width="48" height="48" alt="48x48">
                         <span class="size-label">48×48</span>
                     </div>
                     <div class="icon-wrapper">
-                        <img src="icon-active-128.png" width="128" height="128" alt="128x128">
+                        <img src="icon-active-blue-128.png" width="128" height="128" alt="128x128">
                         <span class="size-label">128×128</span>
                     </div>
                 </div>
-                
+
                 <div class="svg-preview">
                     <img src="proxy-icon-active.svg" width="128" height="128" alt="SVG Source">
                 </div>
             </div>
-            
+
+            <!-- Profile Color Variants -->
+            <div class="icon-card state-active">
+                <h2>Profile Color Variants</h2>
+                <p class="description">Active icon tinted to match the selected profile color (icon-active-{COLOR}-32.png)</p>
+
+                <div class="color-variants">
+                    <div class="color-variant">
+                        <img src="icon-active-blue-32.png" width="32" height="32" alt="blue">
+                        <span class="color-label">blue</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-green-32.png" width="32" height="32" alt="green">
+                        <span class="color-label">green</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-red-32.png" width="32" height="32" alt="red">
+                        <span class="color-label">red</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-orange-32.png" width="32" height="32" alt="orange">
+                        <span class="color-label">orange</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-purple-32.png" width="32" height="32" alt="purple">
+                        <span class="color-label">purple</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-teal-32.png" width="32" height="32" alt="teal">
+                        <span class="color-label">teal</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-yellow-32.png" width="32" height="32" alt="yellow">
+                        <span class="color-label">yellow</span>
+                    </div>
+                    <div class="color-variant">
+                        <img src="icon-active-gray-32.png" width="32" height="32" alt="gray">
+                        <span class="color-label">gray</span>
+                    </div>
+                </div>
+            </div>
+
             <!-- Inactive State -->
             <div class="icon-card state-inactive">
                 <h2>Inactive State</h2>
@@ -244,28 +309,28 @@
         <!-- Legend -->
         <div class="legend">
             <h2>Design System</h2>
-            
+
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #007AFF, #0051D5);"></div>
                 <div class="legend-text">
-                    <strong>Active Blue</strong>
-                    <span>#007AFF → #0051D5 - Indicates successful connection</span>
+                    <strong>Active (profile color) — icon-active-{COLOR}-{SIZE}.png</strong>
+                    <span>Tinted to the selected profile color. 8 colors × 4 sizes = 32 files.</span>
                 </div>
             </div>
-            
+
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #8E8E93, #636366);"></div>
                 <div class="legend-text">
-                    <strong>System Gray</strong>
-                    <span>#8E8E93 → #636366 - Indicates disabled or inactive state</span>
+                    <strong>Inactive — icon-inactive-{SIZE}.png</strong>
+                    <span>#8E8E93 → #636366 - Proxy is disabled or no profile is active</span>
                 </div>
             </div>
-            
+
             <div class="legend-item">
                 <div class="legend-color" style="background: linear-gradient(135deg, #FF453A, #FF3B30);"></div>
                 <div class="legend-text">
-                    <strong>Error Red</strong>
-                    <span>#FF453A → #FF3B30 - Indicates errors or failures</span>
+                    <strong>Error — icon-error-{SIZE}.png</strong>
+                    <span>#FF453A → #FF3B30 - Connection error or authentication failure</span>
                 </div>
             </div>
         </div>

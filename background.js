@@ -87,20 +87,107 @@ function keepAlive() {
   }, 25000); // Chrome terminates service workers after 30s of inactivity
 }
 
-// Update extension icon based on proxy state
-function updateIcon(isSystemProxy = true) {
-  const iconState = isSystemProxy ? 'inactive' : 'active';
-  
-  chrome.action.setIcon({
-    path: {
-      "16": `icons/icon-${iconState}-16.png`,
-      "32": `icons/icon-${iconState}-32.png`,
-      "48": `icons/icon-${iconState}-48.png`,
-      "128": `icons/icon-${iconState}-128.png`
+// Keep in sync with PROFILE_COLORS in generate-icons.js
+const COLOR_NAMES = {
+  '#007AFF': 'blue',
+  '#4CAF50': 'green',
+  '#F44336': 'red',
+  '#FF9800': 'orange',
+  '#9C27B0': 'purple',
+  '#009688': 'teal',
+  '#FFC107': 'yellow',
+  '#607D8B': 'gray',
+};
+
+// Update the toolbar icon.
+// profileColor set  → pre-rendered colored icon (site is actively proxied).
+// profileColor null → gray inactive icon (system proxy, routing bypass, or non-HTTP page).
+function updateIcon(profileColor = null) {
+  const name = profileColor ? COLOR_NAMES[profileColor] : null;
+
+  chrome.action
+    .setIcon({
+      path: name
+        ? {
+            16: `icons/icon-active-${name}-16.png`,
+            32: `icons/icon-active-${name}-32.png`,
+            48: `icons/icon-active-${name}-48.png`,
+            128: `icons/icon-active-${name}-128.png`,
+          }
+        : {
+            16: "icons/icon-inactive-16.png",
+            32: "icons/icon-inactive-32.png",
+            48: "icons/icon-inactive-48.png",
+            128: "icons/icon-inactive-128.png",
+          },
+    })
+    .catch((error) => {
+      console.error("Failed to update icon:", error);
+    });
+}
+
+// Shell-glob pattern matching, replicating PAC shExpMatch behavior
+function matchesShExp(hostname, pattern) {
+  const regex = pattern
+    .replace(/[.+^${}()|[\]\\]/g, '\\$&')
+    .replace(/\*/g, '.*');
+  return new RegExp(`^${regex}$`, 'i').test(hostname);
+}
+
+// Returns true if hostname is effectively routed through the active proxy profile.
+// For user-provided PAC profiles the script cannot be evaluated here, so we assume proxied.
+// For HTTP/SOCKS5 profiles without routing rules all traffic is proxied.
+// For HTTP/SOCKS5 profiles with routing rules the whitelist/blacklist is evaluated.
+function isHostProxied(hostname, profile) {
+  const proxyType = profile.config?.type || profile.type;
+  if (proxyType === 'pac') return true;
+
+  const routingRules = profile.config?.routingRules;
+  if (!routingRules?.enabled || !routingRules?.domains?.length) return true;
+
+  const { domains, mode } = routingRules;
+  const matched = domains.some(p => matchesShExp(hostname, p));
+  return (mode || 'whitelist') === 'whitelist' ? matched : !matched;
+}
+
+// Update the toolbar icon reflecting whether the active tab's site is actually proxied.
+// Called on profile activation, tab switches, and URL navigations.
+// If the service worker was restarted by a tab event, activeProfile is restored from storage.
+async function updateIconForActiveTab() {
+  if (!isInitialized) {
+    try {
+      const result = await chrome.storage.local.get(['x-proxy-data']);
+      const data = result['x-proxy-data'] || {};
+      activeProfile = data.activeProfileId && data.profiles
+        ? (data.profiles.find(p => p.id === data.activeProfileId) || null)
+        : null;
+    } catch {
+      activeProfile = null;
     }
-  }).catch(error => {
-    console.error('Failed to update icon:', error);
-  });
+    isInitialized = true;
+  }
+
+  if (!activeProfile) {
+    updateIcon(null);
+    return;
+  }
+
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const url = tab?.url || tab?.pendingUrl || '';
+
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+      // New-tab pages, chrome://, etc. are never proxied
+      updateIcon(null);
+      return;
+    }
+
+    const hostname = new URL(url).hostname;
+    updateIcon(isHostProxied(hostname, activeProfile) ? activeProfile.color : null);
+  } catch (error) {
+    console.error('Failed to determine proxy state for active tab:', error);
+    updateIcon(activeProfile.color);
+  }
 }
 
 // Activate proxy profile
@@ -208,7 +295,7 @@ async function activateProxy(profileId) {
 
     // Update internal state and icon
     activeProfile = profile;
-    updateIcon(false); // Blue icon for active proxy
+    updateIconForActiveTab();
 
     console.log('Activated proxy:', profile.name);
     return { success: true };
@@ -223,16 +310,16 @@ async function activateProxy(profileId) {
 // Deactivate proxy (use system proxy)
 async function deactivateProxy() {
   keepAlive(); // Keep service worker alive during operation
-  
+
   try {
     // Clear any existing proxy configuration first
     await chrome.proxy.settings.clear({
       scope: 'regular'
     });
-    
+
     // Small delay to ensure clear operation completes
     await new Promise(resolve => setTimeout(resolve, 100));
-    
+
     // Set Chrome to use system proxy
     await chrome.proxy.settings.set({
       value: { mode: "system" },
@@ -244,35 +331,35 @@ async function deactivateProxy() {
     const data = result['x-proxy-data'] || {};
     data.activeProfileId = undefined;
     await chrome.storage.local.set({ 'x-proxy-data': data });
-    
+
     // Update internal state and icon
     activeProfile = null;
-    updateIcon(true); // Gray icon for system proxy
-    
+    updateIcon(null); // Gray icon for system proxy
+
     console.log('Deactivated proxy, using system settings');
     return { success: true };
-    
+
   } catch (error) {
     console.error('Failed to deactivate proxy:', error);
-    
+
     // Try fallback approach - just clear the proxy settings
     try {
       await chrome.proxy.settings.clear({
         scope: 'regular'
       });
-      
+
       // Update storage and state even if system mode failed
       const result = await chrome.storage.local.get(['x-proxy-data']);
       const data = result['x-proxy-data'] || {};
       data.activeProfileId = undefined;
       await chrome.storage.local.set({ 'x-proxy-data': data });
-      
+
       activeProfile = null;
-      updateIcon(true);
-      
+      updateIcon(null);
+
       console.log('Fallback: Cleared proxy settings');
       return { success: true };
-      
+
     } catch (fallbackError) {
       console.error('Fallback also failed:', fallbackError);
       const primaryError = error?.message || String(error) || 'Unknown primary error';
@@ -285,39 +372,39 @@ async function deactivateProxy() {
 // Initialize proxy state from storage
 async function initializeProxyState() {
   if (isInitialized) return; // Prevent multiple initializations
-  
+
   keepAlive();
   console.log('Initializing proxy state...');
-  
+
   try {
     const result = await chrome.storage.local.get(['x-proxy-data']);
     const data = result['x-proxy-data'] || {};
-    
+
     // Check if there's an active profile
     if (data.activeProfileId && data.profiles) {
       const profile = data.profiles.find(p => p.id === data.activeProfileId);
       if (profile) {
         activeProfile = profile;
-        updateIcon(false); // Blue icon for active proxy
         isInitialized = true;
+        updateIconForActiveTab();
         console.log('Restored active proxy:', profile.name);
         return;
       }
     }
-    
+
     // No active profile, use system proxy
     activeProfile = null;
-    updateIcon(true); // Gray icon for system proxy
+    updateIcon(null); // Gray icon for system proxy
     console.log('No active proxy, using system settings');
-    
+
     isInitialized = true;
     console.log('Proxy state initialization completed');
-    
+
   } catch (error) {
     console.error('Failed to initialize proxy state:', error);
     // Default to system proxy (gray) on error
     activeProfile = null;
-    updateIcon(true);
+    updateIcon(null);
     isInitialized = true; // Mark as initialized even on error
   }
 }
@@ -383,7 +470,7 @@ chrome.webRequest.onAuthRequired.addListener(
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   console.log('Background received message:', request);
   keepAlive(); // Keep service worker alive during message processing
-  
+
   // Wrap all operations in try-catch to prevent service worker crashes
   (async () => {
     try {
@@ -392,7 +479,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
         console.log('Service worker not initialized, initializing now...');
         await initializeProxyState();
       }
-      
+
       switch (request.type) {
         case 'ACTIVATE_PROFILE':
           if (!request.payload?.id) {
@@ -402,7 +489,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           const activateResult = await activateProxy(request.payload.id);
           sendResponse(activateResult);
           break;
-          
+
         case 'DEACTIVATE_PROFILE':
           const deactivateResult = await deactivateProxy();
           sendResponse(deactivateResult);
@@ -419,7 +506,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             isSystemProxy: !activeProfile
           });
           break;
-          
+
         default:
           sendResponse({ success: true });
           break;
@@ -430,7 +517,23 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       sendResponse({ success: false, error: errorMessage });
     }
   })();
-  
+
   // Return true to indicate we will send response asynchronously
   return true;
+});
+
+// Recheck icon whenever the active tab changes or navigates
+chrome.tabs.onActivated.addListener(() => {
+  updateIconForActiveTab();
+});
+
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (!changeInfo.url) return;
+  chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+    if (tab?.id === tabId) updateIconForActiveTab();
+  }).catch(() => {});
+});
+
+chrome.windows.onFocusChanged.addListener((windowId) => {
+  if (windowId !== chrome.windows.WINDOW_ID_NONE) updateIconForActiveTab();
 });
