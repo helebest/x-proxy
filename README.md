@@ -344,10 +344,14 @@ If you find X-Proxy useful, consider:
 - [x] Import/Export support for PAC profiles
 - [x] 28 new unit tests + 44 E2E Playwright tests
 
+### v1.5.1 ✅ (Visual Enhancements)
+- [x] Dynamic toolbar icon color matching active profile
+- [x] Dark mode UI improvements
+- [x] Vite security upgrade (v6.4.2)
+
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
 - [ ] Connection testing
-- [ ] Dark mode theme
 - [ ] Firefox support (WebExtensions)
 - [ ] Advanced proxy features
 - [ ] Statistics and analytics (local only)

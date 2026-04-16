@@ -88,12 +88,13 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.5.0** - PAC File Support
-• Custom PAC (Proxy Auto-Configuration) file support
-• HTTP/HTTPS URLs and local file paths supported
-• Dedicated PAC URL input in profile editor
+**Version 1.5.1** - Visual Enhancements
+• Dynamic toolbar icon color matching active profile
+• Dark mode UI improvements
+• Security upgrade (Vite v6.4.2)
 
 **Previous Updates:**
+• v1.5.0: PAC (Proxy Auto-Configuration) file support
 • v1.4.2: Proxy authentication (username/password)
 • v1.4.0: Import/Export profiles as JSON
 • v1.3.1: Fixed domain validation for blacklist mode (IPv4/IPv6/localhost support)
