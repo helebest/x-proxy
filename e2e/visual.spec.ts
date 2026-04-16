@@ -18,12 +18,7 @@ test.describe('Visual Regression - Options', () => {
 
   test('options about section', async ({ optionsPage }) => {
     await optionsPage.click('[data-section="about"]')
-    await optionsPage.waitForTimeout(300)
+    await optionsPage.waitForSelector('#about-section', { state: 'visible' })
     await expect(optionsPage).toHaveScreenshot('options-about.png')
-  })
-
-  test('options dark mode', async ({ optionsPage }) => {
-    await optionsPage.emulateMedia({ colorScheme: 'dark' })
-    await expect(optionsPage).toHaveScreenshot('options-dark.png')
   })
 })

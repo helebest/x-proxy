@@ -122,8 +122,11 @@ jobs:
       - name: Install Playwright browsers
         run: npx playwright install chromium --with-deps
 
-      - name: Build extension
-        run: npm run build
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: extension-build
+          path: dist/
 
       - name: Run E2E tests
         run: xvfb-run --auto-servernum npm run test:e2e
