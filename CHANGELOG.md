@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2026-04-02
+Last updated: 2026-04-16
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -14,6 +14,19 @@ Future improvements planned:
 - Performance optimizations
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
+
+## [1.5.1] - 2026-04-16
+
+### Added
+- **Dynamic toolbar icon colors** — icon reflects the active profile's color (blue, green, red, orange, purple, teal, yellow, gray)
+- **Dark mode improvements** — enhanced popup visuals with corrected CSS variables, better contrast and readability
+
+### Fixed
+- **Security**: Upgraded Vite to v6.4.2 (fixes GHSA-4w7w-66w2-5vf9, GHSA-p9ff-h696-f583)
+- **CI**: Updated Node.js test matrix to 20/22, removed deprecated tsconfig `baseUrl`
+
+### Credits
+- Thanks to [@Schleuse](https://github.com/Schleuse) (René Schleusner) for contributing PR #21 (icon colors) and PR #22 (dark mode improvements)
 
 ## [1.5.0] - 2026-04-02
 

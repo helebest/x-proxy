@@ -462,7 +462,7 @@ test.describe('Options Page - About Section', () => {
   test('should navigate to About section', async ({ optionsPage }) => {
     await optionsPage.click('[data-section="about"]')
     await expect(optionsPage.locator('#about-section')).toBeVisible()
-    await expect(optionsPage.locator('#about-section')).toContainText('X-Proxy v1.5.0')
+    await expect(optionsPage.locator('#about-section')).toContainText('X-Proxy v1.5.1')
   })
 
   test('should show feature list', async ({ optionsPage }) => {
