@@ -46,15 +46,15 @@
     "@testing-library/user-event": "^14.6.1",
     "@types/chrome": "^0.1.3",
     "@types/node": "^24.2.1",
-    "@vitest/coverage-v8": "^4.1.4",
-    "@vitest/ui": "^4.1.4",
+    "@vitest/coverage-v8": "^4.0.18",
+    "@vitest/ui": "^4.0.18",
     "chrome-mock": "^0.0.9",
     "happy-dom": "^20.0.8",
     "jsdom": "^26.1.0",
     "sharp": "^0.34.3",
     "typescript": "^5.9.2",
-    "vite": "^8.0.8",
-    "vitest": "^4.1.4",
+    "vite": "^6.4.2",
+    "vitest": "^4.0.18",
     "webextension-polyfill": "^0.12.0"
   }
 }
