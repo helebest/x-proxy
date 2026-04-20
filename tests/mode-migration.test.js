@@ -87,6 +87,32 @@ describe('migrateData — v1 → v2 schema with explicit `mode`', () => {
     expect(result.mode).toBe('system')
   })
 
+  it('downgrades v2 mode="profile" with stale activeProfileId to "system"', () => {
+    const stale = {
+      version: 2,
+      mode: 'profile',
+      profiles: [{ id: 'p1' }],
+      activeProfileId: 'ghost',
+      settings: {}
+    }
+    const result = migrateData(stale)
+    expect(result.mode).toBe('system')
+    expect(result.activeProfileId).toBeUndefined()
+  })
+
+  it('downgrades v2 mode="profile" with undefined activeProfileId to "system"', () => {
+    const stale = {
+      version: 2,
+      mode: 'profile',
+      profiles: [{ id: 'p1' }],
+      activeProfileId: undefined,
+      settings: {}
+    }
+    const result = migrateData(stale)
+    expect(result.mode).toBe('system')
+    expect(result.activeProfileId).toBeUndefined()
+  })
+
   it('coerces an unknown mode string in v2 data to "system"', () => {
     const bad = {
       version: 2,
