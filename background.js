@@ -164,6 +164,22 @@ function isHostProxied(hostname, profile) {
   return (mode || 'whitelist') === 'whitelist' ? matched : !matched;
 }
 
+// Returns the active tab from the last-focused NORMAL browser window.
+// An extension popup is a window of type 'popup' and carries no browsing tabs,
+// so chrome.tabs.query({currentWindow:true}) invoked while our popup has focus
+// returns nothing — which is why the toolbar icon used to stay gray until the
+// user interacted with the address bar (closing the popup) and fired onUpdated.
+async function getActiveBrowserTab() {
+  try {
+    const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] });
+    if (!win || win.id === chrome.windows.WINDOW_ID_NONE) return null;
+    const [tab] = await chrome.tabs.query({ active: true, windowId: win.id });
+    return tab || null;
+  } catch {
+    return null;
+  }
+}
+
 // Update the toolbar icon reflecting whether the active tab's site is actually proxied.
 // Called on profile activation, tab switches, and URL navigations.
 // If the service worker was restarted by a tab event, activeProfile is restored from storage.
@@ -188,7 +204,7 @@ async function updateIconForActiveTab() {
   }
 
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tab = await getActiveBrowserTab();
     const url = tab?.url || tab?.pendingUrl || '';
 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
@@ -583,7 +599,7 @@ chrome.tabs.onActivated.addListener(() => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (!changeInfo.url) return;
-  chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+  getActiveBrowserTab().then(tab => {
     if (tab?.id === tabId) updateIconForActiveTab();
   }).catch(() => {});
 });
