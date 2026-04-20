@@ -88,12 +88,12 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.5.1** - Visual Enhancements
-• Dynamic toolbar icon color matching active profile
-• Dark mode UI improvements
-• Security upgrade (Vite v6.4.2)
+**Version 1.5.2** - Performance
+• Removed backdrop blur effect for smooth UI on low-end hardware (no GPU required)
+• Darker modal overlay preserves visual separation without compositor cost
 
 **Previous Updates:**
+• v1.5.1: Dynamic toolbar icon colors, dark mode polish
 • v1.5.0: PAC (Proxy Auto-Configuration) file support
 • v1.4.2: Proxy authentication (username/password)
 • v1.4.0: Import/Export profiles as JSON

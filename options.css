@@ -174,8 +174,6 @@ html {
 /* Header */
 .header {
   background: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   position: fixed;
   top: 0;
@@ -248,8 +246,6 @@ html {
 .sidebar {
   width: var(--sidebar-width);
   background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
   border-right: 1px solid var(--border-color);
   position: fixed;
   left: 0;
@@ -1104,9 +1100,7 @@ html {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(0, 0, 0, 0.55);
   z-index: var(--z-modal);
   animation: fadeIn var(--transition-base) var(--ease-out);
 }
