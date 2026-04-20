@@ -16,6 +16,8 @@ node_modules
 coverage
 *.lcov
 .nyc_output
+test-results
+playwright-report
 
 # Production build
 dist

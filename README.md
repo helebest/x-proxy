@@ -349,6 +349,11 @@ If you find X-Proxy useful, consider:
 - [x] Dark mode UI improvements
 - [x] Vite security upgrade (v6.4.2)
 
+### v1.5.2 ✅ (Performance)
+- [x] Removed `backdrop-filter: blur()` from options modal, options header/sidebar, and popup header/footer — fixes UI lag on low-end hardware without GPU acceleration ([#27](https://github.com/helebest/x-proxy/issues/27))
+- [x] Darker modal overlay (`rgba(0,0,0,0.55)`) preserves visual separation without compositor cost
+- [x] New Playwright regression guard prevents `backdrop-filter` from slipping back in
+
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
 - [ ] Connection testing

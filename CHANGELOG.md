@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2026-04-16
+Last updated: 2026-04-20
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -14,6 +14,17 @@ Future improvements planned:
 - Performance optimizations
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
+
+## [1.5.2] - 2026-04-20
+
+### Fixed
+- **Performance**: Removed `backdrop-filter: blur()` from options modal, options header/sidebar, and popup header/footer. Fixes severe UI lag on low-end hardware without GPU acceleration (reported on Windows 7 without dedicated GPU, where switching between form fields in the Add Profile dialog could take several seconds). Modal overlay opacity bumped from `rgba(0,0,0,0.4)` to `rgba(0,0,0,0.55)` to preserve visual separation. ([#27](https://github.com/helebest/x-proxy/issues/27))
+
+### Added
+- **Regression guard**: New Playwright spec `e2e/no-blur.spec.ts` asserts `backdrop-filter: none` on all five previously-blurred surfaces, so nobody can quietly reintroduce blur.
+
+### Credits
+- Thanks to [@sergeevabc](https://github.com/sergeevabc) for reporting issue #27.
 
 ## [1.5.1] - 2026-04-16
 
