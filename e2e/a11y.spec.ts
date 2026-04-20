@@ -1,31 +1,10 @@
 import AxeBuilder from '@axe-core/playwright'
 import { test, expect, type Page } from './fixture'
 
-// Known preexisting violations — these are design decisions that need
-// product/design sign-off to change (e.g. tweaking brand colors). The spec
-// filters them out so this suite passes today and NEW regressions will still
-// fail. When you accept a violation here, link an issue so it's tracked.
-//
-// .btn-primary: white text on #007AFF gives 4.01:1 (AA needs 4.5:1 for 13px
-// normal). Fixing requires either darkening the brand blue or bumping button
-// text to a size/weight that qualifies as "large text" (3:1 threshold).
-//
-// .nav-item (sidebar nav text "Proxy Profiles" / "About"), .section-description,
-// empty-state paragraphs: all use --text-secondary for visual hierarchy, which
-// at rgba(60,60,67,0.6) doesn't clear AA 4.5:1 on light backgrounds. Global
-// fix: raise --text-secondary opacity to ~0.72 (or #595962), which would push
-// everything above 4.5:1 in one token change.
-const KNOWN_CONTRAST_EXCEPTIONS: Array<string | RegExp> = [
-  /#addProfileBtn/,
-  /#saveAllBtn/,
-  /#saveProfileBtn/,
-  /#importProfilesBtn/,
-  /#exportProfilesBtn/,
-  /\.btn-primary/,
-  /li\[data-section=/,
-  /\.section-description/,
-  /\.empty-state/,
-]
+// Known preexisting violations — filtered here so the suite passes today while
+// NEW regressions still fail. Keep this list minimal and annotated: each entry
+// is a design decision the project has consciously accepted. Empty by default.
+const KNOWN_CONTRAST_EXCEPTIONS: Array<string | RegExp> = []
 
 function isKnownException(target: string[]): boolean {
   return target.some(sel =>
