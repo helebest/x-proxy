@@ -1,60 +1,58 @@
 import { test, expect } from './fixture'
 
-// Regression guard for the toolbar-icon-repaint bug where activating a
-// profile from the real extension popup (windowType: 'popup') left the icon
-// gray until the user touched the address bar. Root cause was
-// chrome.tabs.query({currentWindow:true}) returning empty because the
-// extension popup is itself a windowType:'popup' with no browsing tabs.
+// Regression guards for the toolbar-icon-repaint bugs where activating a
+// profile from the popup left the icon gray until the user touched the
+// address bar. Two distinct root causes are covered:
 //
-// This spec reproduces the exact scenario: a real popup-type window hosting
-// popup.html + a normal http tab in the background. The earlier fixture that
-// loads popup.html into a regular tab did NOT trigger the bug.
+//   1. chrome.tabs.query({currentWindow:true}) returned empty when the popup
+//      was its own windowType:'popup' window. Fixed by looking up the last-
+//      focused NORMAL window explicitly.
+//   2. Active tab was non-http (chrome://newtab, about:blank, etc.), so
+//      url.startsWith('http(s)://') returned false and updateIcon(null) ran
+//      even with a profile active — users expect immediate feedback that the
+//      proxy is on regardless of the current tab's scheme. Fixed by showing
+//      the profile color unconditionally when no per-domain routing rules
+//      are enabled.
+//
+// The earlier fixture opened popup.html in a regular http tab, masking both
+// bugs. These specs pin down the real scenarios a user hits.
 
-async function seedRedProfile(page: import('@playwright/test').Page) {
-  await page.evaluate(async () => {
+const RED = '#F44336'
+
+function redProfile(routingEnabled = false, domains: string[] = []) {
+  return {
+    id: 'p-red',
+    name: 'Red',
+    color: RED,
+    config: {
+      type: 'http',
+      host: '127.0.0.1',
+      port: 8888,
+      auth: { username: '', password: '' },
+      bypassList: [],
+      pacUrl: '',
+      routingRules: { enabled: routingEnabled, mode: 'whitelist', domains }
+    }
+  }
+}
+
+async function seedProfile(page: import('@playwright/test').Page, profile: unknown) {
+  await page.evaluate(async (p) => {
     await chrome.storage.local.set({
       'x-proxy-data': {
         version: 2,
         mode: 'system',
-        profiles: [{
-          id: 'p-red',
-          name: 'Red',
-          color: '#F44336',
-          config: {
-            type: 'http',
-            host: '127.0.0.1',
-            port: 8888,
-            auth: { username: '', password: '' },
-            bypassList: [],
-            pacUrl: '',
-            routingRules: { enabled: false, mode: 'whitelist', domains: [] }
-          }
-        }],
+        profiles: [p],
         activeProfileId: undefined,
         settings: {}
       }
     })
-  })
+  }, profile)
 }
 
-test('toolbar icon repaints immediately when activating a profile from a real popup window', async ({ context, extensionId }) => {
-  // 1. Normal tab on an http(s) host — without a proxied http-protocol tab the
-  //    icon would legitimately stay gray (chrome:// pages etc. are never proxied).
-  const browsingTab = await context.newPage()
-  await browsingTab.goto('https://example.com')
-  await browsingTab.waitForLoadState('domcontentloaded')
-
-  // 2. Seed a red profile through that tab (any extension page would do).
-  const seedPage = await context.newPage()
-  await seedPage.goto(`chrome-extension://${extensionId}/popup.html`)
-  await seedPage.waitForLoadState('domcontentloaded')
-  await seedRedProfile(seedPage)
-  await seedPage.close()
-
-  // 3. Open popup.html as a *real* extension-popup window via chrome.windows.create.
-  //    This is what makes currentWindow:true fail in the broken code.
+async function openRealPopupWindow(context: import('@playwright/test').BrowserContext) {
   const sw = context.serviceWorkers()[0]
-  const [popupPage] = await Promise.all([
+  const [page] = await Promise.all([
     context.waitForEvent('page'),
     sw.evaluate(() =>
       chrome.windows.create({
@@ -66,20 +64,79 @@ test('toolbar icon repaints immediately when activating a profile from a real po
       })
     )
   ])
-  await popupPage.waitForLoadState('domcontentloaded')
-  await popupPage.waitForTimeout(500)
+  await page.waitForLoadState('domcontentloaded')
+  await page.waitForTimeout(500)
+  return page
+}
 
-  // 4. Click the red profile in the popup window.
-  await popupPage.locator('.profile-item').first().click()
-  await popupPage.waitForTimeout(400)
-
-  // 5. Ask background for its last-applied icon color from an extension page
-  //    (the popup window itself carries chrome.runtime). It MUST be the
-  //    profile's color, not null — `null` means the gray inactive icon is
-  //    still showing, the exact symptom the user reported.
-  const state = await popupPage.evaluate(() =>
+async function readLastIconColor(page: import('@playwright/test').Page) {
+  const state = await page.evaluate(() =>
     new Promise<any>(resolve => chrome.runtime.sendMessage({ type: 'GET_STATE' }, resolve))
   )
   expect(state.success).toBe(true)
-  expect(state.lastIconColor, 'toolbar icon should immediately reflect the activated profile color').toBe('#F44336')
+  return state.lastIconColor
+}
+
+test('toolbar icon repaints when activating a profile from a real popup window on an http tab', async ({ context, extensionId }) => {
+  const browsingTab = await context.newPage()
+  await browsingTab.goto('https://example.com')
+  await browsingTab.waitForLoadState('domcontentloaded')
+
+  const seedPage = await context.newPage()
+  await seedPage.goto(`chrome-extension://${extensionId}/popup.html`)
+  await seedPage.waitForLoadState('domcontentloaded')
+  await seedProfile(seedPage, redProfile())
+  await seedPage.close()
+
+  const popupPage = await openRealPopupWindow(context)
+  await popupPage.locator('.profile-item').first().click()
+  await popupPage.waitForTimeout(400)
+
+  expect(
+    await readLastIconColor(popupPage),
+    'icon should reflect activated profile color when current tab is http'
+  ).toBe(RED)
+})
+
+test('toolbar icon repaints even when the active tab is non-http (chrome://newtab, about:blank)', async ({ context, extensionId }) => {
+  // Seed profile without navigating anywhere — default tabs are about:blank.
+  // This is the exact scenario the user reported: click extension icon from
+  // the new-tab page, activate profile, icon should go to profile color.
+  const seedPage = await context.newPage()
+  await seedPage.goto(`chrome-extension://${extensionId}/popup.html`)
+  await seedPage.waitForLoadState('domcontentloaded')
+  await seedProfile(seedPage, redProfile())
+  await seedPage.close()
+
+  const popupPage = await openRealPopupWindow(context)
+  await popupPage.locator('.profile-item').first().click()
+  await popupPage.waitForTimeout(400)
+
+  expect(
+    await readLastIconColor(popupPage),
+    'icon should reflect activated profile color even with non-http active tab'
+  ).toBe(RED)
+})
+
+test('toolbar icon stays gray on a non-matching site when per-domain routing rules are enabled', async ({ context, extensionId }) => {
+  // With routing rules limited to *.example.com, a tab on wikipedia.org is
+  // legitimately NOT proxied — the per-tab indicator's job is to show that.
+  const browsingTab = await context.newPage()
+  await browsingTab.goto('https://www.wikipedia.org')
+  await browsingTab.waitForLoadState('domcontentloaded')
+
+  const seedPage = await context.newPage()
+  await seedPage.goto(`chrome-extension://${extensionId}/popup.html`)
+  await seedPage.waitForLoadState('domcontentloaded')
+  await seedProfile(seedPage, redProfile(true, ['*.example.com']))
+  await seedPage.close()
+
+  const popupPage = await openRealPopupWindow(context)
+  await popupPage.locator('.profile-item').first().click()
+  await popupPage.waitForTimeout(400)
+
+  expect(
+    await readLastIconColor(popupPage),
+    'icon should be gray when routing rules exclude the current site'
+  ).toBe(null)
 })

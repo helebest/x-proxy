@@ -184,9 +184,15 @@ async function getActiveBrowserTab() {
   }
 }
 
-// Update the toolbar icon reflecting whether the active tab's site is actually proxied.
-// Called on profile activation, tab switches, and URL navigations.
-// If the service worker was restarted by a tab event, activeProfile is restored from storage.
+// Update the toolbar icon.
+// When a profile is active without per-domain routing rules, the proxy applies
+// globally and the icon always shows the profile color — matches user
+// expectation of immediate "proxy is on" feedback, including when the active
+// tab is chrome://newtab, about:blank, or any other non-http page.
+// When routing rules ARE enabled, the icon is per-tab: profile color if the
+// current site is matched by the rules, gray otherwise — the point of the
+// per-tab indicator is to tell the user which sites are actually going through
+// the proxy vs direct.
 async function updateIconForActiveTab() {
   if (!isInitialized) {
     try {
@@ -207,12 +213,22 @@ async function updateIconForActiveTab() {
     return;
   }
 
+  const routingRules = activeProfile.config?.routingRules;
+  const hasRoutingRules = routingRules?.enabled && routingRules?.domains?.length > 0;
+
+  if (!hasRoutingRules) {
+    // Simple proxy (or PAC) without per-domain routing: show profile color
+    // regardless of current tab URL.
+    updateIcon(activeProfile.color);
+    return;
+  }
+
   try {
     const tab = await getActiveBrowserTab();
     const url = tab?.url || tab?.pendingUrl || '';
 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      // New-tab pages, chrome://, etc. are never proxied
+      // Non-http pages are never routed through per-domain rules.
       updateIcon(null);
       return;
     }
