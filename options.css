@@ -165,6 +165,12 @@
   .password-toggle:hover {
     background: rgba(255, 255, 255, 0.08);
   }
+
+  .form-input::placeholder,
+  .form-select::placeholder,
+  .form-textarea::placeholder {
+    color: var(--text-secondary);
+  }
 }
 
 /* Reset & Base Styles */
@@ -565,6 +571,7 @@ html {
   font-size: 14px;
   transition: var(--transition);
   background: var(--surface);
+  color: var(--text-primary);
 }
 
 .form-input:focus,
@@ -1443,6 +1450,8 @@ input:checked + .slider:before {
   box-shadow: 0 0 0 3px var(--primary-light);
 }
 
+.form-input::placeholder,
+.form-select::placeholder,
 .form-textarea::placeholder {
   color: var(--text-tertiary);
   font-style: normal;
