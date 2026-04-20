@@ -22,6 +22,9 @@ Future improvements planned:
 - **Storage schema v2**: new top-level `mode: 'direct' | 'system' | 'profile'` field in `x-proxy-data`. Automatic one-way v1 → v2 migration infers `mode` from existing `activeProfileId`; stale ids are dropped safely. No user action required.
 - **Regression guards**: new Vitest suite for migration edge cases (`tests/mode-migration.test.js`) and new Playwright spec for the Direct button (`e2e/direct-mode.spec.ts`).
 
+### Fixed
+- **Toolbar icon color was delayed after profile activation**. Activating a profile from the popup did not immediately repaint the toolbar icon; it stayed gray until the user interacted with the address bar. The real root cause was that the icon logic only painted the profile color when the current tab's URL started with `http(s)://` — on `chrome://newtab`, `about:blank`, or any extension page it fell through to the inactive gray icon even with a profile active. Fixed by showing the profile color unconditionally when no per-domain routing rules are enabled (the simple case); per-tab indication is preserved for profiles that DO have routing rules since that's where it carries real information. The popup-window tab-query path was also hardened via `chrome.windows.getLastFocused({windowTypes:['normal']})` as a belt-and-braces improvement.
+
 ### Changed
 - **Visual polish pass** on the options page: added missing `--border-radius` / `--transition` design tokens (previously falling back to `0`, flattening inputs and killing hover transitions), added proper dark-mode support for the options page (previously hardcoded light), and aligned focus-ring and danger-hover colors with the iOS blue/red palette used throughout.
 

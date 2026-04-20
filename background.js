@@ -10,6 +10,9 @@ let activeProfile = null;
 let currentMode = 'system'; // 'direct' | 'system' | 'profile'
 let isInitialized = false;
 let keepAliveTimeout = null;
+// Last color passed to updateIcon — exposed via GET_STATE so tests can
+// assert toolbar-icon repaint without needing a real chrome.action.getIcon API.
+let lastIconColor = null;
 
 // Read x-proxy-data and normalize to the canonical v2 shape.
 async function readData() {
@@ -117,6 +120,7 @@ const COLOR_NAMES = {
 // profileColor set  → pre-rendered colored icon (site is actively proxied).
 // profileColor null → gray inactive icon (system proxy, routing bypass, or non-HTTP page).
 function updateIcon(profileColor = null) {
+  lastIconColor = profileColor;
   const name = profileColor ? COLOR_NAMES[profileColor] : null;
 
   chrome.action
@@ -164,9 +168,31 @@ function isHostProxied(hostname, profile) {
   return (mode || 'whitelist') === 'whitelist' ? matched : !matched;
 }
 
-// Update the toolbar icon reflecting whether the active tab's site is actually proxied.
-// Called on profile activation, tab switches, and URL navigations.
-// If the service worker was restarted by a tab event, activeProfile is restored from storage.
+// Returns the active tab from the last-focused NORMAL browser window.
+// An extension popup is a window of type 'popup' and carries no browsing tabs,
+// so chrome.tabs.query({currentWindow:true}) invoked while our popup has focus
+// returns nothing — which is why the toolbar icon used to stay gray until the
+// user interacted with the address bar (closing the popup) and fired onUpdated.
+async function getActiveBrowserTab() {
+  try {
+    const win = await chrome.windows.getLastFocused({ windowTypes: ['normal'] });
+    if (!win || win.id === chrome.windows.WINDOW_ID_NONE) return null;
+    const [tab] = await chrome.tabs.query({ active: true, windowId: win.id });
+    return tab || null;
+  } catch {
+    return null;
+  }
+}
+
+// Update the toolbar icon.
+// When a profile is active without per-domain routing rules, the proxy applies
+// globally and the icon always shows the profile color — matches user
+// expectation of immediate "proxy is on" feedback, including when the active
+// tab is chrome://newtab, about:blank, or any other non-http page.
+// When routing rules ARE enabled, the icon is per-tab: profile color if the
+// current site is matched by the rules, gray otherwise — the point of the
+// per-tab indicator is to tell the user which sites are actually going through
+// the proxy vs direct.
 async function updateIconForActiveTab() {
   if (!isInitialized) {
     try {
@@ -187,12 +213,22 @@ async function updateIconForActiveTab() {
     return;
   }
 
+  const routingRules = activeProfile.config?.routingRules;
+  const hasRoutingRules = routingRules?.enabled && routingRules?.domains?.length > 0;
+
+  if (!hasRoutingRules) {
+    // Simple proxy (or PAC) without per-domain routing: show profile color
+    // regardless of current tab URL.
+    updateIcon(activeProfile.color);
+    return;
+  }
+
   try {
-    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    const tab = await getActiveBrowserTab();
     const url = tab?.url || tab?.pendingUrl || '';
 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      // New-tab pages, chrome://, etc. are never proxied
+      // Non-http pages are never routed through per-domain rules.
       updateIcon(null);
       return;
     }
@@ -557,7 +593,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             mode: currentMode,
             activeProfile: activeProfile,
             isSystemProxy: currentMode === 'system',
-            isDirectMode: currentMode === 'direct'
+            isDirectMode: currentMode === 'direct',
+            lastIconColor: lastIconColor
           });
           break;
 
@@ -583,7 +620,7 @@ chrome.tabs.onActivated.addListener(() => {
 
 chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (!changeInfo.url) return;
-  chrome.tabs.query({ active: true, currentWindow: true }).then(([tab]) => {
+  getActiveBrowserTab().then(tab => {
     if (tab?.id === tabId) updateIconForActiveTab();
   }).catch(() => {});
 });
