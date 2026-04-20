@@ -10,11 +10,11 @@
   <a href="https://github.com/helebest/x-proxy/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
   <a href="https://github.com/helebest/x-proxy/releases"><img src="https://img.shields.io/github/v/release/helebest/x-proxy" alt="Release"></a>
   <a href="https://github.com/helebest/x-proxy/stargazers"><img src="https://img.shields.io/github/stars/helebest/x-proxy?style=social" alt="Stars"></a>
-  <a href="https://helebest.github.io/x-proxy/"><img src="https://img.shields.io/badge/website-online-brightgreen" alt="Website"></a>
+  <a href="https://x-proxy.i-am-holo.top/"><img src="https://img.shields.io/badge/website-online-brightgreen" alt="Website"></a>
 </p>
 
 <p align="center">
-  <a href="https://helebest.github.io/x-proxy/">Website</a> •
+  <a href="https://x-proxy.i-am-holo.top/">Website</a> •
   <a href="#-features">Features</a> •
   <a href="#-installation">Installation</a> •
   <a href="#-quick-start">Quick Start</a> •
@@ -264,7 +264,7 @@ Your privacy is important:
 - ✅ **Open Source** - Audit the entire codebase
 - ✅ **Minimal Permissions** - Only `proxy` and `storage` required
 
-Read our [Privacy Policy](https://helebest.github.io/x-proxy/PRIVACY_POLICY/) for details.
+Read our [Privacy Policy](https://x-proxy.i-am-holo.top/PRIVACY_POLICY/) for details.
 
 ## 📄 License
 
@@ -274,7 +274,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ## 🌐 Links
 
-- **Website**: https://helebest.github.io/x-proxy/
+- **Website**: https://x-proxy.i-am-holo.top/
 - **Issues**: https://github.com/helebest/x-proxy/issues
 - **Discussions**: https://github.com/helebest/x-proxy/discussions
 - **Changelog**: [CHANGELOG.md](CHANGELOG.md)
