@@ -9,10 +9,10 @@
 
 :root {
     /* Color System - Apple Human Interface Guidelines */
-    --primary-color: #007AFF;
+    --primary-color: #0062CC;
     --primary-hover: #0051D5;
-    --primary-light: rgba(0, 122, 255, 0.1);
-    --primary-lighter: rgba(0, 122, 255, 0.05);
+    --primary-light: rgba(0, 98, 204, 0.1);
+    --primary-lighter: rgba(0, 98, 204, 0.05);
     --secondary-color: #5856D6;
     --secondary-hover: #4240C4;
     --success-color: #34C759;
@@ -25,7 +25,7 @@
     
     /* Text Colors */
     --text-primary: rgba(0, 0, 0, 0.85);
-    --text-secondary: rgba(60, 60, 67, 0.6);
+    --text-secondary: rgba(60, 60, 67, 0.76);
     --text-tertiary: rgba(60, 60, 67, 0.3);
     --text-inverse: #FFFFFF;
     
@@ -88,7 +88,7 @@
         --surface-bright: rgba(44, 44, 46, 0.9);
         --surface-brightest: rgba(44, 44, 46, 1);
         --text-primary: #FFFFFF;
-        --text-secondary: #8E8E93;
+        --text-secondary: #AEAEB2;
         --text-tertiary: #48484A;
         --border-color: #38383A;
         --border-hover: #48484A;
