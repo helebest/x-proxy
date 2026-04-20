@@ -10,6 +10,9 @@ let activeProfile = null;
 let currentMode = 'system'; // 'direct' | 'system' | 'profile'
 let isInitialized = false;
 let keepAliveTimeout = null;
+// Last color passed to updateIcon — exposed via GET_STATE so tests can
+// assert toolbar-icon repaint without needing a real chrome.action.getIcon API.
+let lastIconColor = null;
 
 // Read x-proxy-data and normalize to the canonical v2 shape.
 async function readData() {
@@ -117,6 +120,7 @@ const COLOR_NAMES = {
 // profileColor set  → pre-rendered colored icon (site is actively proxied).
 // profileColor null → gray inactive icon (system proxy, routing bypass, or non-HTTP page).
 function updateIcon(profileColor = null) {
+  lastIconColor = profileColor;
   const name = profileColor ? COLOR_NAMES[profileColor] : null;
 
   chrome.action
@@ -573,7 +577,8 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             mode: currentMode,
             activeProfile: activeProfile,
             isSystemProxy: currentMode === 'system',
-            isDirectMode: currentMode === 'direct'
+            isDirectMode: currentMode === 'direct',
+            lastIconColor: lastIconColor
           });
           break;
 
