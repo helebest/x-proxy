@@ -354,6 +354,11 @@ If you find X-Proxy useful, consider:
 - [x] Darker modal overlay (`rgba(0,0,0,0.55)`) preserves visual separation without compositor cost
 - [x] New Playwright regression guard prevents `backdrop-filter` from slipping back in
 
+### v1.6.0 ✅ (Direct Mode + UI Polish)
+- [x] **Direct Connection mode** — a dedicated popup button that bypasses all proxies, including the OS-level / IE proxy that `System` otherwise honors ([#28](https://github.com/helebest/x-proxy/issues/28))
+- [x] **Schema v2 migration** — new top-level `mode` field replaces the implicit "no active profile = system" convention; automatic v1 → v2 upgrade for existing users
+- [x] **Options page dark mode + token cleanup** — restored missing `--border-radius` / `--transition` tokens, added `prefers-color-scheme: dark` support, aligned focus/danger colors with the iOS palette
+
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
 - [ ] Connection testing

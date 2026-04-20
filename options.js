@@ -66,7 +66,8 @@ class OptionsManager {
 
   getDefaultData() {
     return {
-      version: 1,
+      version: 2,
+      mode: 'system',
       profiles: [],
       activeProfileId: undefined,
       settings: this.getDefaultSettings()

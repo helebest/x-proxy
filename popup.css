@@ -216,6 +216,11 @@ body::before {
     background: var(--primary-color);
 }
 
+.status-indicator.direct .status-dot {
+    background: var(--success-color);
+    animation: none;
+}
+
 .status-text {
     font-size: 13px;
     font-weight: 500;
@@ -747,7 +752,7 @@ body::before {
 }
 
 .profile-item {
-    animation: slideIn var(--transition-medium);
+    animation: slideIn var(--transition-base);
 }
 
 /* Responsive adjustments for smaller popup sizes */
