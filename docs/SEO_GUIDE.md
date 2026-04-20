@@ -140,7 +140,7 @@ docs/
 #### 1.1 Google Search Console设置 ⚡ 高优先级
 - [x] ✅ 创建Google Search Console验证文件 (`google3524193870f730e6.html`)
 - [x] ✅ 已提交到Google Search Console并完成验证
-- [x] ✅ 已提交sitemap: `https://helebest.github.io/x-proxy/sitemap.xml`
+- [x] ✅ 已提交sitemap: `https://x-proxy.i-am-holo.top/sitemap.xml`
 - [ ] 监控索引状态（等待Google抓取，通常需要24-48小时）
 - [ ] 检查爬虫错误
 - [ ] 验证移动设备友好性测试结果
@@ -226,10 +226,10 @@ docs/
 **实施方式**:
 ```html
 <!-- 添加hreflang标签 -->
-<link rel="alternate" hreflang="en" href="https://helebest.github.io/x-proxy/" />
-<link rel="alternate" hreflang="zh" href="https://helebest.github.io/x-proxy/zh/" />
-<link rel="alternate" hreflang="ja" href="https://helebest.github.io/x-proxy/ja/" />
-<link rel="alternate" hreflang="ru" href="https://helebest.github.io/x-proxy/ru/" />
+<link rel="alternate" hreflang="en" href="https://x-proxy.i-am-holo.top/" />
+<link rel="alternate" hreflang="zh" href="https://x-proxy.i-am-holo.top/zh/" />
+<link rel="alternate" hreflang="ja" href="https://x-proxy.i-am-holo.top/ja/" />
+<link rel="alternate" hreflang="ru" href="https://x-proxy.i-am-holo.top/ru/" />
 ```
 
 ### Phase 3: 外链建设（持续进行）
@@ -361,8 +361,8 @@ docs/
 ## 📋 验证清单
 
 ### 发布前验证
-- [x] ✅ Sitemap可访问: https://helebest.github.io/x-proxy/sitemap.xml
-- [x] ✅ Robots.txt可访问: https://helebest.github.io/x-proxy/robots.txt
+- [x] ✅ Sitemap可访问: https://x-proxy.i-am-holo.top/sitemap.xml
+- [x] ✅ Robots.txt可访问: https://x-proxy.i-am-holo.top/robots.txt
 - [ ] Schema.org标记有效（使用Google Rich Results Test）- 需验证
 - [ ] Open Graph标签正确显示（使用Facebook Debugger）- 需验证
 - [ ] 所有链接正常（无404错误）- 需测试
@@ -416,10 +416,10 @@ docs/
 ## 🚀 快速参考
 
 ### 重要URL
-- **网站**: https://helebest.github.io/x-proxy/
+- **网站**: https://x-proxy.i-am-holo.top/
 - **GitHub仓库**: https://github.com/helebest/x-proxy
-- **Sitemap**: https://helebest.github.io/x-proxy/sitemap.xml
-- **隐私政策**: https://helebest.github.io/x-proxy/PRIVACY_POLICY/
+- **Sitemap**: https://x-proxy.i-am-holo.top/sitemap.xml
+- **隐私政策**: https://x-proxy.i-am-holo.top/PRIVACY_POLICY/
 - **Chrome商店**: https://chromewebstore.google.com/detail/x-proxy/efbckpjdlnojgnggdilgddeemgkoccaf
 
 ### 技术支持

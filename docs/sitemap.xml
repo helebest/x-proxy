@@ -6,16 +6,16 @@
 
     <!-- Homepage - Highest Priority -->
     <url>
-        <loc>https://helebest.github.io/x-proxy/</loc>
-        <lastmod>2026-03-06</lastmod>
+        <loc>https://x-proxy.i-am-holo.top/</loc>
+        <lastmod>2026-04-20</lastmod>
         <changefreq>weekly</changefreq>
         <priority>1.0</priority>
     </url>
 
     <!-- Privacy Policy -->
     <url>
-        <loc>https://helebest.github.io/x-proxy/PRIVACY_POLICY/</loc>
-        <lastmod>2025-10-01</lastmod>
+        <loc>https://x-proxy.i-am-holo.top/PRIVACY_POLICY/</loc>
+        <lastmod>2026-04-20</lastmod>
         <changefreq>monthly</changefreq>
         <priority>0.7</priority>
     </url>

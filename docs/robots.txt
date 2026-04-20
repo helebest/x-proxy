@@ -5,7 +5,7 @@ User-agent: *
 Allow: /
 
 # Sitemap location
-Sitemap: https://helebest.github.io/x-proxy/sitemap.xml
+Sitemap: https://x-proxy.i-am-holo.top/sitemap.xml
 
 # Disallow crawling of assets directory (optional)
 # Uncomment if you want to prevent indexing of images/css/js
