@@ -1,147 +1,153 @@
 import { test, expect } from './fixture'
+import { openRealPopup, seedProfiles, makeProfile } from './real-popup'
 
-// Drives the REAL browser-action popup — the tiny window that appears when a
-// user clicks the extension's toolbar icon — via chrome.action.openPopup() +
-// raw Chrome DevTools Protocol (CDP). Playwright's high-level Page API does
-// not surface browser-action popups as `context.pages()` entries (verified on
-// current bundled Chromium), so we work at the CDP target level: list targets,
-// find the popup target, attach, evaluate script inside it.
+// End-to-end coverage of clicks inside the REAL toolbar popup (the one a user
+// gets by clicking the extension icon), driven via chrome.action.openPopup()
+// + raw CDP. See e2e/real-popup.ts for the bridge that works around
+// Playwright's lack of Page support for browser-action popups.
+//
+// The active "browsing" tab is intentionally left on about:blank — that's the
+// new-tab-page scenario where the earlier icon-repaint bug manifested.
 
 const RED = '#F44336'
-const POPUP_TIMEOUT_MS = 5000
+const BLUE = '#007AFF'
+const GREEN = '#4CAF50'
 
-test('activate profile from the real browser-action popup updates icon immediately', async ({ context, extensionId }) => {
-  // A focused normal window is required for openPopup() to anchor. We
-  // deliberately leave the active tab on about:blank — the user hits this bug
-  // when clicking the toolbar icon from the new-tab page (non-http URL).
-  const browsingTab = await context.newPage()
-  await browsingTab.bringToFront()
+async function setupBlankTab(context: import('@playwright/test').BrowserContext) {
+  const page = await context.newPage()
+  await page.bringToFront()
+  return page
+}
 
-  // Seed a red profile.
-  const seedPage = await context.newPage()
-  await seedPage.goto(`chrome-extension://${extensionId}/popup.html`)
-  await seedPage.waitForLoadState('domcontentloaded')
-  await seedPage.evaluate(async (color) => {
-    await chrome.storage.local.set({
-      'x-proxy-data': {
-        version: 2,
-        mode: 'system',
-        profiles: [{
-          id: 'p-red',
-          name: 'Red',
-          color,
-          config: {
-            type: 'http', host: '127.0.0.1', port: 8888,
-            auth: { username: '', password: '' },
-            bypassList: [], pacUrl: '',
-            routingRules: { enabled: false, mode: 'whitelist', domains: [] }
-          }
-        }],
-        activeProfileId: undefined,
-        settings: {}
-      }
-    })
-  }, RED)
-  await seedPage.close()
-  await browsingTab.bringToFront()
-
-  // Open a browser-level CDP session so we can enumerate all targets
-  // (a per-page session would only see that page's children).
-  const browserCdp = await context.browser()!.newBrowserCDPSession()
-
-  const popupUrl = `chrome-extension://${extensionId}/popup.html`
-
-  // Fire the real browser-action popup from the service worker.
-  const sw = context.serviceWorkers()[0]
-  let openError: string | null = null
-  try {
-    await sw.evaluate(() => chrome.action.openPopup())
-  } catch (e: any) {
-    openError = e?.message || String(e)
+async function openPopupOrSkip(
+  context: import('@playwright/test').BrowserContext,
+  extensionId: string,
+  focusedPage: import('@playwright/test').Page
+) {
+  const popup = await openRealPopup(context, extensionId, { focusedPage })
+  if (!popup) {
+    test.skip(true, 'browser-action popup could not be opened on this Chromium build')
+    throw new Error('unreachable')
   }
+  return popup
+}
 
-  // Poll Target.getTargets for up to POPUP_TIMEOUT_MS — the popup may land a
-  // few ms after openPopup() resolves.
-  let targetId: string | null = null
-  const deadline = Date.now() + POPUP_TIMEOUT_MS
-  while (Date.now() < deadline) {
-    const { targetInfos } = await browserCdp.send('Target.getTargets') as any
-    const hit = targetInfos.find((t: any) =>
-      t.type === 'page' && t.url.startsWith(popupUrl)
-    )
-    if (hit) { targetId = hit.targetId; break }
-    await new Promise(r => setTimeout(r, 100))
-  }
-  if (!targetId) {
-    // Popup didn't materialize — Chromium build / focus state doesn't
-    // permit it. The popup-window-icon.spec.ts suite covers the same bug
-    // via chrome.windows.create({type:'popup'}), so we skip rather than
-    // fail hard.
-    test.skip(true, `browser-action popup target never appeared (openPopup error: ${openError ?? 'none'})`)
-    return
-  }
+test.describe('Real browser-action popup — click interactions', () => {
+  test('activating a profile repaints the toolbar icon with the profile color', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [makeProfile({ id: 'p-red', color: RED })])
 
-  // Attach to the popup target with flatten:false so we can pipe raw CDP
-  // through Target.sendMessageToTarget — Playwright doesn't expose a public
-  // CDPSession for arbitrary (non-Page) targets, so we route everything
-  // manually through the browser session.
-  const { sessionId } = await browserCdp.send('Target.attachToTarget', {
-    targetId,
-    flatten: false,
-  }) as any
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+    await popup.click('.profile-item')
 
-  let msgId = 0
-  const pending = new Map<number, { resolve: (v: any) => void; reject: (e: any) => void }>()
-  browserCdp.on('Target.receivedMessageFromTarget', (ev: any) => {
-    if (ev.sessionId !== sessionId) return
-    const parsed = JSON.parse(ev.message)
-    const p = pending.get(parsed.id)
-    if (!p) return
-    pending.delete(parsed.id)
-    if (parsed.error) p.reject(new Error(parsed.error.message || 'CDP error'))
-    else p.resolve(parsed.result)
+    const state = await popup.getState()
+    expect(state.success).toBe(true)
+    expect(state.mode).toBe('profile')
+    expect(state.activeProfile?.id).toBe('p-red')
+    expect(state.lastIconColor).toBe(RED)
+    await popup.close()
   })
 
-  async function sendToPopup<T = any>(method: string, params: Record<string, unknown> = {}): Promise<T> {
-    const id = ++msgId
-    return new Promise<T>((resolve, reject) => {
-      pending.set(id, { resolve, reject })
-      browserCdp.send('Target.sendMessageToTarget', {
-        sessionId,
-        message: JSON.stringify({ id, method, params }),
-      }).catch(reject)
-    })
-  }
+  test('clicking Direct switches mode to direct and clears icon color', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [makeProfile({ id: 'p-red', color: RED })])
 
-  async function popupEval<T = unknown>(source: string): Promise<T> {
-    const result: any = await sendToPopup('Runtime.evaluate', {
-      expression: `(async () => { ${source} })()`,
-      awaitPromise: true,
-      returnByValue: true,
-    })
-    if (result.exceptionDetails) {
-      throw new Error(result.exceptionDetails.text || JSON.stringify(result.exceptionDetails))
-    }
-    return result.result?.value
-  }
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+    await popup.click('#directConnection')
 
-  // Wait for popup DOM to be ready, then click the first profile item.
-  await popupEval(`
-    await new Promise(r => setTimeout(r, 500));
-    const item = document.querySelector('.profile-item');
-    if (!item) throw new Error('profile-item not rendered');
-    item.click();
-    await new Promise(r => setTimeout(r, 500));
-  `)
+    const state = await popup.getState()
+    expect(state.mode).toBe('direct')
+    expect(state.isDirectMode).toBe(true)
+    expect(state.activeProfile).toBeFalsy()
+    expect(state.lastIconColor).toBe(null)
+    await popup.close()
+  })
 
-  // Read last icon color from the popup via chrome.runtime.sendMessage.
-  const state = await popupEval<any>(`
-    return await new Promise(resolve =>
-      chrome.runtime.sendMessage({ type: 'GET_STATE' }, resolve)
-    );
-  `)
+  test('clicking System switches mode to system and clears icon color', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [makeProfile({ id: 'p-red', color: RED })])
 
-  expect(state?.success).toBe(true)
-  expect(state?.mode).toBe('profile')
-  expect(state?.lastIconColor, 'real-popup activation must repaint toolbar icon').toBe(RED)
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+    // activate a profile first so system is a real state transition, not the default
+    await popup.click('.profile-item')
+    await popup.click('#systemProxy')
+
+    const state = await popup.getState()
+    expect(state.mode).toBe('system')
+    expect(state.isSystemProxy).toBe(true)
+    expect(state.activeProfile).toBeFalsy()
+    expect(state.lastIconColor).toBe(null)
+    await popup.close()
+  })
+
+  test('switching between profiles updates the icon color each time', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [
+      makeProfile({ id: 'p-red', name: 'Red', color: RED }),
+      makeProfile({ id: 'p-blue', name: 'Blue', color: BLUE }),
+      makeProfile({ id: 'p-green', name: 'Green', color: GREEN }),
+    ])
+
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+    // Profiles render in insertion order. Click the third (green) first, then
+    // second (blue), then first (red) — verifies the icon tracks each click.
+    await popup.click('.profile-item:nth-child(3)')
+    let state = await popup.getState()
+    expect(state.activeProfile?.id).toBe('p-green')
+    expect(state.lastIconColor).toBe(GREEN)
+
+    await popup.click('.profile-item:nth-child(2)')
+    state = await popup.getState()
+    expect(state.activeProfile?.id).toBe('p-blue')
+    expect(state.lastIconColor).toBe(BLUE)
+
+    await popup.click('.profile-item:nth-child(1)')
+    state = await popup.getState()
+    expect(state.activeProfile?.id).toBe('p-red')
+    expect(state.lastIconColor).toBe(RED)
+    await popup.close()
+  })
+
+  test('profile → Direct → profile round-trip leaves the icon reflecting the latest selection', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [makeProfile({ id: 'p-blue', color: BLUE })])
+
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+    await popup.click('.profile-item')
+    expect((await popup.getState()).lastIconColor).toBe(BLUE)
+
+    await popup.click('#directConnection')
+    expect((await popup.getState()).lastIconColor).toBe(null)
+
+    await popup.click('.profile-item')
+    const state = await popup.getState()
+    expect(state.mode).toBe('profile')
+    expect(state.activeProfile?.id).toBe('p-blue')
+    expect(state.lastIconColor).toBe(BLUE)
+    await popup.close()
+  })
+
+  test('popup status text and selected state follow the active mode', async ({ context, extensionId }) => {
+    const focused = await setupBlankTab(context)
+    await seedProfiles(context, extensionId, [makeProfile({ id: 'p-red', name: 'Red', color: RED })])
+
+    const popup = await openPopupOrSkip(context, extensionId, focused)
+
+    // Initial state — system.
+    expect(await popup.eval(`return document.querySelector('#statusText').textContent.trim();`)).toBe('System')
+    expect(await popup.eval(`return document.querySelector('#systemProxy').classList.contains('selected');`)).toBe(true)
+
+    // Direct.
+    await popup.click('#directConnection')
+    expect(await popup.eval(`return document.querySelector('#statusText').textContent.trim();`)).toBe('Direct')
+    expect(await popup.eval(`return document.querySelector('#directConnection').classList.contains('selected');`)).toBe(true)
+    expect(await popup.eval(`return document.querySelector('#systemProxy').classList.contains('selected');`)).toBe(false)
+
+    // Profile.
+    await popup.click('.profile-item')
+    expect(await popup.eval(`return document.querySelector('#statusText').textContent.trim();`)).toBe('Red')
+    expect(await popup.eval(`return document.querySelector('.profile-item').classList.contains('active');`)).toBe(true)
+    expect(await popup.eval(`return document.querySelector('#directConnection').classList.contains('selected');`)).toBe(false)
+    await popup.close()
+  })
 })
