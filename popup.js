@@ -1,16 +1,17 @@
 // X-Proxy Popup Script
 // Handles UI interactions and communicates with the background service
 
+import { migrateData } from './lib/storage-migration.js';
+
 let profiles = [];
 let activeProfile = null;
+let currentMode = 'system'; // 'direct' | 'system' | 'profile'
 
 // Cache DOM elements
 const elements = {};
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', async () => {
-    // Initialize system proxy flag
-    window.systemProxyActive = false;
     cacheElements();
     await loadData();
     await syncStateWithBackground(); // Sync with background service
@@ -45,30 +46,18 @@ async function loadData() {
 async function loadDataFromStorage() {
     try {
         const result = await chrome.storage.local.get(['x-proxy-data']);
-        console.log('Raw storage data:', result);
-        
-        const data = result['x-proxy-data'] || getDefaultData();
-        console.log('Parsed data:', data);
-        
+        const data = migrateData(result['x-proxy-data']);
+
         profiles = (data.profiles || []).map(p => normalizeProfile(p));
-        console.log('Normalized profiles:', profiles);
-        
-        // Find active profile by ID
-        const activeProfileId = data.activeProfileId;
-        if (activeProfileId) {
-            activeProfile = profiles.find(p => p.id === activeProfileId) || null;
-            
-            // If active profile ID exists but profile not found, it was deleted
-            if (!activeProfile && activeProfileId) {
+        currentMode = data.mode;
+
+        if (data.mode === 'profile' && data.activeProfileId) {
+            activeProfile = profiles.find(p => p.id === data.activeProfileId) || null;
+
+            if (!activeProfile) {
+                // Active profile was deleted — fall back to system mode
                 console.log('Active profile was deleted, clearing active profile ID');
-                // Clear the stale active profile ID
-                data.activeProfileId = undefined;
-                await chrome.storage.local.set({ 'x-proxy-data': data });
-                
-                // Ensure system proxy is active
-                window.systemProxyActive = true;
-                
-                // Send deactivate message to background
+                currentMode = 'system';
                 try {
                     await sendMessage({ type: 'DEACTIVATE_PROFILE' });
                 } catch (error) {
@@ -77,21 +66,22 @@ async function loadDataFromStorage() {
             }
         } else {
             activeProfile = null;
-            window.systemProxyActive = true;
         }
-        
-        console.log('Loaded from storage - Profiles:', profiles.length, 'Active:', activeProfile?.name);
+
+        console.log('Loaded from storage - Profiles:', profiles.length, 'Mode:', currentMode, 'Active:', activeProfile?.name);
     } catch (error) {
         console.error('Error loading from storage:', error);
         profiles = [];
         activeProfile = null;
+        currentMode = 'system';
     }
 }
 
 // Get default data structure (same as options.js)
 function getDefaultData() {
     return {
-        version: 1,
+        version: 2,
+        mode: 'system',
         profiles: [],
         activeProfileId: undefined,
         settings: {
@@ -147,15 +137,11 @@ async function syncStateWithBackground() {
     try {
         const response = await sendMessage({ type: 'GET_STATE' });
         if (response.success) {
-            // Update local state based on background service
-            if (response.activeProfile) {
-                activeProfile = response.activeProfile;
-                window.systemProxyActive = false;
-            } else {
-                activeProfile = null;
-                window.systemProxyActive = true;
+            if (response.mode) {
+                currentMode = response.mode;
             }
-            console.log('Synced state with background:', { activeProfile: activeProfile?.name, systemProxy: window.systemProxyActive });
+            activeProfile = response.activeProfile || null;
+            console.log('Synced state with background:', { mode: currentMode, activeProfile: activeProfile?.name });
         }
     } catch (error) {
         console.error('Failed to sync state with background:', error);
@@ -222,6 +208,7 @@ function sendMessage(message, { retries = 3, delay = 200, timeout = 5000 } = {})
 // Attach event listeners
 function attachEventListeners() {
     // Quick actions
+    elements.directConnection?.addEventListener('click', handleDirectMode);
     elements.systemProxy?.addEventListener('click', handleSystemProxy);
     
     // Buttons
@@ -247,16 +234,31 @@ function attachEventListeners() {
 
 
 
+// Handle direct mode (bypass all proxies)
+async function handleDirectMode() {
+    const response = await sendMessage({ type: 'SET_DIRECT_MODE' });
+
+    if (response.success) {
+        activeProfile = null;
+        currentMode = 'direct';
+        updateUI();
+        showNotification('Direct connection — no proxy');
+    } else {
+        console.error('Failed to set direct mode:', response);
+        const errorMsg = getDisplayError(response.error);
+        showNotification(`Failed to set direct mode: ${errorMsg}`, 'error');
+    }
+}
+
 // Handle system proxy
 async function handleSystemProxy() {
     const response = await sendMessage({
         type: 'DEACTIVATE_PROFILE'
     });
-    
+
     if (response.success) {
         activeProfile = null;
-        // Set a flag to indicate system proxy is active
-        window.systemProxyActive = true;
+        currentMode = 'system';
         updateUI();
         showNotification('Using system proxy');
     } else {
@@ -272,11 +274,10 @@ async function handleProfileClick(profileId) {
         type: 'ACTIVATE_PROFILE',
         payload: { id: profileId }
     });
-    
+
     if (response.success) {
         activeProfile = profiles.find(p => p.id === profileId);
-        // Reset system proxy flag when activating a profile
-        window.systemProxyActive = false;
+        currentMode = 'profile';
         updateUI();
         showNotification(`Activated ${activeProfile?.name || 'profile'}`);
     } else {
@@ -361,12 +362,15 @@ function updateUI() {
 // Update status indicator
 function updateStatusIndicator() {
     if (!elements.statusIndicator || !elements.statusText) return;
-    
-    elements.statusIndicator.classList.remove('active', 'inactive', 'proxy');
-    
-    if (activeProfile) {
+
+    elements.statusIndicator.classList.remove('active', 'inactive', 'proxy', 'direct');
+
+    if (currentMode === 'profile' && activeProfile) {
         elements.statusIndicator.classList.add('proxy');
         elements.statusText.textContent = activeProfile.name;
+    } else if (currentMode === 'direct') {
+        elements.statusIndicator.classList.add('direct');
+        elements.statusText.textContent = 'Direct';
     } else {
         elements.statusIndicator.classList.add('inactive');
         elements.statusText.textContent = 'System';
@@ -375,7 +379,8 @@ function updateStatusIndicator() {
 
 // Update quick actions
 function updateQuickActions() {
-    elements.systemProxy?.classList.toggle('selected', !activeProfile);
+    elements.directConnection?.classList.toggle('selected', currentMode === 'direct');
+    elements.systemProxy?.classList.toggle('selected', currentMode === 'system');
 }
 
 // Update profiles list
@@ -412,7 +417,7 @@ function createProfileElement(profile) {
     div.className = 'profile-item';
     div.dataset.profileId = profile.id;
     
-    if (activeProfile && activeProfile.id === profile.id) {
+    if (currentMode === 'profile' && activeProfile && activeProfile.id === profile.id) {
         div.classList.add('active');
     }
     

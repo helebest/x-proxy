@@ -15,6 +15,19 @@ Future improvements planned:
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
 
+## [1.6.0] - 2026-04-20
+
+### Added
+- **Direct Connection mode**: new top-level mode that bypasses **all** proxies (including the OS-level / IE proxy that `System` falls back to). Surfaces as a dedicated button in the popup next to `System`. Closes a gap where users on Windows couldn't escape an IE-wide proxy without leaving the extension. ([#28](https://github.com/helebest/x-proxy/issues/28))
+- **Storage schema v2**: new top-level `mode: 'direct' | 'system' | 'profile'` field in `x-proxy-data`. Automatic one-way v1 → v2 migration infers `mode` from existing `activeProfileId`; stale ids are dropped safely. No user action required.
+- **Regression guards**: new Vitest suite for migration edge cases (`tests/mode-migration.test.js`) and new Playwright spec for the Direct button (`e2e/direct-mode.spec.ts`).
+
+### Changed
+- **Visual polish pass** on the options page: added missing `--border-radius` / `--transition` design tokens (previously falling back to `0`, flattening inputs and killing hover transitions), added proper dark-mode support for the options page (previously hardcoded light), and aligned focus-ring and danger-hover colors with the iOS blue/red palette used throughout.
+
+### Credits
+- Thanks to [@sergeevabc](https://github.com/sergeevabc) for reporting issue #28.
+
 ## [1.5.2] - 2026-04-20
 
 ### Fixed

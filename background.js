@@ -1,12 +1,26 @@
 // X-Proxy Background Service Worker
 // Background script for proxy management with lifecycle management
 
+import { migrateData, SCHEMA_VERSION } from './lib/storage-migration.js';
+
 console.log('X-Proxy background service worker loaded');
 
 // Service worker state management
 let activeProfile = null;
+let currentMode = 'system'; // 'direct' | 'system' | 'profile'
 let isInitialized = false;
 let keepAliveTimeout = null;
+
+// Read x-proxy-data and normalize to the canonical v2 shape.
+async function readData() {
+  const result = await chrome.storage.local.get(['x-proxy-data']);
+  return migrateData(result['x-proxy-data']);
+}
+
+// Persist the given v2-shaped data back to storage.
+async function writeData(data) {
+  await chrome.storage.local.set({ 'x-proxy-data': { ...data, version: SCHEMA_VERSION } });
+}
 
 /**
  * Convert user-provided PAC URL or file path to Chrome proxy API format.
@@ -156,13 +170,14 @@ function isHostProxied(hostname, profile) {
 async function updateIconForActiveTab() {
   if (!isInitialized) {
     try {
-      const result = await chrome.storage.local.get(['x-proxy-data']);
-      const data = result['x-proxy-data'] || {};
-      activeProfile = data.activeProfileId && data.profiles
+      const data = await readData();
+      currentMode = data.mode;
+      activeProfile = data.mode === 'profile' && data.activeProfileId
         ? (data.profiles.find(p => p.id === data.activeProfileId) || null)
         : null;
     } catch {
       activeProfile = null;
+      currentMode = 'system';
     }
     isInitialized = true;
   }
@@ -195,9 +210,8 @@ async function activateProxy(profileId) {
   keepAlive(); // Keep service worker alive during operation
 
   try {
-    // Get profile data from storage
-    const result = await chrome.storage.local.get(['x-proxy-data']);
-    const data = result['x-proxy-data'] || {};
+    // Get profile data from storage (normalized to v2)
+    const data = await readData();
     const profile = data.profiles?.find(p => p.id === profileId);
 
     if (!profile) {
@@ -289,12 +303,14 @@ async function activateProxy(profileId) {
       scope: 'regular'
     });
 
-    // Update storage with active profile
+    // Update storage with active profile in mode='profile'
+    data.mode = 'profile';
     data.activeProfileId = profileId;
-    await chrome.storage.local.set({ 'x-proxy-data': data });
+    await writeData(data);
 
     // Update internal state and icon
     activeProfile = profile;
+    currentMode = 'profile';
     updateIconForActiveTab();
 
     console.log('Activated proxy:', profile.name);
@@ -326,14 +342,15 @@ async function deactivateProxy() {
       scope: 'regular'
     });
 
-    // Update storage to clear active profile
-    const result = await chrome.storage.local.get(['x-proxy-data']);
-    const data = result['x-proxy-data'] || {};
+    // Update storage: mode='system', no active profile
+    const data = await readData();
+    data.mode = 'system';
     data.activeProfileId = undefined;
-    await chrome.storage.local.set({ 'x-proxy-data': data });
+    await writeData(data);
 
     // Update internal state and icon
     activeProfile = null;
+    currentMode = 'system';
     updateIcon(null); // Gray icon for system proxy
 
     console.log('Deactivated proxy, using system settings');
@@ -349,12 +366,13 @@ async function deactivateProxy() {
       });
 
       // Update storage and state even if system mode failed
-      const result = await chrome.storage.local.get(['x-proxy-data']);
-      const data = result['x-proxy-data'] || {};
+      const data = await readData();
+      data.mode = 'system';
       data.activeProfileId = undefined;
-      await chrome.storage.local.set({ 'x-proxy-data': data });
+      await writeData(data);
 
       activeProfile = null;
+      currentMode = 'system';
       updateIcon(null);
 
       console.log('Fallback: Cleared proxy settings');
@@ -369,6 +387,35 @@ async function deactivateProxy() {
   }
 }
 
+// Switch Chrome to direct mode — bypasses OS proxy and PAC.
+async function setDirectMode() {
+  keepAlive();
+
+  try {
+    await chrome.proxy.settings.clear({ scope: 'regular' });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    await chrome.proxy.settings.set({
+      value: { mode: 'direct' },
+      scope: 'regular'
+    });
+
+    const data = await readData();
+    data.mode = 'direct';
+    data.activeProfileId = undefined;
+    await writeData(data);
+
+    activeProfile = null;
+    currentMode = 'direct';
+    updateIcon(null);
+
+    console.log('Switched to direct mode (no proxy)');
+    return { success: true };
+  } catch (error) {
+    console.error('Failed to set direct mode:', error);
+    return { success: false, error: error?.message || String(error) || 'Unknown error' };
+  }
+}
+
 // Initialize proxy state from storage
 async function initializeProxyState() {
   if (isInitialized) return; // Prevent multiple initializations
@@ -377,11 +424,10 @@ async function initializeProxyState() {
   console.log('Initializing proxy state...');
 
   try {
-    const result = await chrome.storage.local.get(['x-proxy-data']);
-    const data = result['x-proxy-data'] || {};
+    const data = await readData();
+    currentMode = data.mode;
 
-    // Check if there's an active profile
-    if (data.activeProfileId && data.profiles) {
+    if (data.mode === 'profile' && data.activeProfileId) {
       const profile = data.profiles.find(p => p.id === data.activeProfileId);
       if (profile) {
         activeProfile = profile;
@@ -392,10 +438,10 @@ async function initializeProxyState() {
       }
     }
 
-    // No active profile, use system proxy
+    // No active profile (system or direct mode)
     activeProfile = null;
-    updateIcon(null); // Gray icon for system proxy
-    console.log('No active proxy, using system settings');
+    updateIcon(null);
+    console.log(`Initialized in ${data.mode} mode`);
 
     isInitialized = true;
     console.log('Proxy state initialization completed');
@@ -404,6 +450,7 @@ async function initializeProxyState() {
     console.error('Failed to initialize proxy state:', error);
     // Default to system proxy (gray) on error
     activeProfile = null;
+    currentMode = 'system';
     updateIcon(null);
     isInitialized = true; // Mark as initialized even on error
   }
@@ -443,12 +490,12 @@ chrome.webRequest.onAuthRequired.addListener(
     }
 
     // Fallback: read from storage (service worker may have restarted)
-    chrome.storage.local.get(['x-proxy-data']).then(result => {
-      const data = result['x-proxy-data'] || {};
-      if (data.activeProfileId && data.profiles) {
+    readData().then(data => {
+      if (data.mode === 'profile' && data.activeProfileId) {
         const profile = data.profiles.find(p => p.id === data.activeProfileId);
         if (profile) {
           activeProfile = profile; // Restore in-memory state
+          currentMode = 'profile';
           const auth = profile.config?.auth;
           if (auth && auth.username) {
             console.log('Auth provided from storage for:', profile.name);
@@ -495,6 +542,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           sendResponse(deactivateResult);
           break;
 
+        case 'SET_DIRECT_MODE':
+          const directResult = await setDirectMode();
+          sendResponse(directResult);
+          break;
+
         case 'GET_STATE':
           // Ensure initialization before returning state
           if (!isInitialized) {
@@ -502,8 +554,10 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
           }
           sendResponse({
             success: true,
+            mode: currentMode,
             activeProfile: activeProfile,
-            isSystemProxy: !activeProfile
+            isSystemProxy: currentMode === 'system',
+            isDirectMode: currentMode === 'direct'
           });
           break;
 

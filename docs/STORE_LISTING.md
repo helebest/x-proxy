@@ -88,11 +88,13 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.5.2** - Performance
-• Removed backdrop blur effect for smooth UI on low-end hardware (no GPU required)
-• Darker modal overlay preserves visual separation without compositor cost
+**Version 1.6.0** - Direct Connection Mode + UI Polish
+• New Direct Connection mode bypasses all proxies (including OS/IE-wide settings)
+• Schema v2 with automatic one-way migration — existing users unaffected
+• Options page now supports dark mode; refined focus rings and danger colors
 
 **Previous Updates:**
+• v1.5.2: Removed backdrop blur effect for smooth UI on low-end hardware (no GPU required)
 • v1.5.1: Dynamic toolbar icon colors, dark mode polish
 • v1.5.0: PAC (Proxy Auto-Configuration) file support
 • v1.4.2: Proxy authentication (username/password)
