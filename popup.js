@@ -361,18 +361,13 @@ function updateUI() {
 
 // Update status indicator
 function updateStatusIndicator() {
-    if (!elements.statusIndicator || !elements.statusText) return;
-
-    elements.statusIndicator.classList.remove('active', 'inactive', 'proxy', 'direct');
+    if (!elements.statusText) return;
 
     if (currentMode === 'profile' && activeProfile) {
-        elements.statusIndicator.classList.add('proxy');
         elements.statusText.textContent = activeProfile.name;
     } else if (currentMode === 'direct') {
-        elements.statusIndicator.classList.add('direct');
         elements.statusText.textContent = 'Direct';
     } else {
-        elements.statusIndicator.classList.add('inactive');
         elements.statusText.textContent = 'System';
     }
 }
@@ -387,23 +382,26 @@ function updateQuickActions() {
 function updateProfilesList() {
     const container = elements.profilesList;
     if (!container) return;
-    
+
     // Clear all existing profile items
     container.innerHTML = '';
-    
-    // If we have profiles, show them
-    if (profiles.length > 0) {
+
+    const hasProfiles = profiles.length > 0;
+    // CSS uses body.state-empty to hide the header "+" when the list is empty,
+    // so the big empty-state CTA is the single obvious entry point.
+    document.body.classList.toggle('state-empty', !hasProfiles);
+
+    if (hasProfiles) {
         profiles.forEach(profile => {
             const element = createProfileElement(profile);
             container.appendChild(element);
         });
-        
+
         container.style.display = 'flex';
         if (elements.emptyState) {
             elements.emptyState.style.display = 'none';
         }
     } else {
-        // Show empty state if no profiles
         container.style.display = 'none';
         if (elements.emptyState) {
             elements.emptyState.style.display = 'flex';

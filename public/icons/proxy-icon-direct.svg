@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Direct connection icon — green gradient + bold right arrow.
+       Visually distinct from both the blue profile-active family and the
+       gray system-inactive family so the toolbar conveys which of the three
+       top-level modes is active without having to open the popup. -->
+
+  <!-- Background circle -->
+  <circle cx="64" cy="64" r="56" fill="url(#gradient-direct)" />
+
+  <!-- Horizontal shaft, thick enough to stay readable at 16x16 -->
+  <rect x="28" y="58" width="56" height="12" rx="6" fill="white" />
+
+  <!-- Arrow head -->
+  <path d="M74 40 L102 64 L74 88 Z" fill="white" stroke="white" stroke-width="4" stroke-linejoin="round" />
+
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="gradient-direct" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34C759" />
+      <stop offset="100%" stop-color="#2AA047" />
+    </linearGradient>
+  </defs>
+</svg>

@@ -1,5 +1,7 @@
 // Options Page JavaScript
 
+import { PROFILE_COLORS } from './lib/icon-paths.js';
+
 function createPacConfig(pacUrl) {
   return {
     type: 'pac',
@@ -769,7 +771,7 @@ github.com
       return { valid: false, error: 'No profiles found in import file' };
     }
 
-    const validColors = ['#007AFF', '#4CAF50', '#F44336', '#FF9800', '#9C27B0', '#009688', '#FFC107', '#607D8B'];
+    const validColors = PROFILE_COLORS.map(c => c.hex);
     const validProfiles = [];
     let skipped = 0;
 

@@ -2,6 +2,7 @@
 // Background script for proxy management with lifecycle management
 
 import { migrateData, SCHEMA_VERSION } from './lib/storage-migration.js';
+import { resolveIconPaths } from './lib/icon-paths.js';
 
 console.log('X-Proxy background service worker loaded');
 
@@ -10,9 +11,11 @@ let activeProfile = null;
 let currentMode = 'system'; // 'direct' | 'system' | 'profile'
 let isInitialized = false;
 let keepAliveTimeout = null;
-// Last color passed to updateIcon — exposed via GET_STATE so tests can
-// assert toolbar-icon repaint without needing a real chrome.action.getIcon API.
+// Exposed via GET_STATE so tests can assert toolbar-icon repaint without
+// needing a real chrome.action.getIcon API.
 let lastIconColor = null;
+let lastIconMode = null;
+let lastIconPaths = null;
 
 // Read x-proxy-data and normalize to the canonical v2 shape.
 async function readData() {
@@ -104,41 +107,18 @@ function keepAlive() {
   }, 25000); // Chrome terminates service workers after 30s of inactivity
 }
 
-// Keep in sync with PROFILE_COLORS in generate-icons.js
-const COLOR_NAMES = {
-  '#007AFF': 'blue',
-  '#4CAF50': 'green',
-  '#F44336': 'red',
-  '#FF9800': 'orange',
-  '#9C27B0': 'purple',
-  '#009688': 'teal',
-  '#FFC107': 'yellow',
-  '#607D8B': 'gray',
-};
+function updateIcon(profileColor = null, mode = null) {
+  // Short-circuit if the resolved icon hasn't changed — onActivated/onUpdated/
+  // onFocusChanged fire constantly and chrome.action.setIcon is real IPC.
+  if (profileColor === lastIconColor && mode === lastIconMode) return;
 
-// Update the toolbar icon.
-// profileColor set  → pre-rendered colored icon (site is actively proxied).
-// profileColor null → gray inactive icon (system proxy, routing bypass, or non-HTTP page).
-function updateIcon(profileColor = null) {
   lastIconColor = profileColor;
-  const name = profileColor ? COLOR_NAMES[profileColor] : null;
+  lastIconMode = mode;
+  const path = resolveIconPaths(profileColor, mode);
+  lastIconPaths = path;
 
   chrome.action
-    .setIcon({
-      path: name
-        ? {
-            16: `icons/icon-active-${name}-16.png`,
-            32: `icons/icon-active-${name}-32.png`,
-            48: `icons/icon-active-${name}-48.png`,
-            128: `icons/icon-active-${name}-128.png`,
-          }
-        : {
-            16: "icons/icon-inactive-16.png",
-            32: "icons/icon-inactive-32.png",
-            48: "icons/icon-inactive-48.png",
-            128: "icons/icon-inactive-128.png",
-          },
-    })
+    .setIcon({ path })
     .catch((error) => {
       console.error("Failed to update icon:", error);
     });
@@ -209,7 +189,9 @@ async function updateIconForActiveTab() {
   }
 
   if (!activeProfile) {
-    updateIcon(null);
+    // Direct and system both lack an active profile but need distinct icons,
+    // so pass currentMode through rather than a blanket null.
+    updateIcon(null, currentMode);
     return;
   }
 
@@ -219,7 +201,7 @@ async function updateIconForActiveTab() {
   if (!hasRoutingRules) {
     // Simple proxy (or PAC) without per-domain routing: show profile color
     // regardless of current tab URL.
-    updateIcon(activeProfile.color);
+    updateIcon(activeProfile.color, 'profile');
     return;
   }
 
@@ -228,16 +210,19 @@ async function updateIconForActiveTab() {
     const url = tab?.url || tab?.pendingUrl || '';
 
     if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      // Non-http pages are never routed through per-domain rules.
-      updateIcon(null);
+      // Non-http pages are never routed through per-domain rules — show
+      // inactive gray even though a profile is "active" because no traffic
+      // is flowing through it on this tab.
+      updateIcon(null, 'system');
       return;
     }
 
     const hostname = new URL(url).hostname;
-    updateIcon(isHostProxied(hostname, activeProfile) ? activeProfile.color : null);
+    const proxied = isHostProxied(hostname, activeProfile);
+    updateIcon(proxied ? activeProfile.color : null, proxied ? 'profile' : 'system');
   } catch (error) {
     console.error('Failed to determine proxy state for active tab:', error);
-    updateIcon(activeProfile.color);
+    updateIcon(activeProfile.color, 'profile');
   }
 }
 
@@ -387,7 +372,7 @@ async function deactivateProxy() {
     // Update internal state and icon
     activeProfile = null;
     currentMode = 'system';
-    updateIcon(null); // Gray icon for system proxy
+    updateIcon(null, 'system'); // Gray icon for system proxy
 
     console.log('Deactivated proxy, using system settings');
     return { success: true };
@@ -409,7 +394,7 @@ async function deactivateProxy() {
 
       activeProfile = null;
       currentMode = 'system';
-      updateIcon(null);
+      updateIcon(null, 'system');
 
       console.log('Fallback: Cleared proxy settings');
       return { success: true };
@@ -442,7 +427,7 @@ async function setDirectMode() {
 
     activeProfile = null;
     currentMode = 'direct';
-    updateIcon(null);
+    updateIcon(null, 'direct');
 
     console.log('Switched to direct mode (no proxy)');
     return { success: true };
@@ -474,9 +459,10 @@ async function initializeProxyState() {
       }
     }
 
-    // No active profile (system or direct mode)
+    // Pass the stored mode so Direct renders its own icon family instead of
+    // falling back to gray.
     activeProfile = null;
-    updateIcon(null);
+    updateIcon(null, currentMode);
     console.log(`Initialized in ${data.mode} mode`);
 
     isInitialized = true;
@@ -487,7 +473,7 @@ async function initializeProxyState() {
     // Default to system proxy (gray) on error
     activeProfile = null;
     currentMode = 'system';
-    updateIcon(null);
+    updateIcon(null, 'system');
     isInitialized = true; // Mark as initialized even on error
   }
 }
@@ -594,7 +580,9 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             activeProfile: activeProfile,
             isSystemProxy: currentMode === 'system',
             isDirectMode: currentMode === 'direct',
-            lastIconColor: lastIconColor
+            lastIconColor: lastIconColor,
+            lastIconMode: lastIconMode,
+            lastIconPaths: lastIconPaths
           });
           break;
 

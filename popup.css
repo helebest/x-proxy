@@ -184,43 +184,6 @@ body::before {
     box-shadow: var(--shadow-sm);
 }
 
-.status-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--success-color);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% {
-        opacity: 1;
-        transform: scale(1);
-    }
-    50% {
-        opacity: 0.6;
-        transform: scale(1.1);
-    }
-}
-
-.status-indicator.active .status-dot {
-    background: var(--success-color);
-}
-
-.status-indicator.inactive .status-dot {
-    background: var(--text-tertiary);
-    animation: none;
-}
-
-.status-indicator.proxy .status-dot {
-    background: var(--primary-color);
-}
-
-.status-indicator.direct .status-dot {
-    background: var(--success-color);
-    animation: none;
-}
-
 .status-text {
     font-size: 13px;
     font-weight: 500;
@@ -281,7 +244,7 @@ body::before {
 
 .action-card {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     align-items: center;
     gap: var(--space-md);
     padding: var(--space-md);
@@ -341,10 +304,6 @@ body::before {
     color: white;
 }
 
-.action-card.selected .action-check {
-    opacity: 1;
-}
-
 .action-icon {
     width: 40px;
     height: 40px;
@@ -386,15 +345,10 @@ body::before {
     transition: color var(--transition-fast);
 }
 
-.action-check {
-    width: 24px;
-    height: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    opacity: 0;
-    transition: opacity var(--transition-fast);
+/* Hide the header "+" while the profile list is empty so the big CTA below
+   is the single obvious entry point. popup.js toggles body.state-empty. */
+body.state-empty #addProfileBtn {
+    display: none;
 }
 
 /* Divider */
