@@ -3,23 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import { PROFILE_COLORS, ICON_SIZES } from '../lib/icon-paths.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-
-const ICON_SIZES = [16, 32, 48, 128];
-
-// Keep in sync with validColors in options.js and COLOR_NAMES in background.js
-const PROFILE_COLORS = [
-  { hex: '#007AFF', name: 'blue'   },
-  { hex: '#4CAF50', name: 'green'  },
-  { hex: '#F44336', name: 'red'    },
-  { hex: '#FF9800', name: 'orange' },
-  { hex: '#9C27B0', name: 'purple' },
-  { hex: '#009688', name: 'teal'   },
-  { hex: '#FFC107', name: 'yellow' },
-  { hex: '#607D8B', name: 'gray'   },
-];
 
 /** Multiply each RGB channel by factor to produce a darker shade for the gradient end-stop. */
 function darken(hex, factor = 0.75) {
@@ -42,6 +29,7 @@ const BASE_ICONS = [
   { input: path.join(__dirname, '../public/icons/proxy-icon-active.svg'),   outputPrefix: 'icon-active' },
   { input: path.join(__dirname, '../public/icons/proxy-icon-inactive.svg'), outputPrefix: 'icon-inactive' },
   { input: path.join(__dirname, '../public/icons/proxy-icon-error.svg'),    outputPrefix: 'icon-error' },
+  { input: path.join(__dirname, '../public/icons/proxy-icon-direct.svg'),   outputPrefix: 'icon-direct' },
 ];
 
 async function generateBaseIcons() {

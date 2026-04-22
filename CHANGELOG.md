@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2026-04-20
+Last updated: 2026-04-22
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -14,6 +14,26 @@ Future improvements planned:
 - Performance optimizations
 - Blog content creation for SEO
 - Multi-language support (Chinese, Japanese, Russian)
+
+## [1.6.1] - 2026-04-22
+
+### Fixed
+- **Toolbar icon now distinguishes Direct from System mode** ([#28](https://github.com/helebest/x-proxy/issues/28) tail). Previously both modes resolved to `icon-inactive-*.png` (gray) so there was no way to tell at a glance whether the extension was actively bypassing proxies or deferring to the OS. Direct mode now renders a new green arrow icon family (`icon-direct-{16,32,48,128}.png`); System mode keeps the gray inactive icon it had before.
+- **Popup empty-state no longer shows three redundant "add profile" entry points** ([#36](https://github.com/helebest/x-proxy/issues/36)). The header "+" button is hidden while the profile list is empty — the big "Add your first profile" CTA is the single obvious action. The header "+" returns once profiles exist.
+
+### Changed
+- **Popup active-mode signaling reduced from 4 simultaneous indicators to 2** (per sergeevabc's feedback on #28). Removed the animated `.status-dot` in the top status chip and the right-edge `.action-check` ✓ on each card. The active card still communicates selection via its blue gradient background and white-inherited icon — enough signal without the visual noise.
+
+### Added
+- **`lib/icon-paths.js`**: pure helper `resolveIconPaths(profileColor, mode)` shared by the background worker and unit tests. Makes the three-way branch (profile / direct / system) testable without stubbing `chrome.action`.
+- **Regression guards**:
+  - `tests/update-icon.test.js` — pins down the path resolver contract (8 assertions incl. the direct-vs-system distinctness rule).
+  - `e2e/popup-visual-simplicity.spec.ts` — asserts `.status-dot` / `.action-check` are removed from the DOM and `#addProfileBtn` toggles with the `state-empty` body class.
+  - `e2e/icon-differentiation.spec.ts` — asserts Direct and System resolve to strictly different `chrome.action.setIcon` paths via a new `lastIconPaths` / `lastIconMode` field on `GET_STATE`.
+  - `e2e/popup-visual.spec.ts` — screenshot baselines for empty / populated / direct-active / system-active / profile-active popup states.
+
+### Credits
+- Thanks again to [@sergeevabc](https://github.com/sergeevabc) for the detailed UX feedback on #28 and for filing #36. Your "count the signals" instinct was the right call.
 
 ## [1.6.0] - 2026-04-20
 
