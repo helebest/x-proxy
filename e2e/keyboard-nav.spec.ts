@@ -91,4 +91,48 @@ test.describe('Keyboard navigation — modal dialogs', () => {
     const focused = await optionsPage.evaluate(() => document.activeElement?.id)
     expect(focused).toBe('profileName')
   })
+
+  test('Tab on the last focusable inside the modal wraps back into the modal', async ({ optionsPage }) => {
+    // Without a focus trap, Tab from #saveProfileBtn bleeds into the page
+    // behind the modal (footer Save All, sidebar nav items). A keyboard
+    // user then loses track of where they are — the modal is visually open
+    // but their keyboard is driving the background. The trap must wrap.
+    await optionsPage.click('#addProfileBtn')
+    await expect(optionsPage.locator('#profileModal')).toHaveClass(/show/)
+
+    await optionsPage.focus('#saveProfileBtn')
+    await optionsPage.keyboard.press('Tab')
+
+    const info = await optionsPage.evaluate(() => {
+      const modal = document.getElementById('profileModal')!
+      return {
+        id: document.activeElement?.id,
+        insideModal: modal.contains(document.activeElement),
+      }
+    })
+    expect(info.insideModal).toBe(true)
+    // Strongest assertion that doesn't over-specify DOM order: focus should
+    // have landed on the X close button (the first focusable in DOM order
+    // inside the modal). If the order changes intentionally, update both
+    // this expectation and the trap's "first focusable" logic in lockstep.
+    expect(info.id).toBe('closeProfileModal')
+  })
+
+  test('Shift+Tab on the first focusable inside the modal wraps to the last', async ({ optionsPage }) => {
+    await optionsPage.click('#addProfileBtn')
+    await expect(optionsPage.locator('#profileModal')).toHaveClass(/show/)
+
+    await optionsPage.focus('#closeProfileModal')
+    await optionsPage.keyboard.press('Shift+Tab')
+
+    const info = await optionsPage.evaluate(() => {
+      const modal = document.getElementById('profileModal')!
+      return {
+        id: document.activeElement?.id,
+        insideModal: modal.contains(document.activeElement),
+      }
+    })
+    expect(info.insideModal).toBe(true)
+    expect(info.id).toBe('saveProfileBtn')
+  })
 })
