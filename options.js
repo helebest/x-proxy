@@ -200,6 +200,19 @@ class OptionsManager {
     document.getElementById('cancelProfileBtn').addEventListener('click', () => this.hideProfileModal());
     document.getElementById('closeProfileModal').addEventListener('click', () => this.hideProfileModal());
 
+    // Escape-to-close for the profile modal. Keeps keyboard users out of the
+    // WCAG 2.1.2 trap: previously there was no way to close without a pointer
+    // or Tab-hunting for the Cancel button. Guarded by the .show class so
+    // Escape is a no-op on an already-hidden modal.
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const modal = document.getElementById('profileModal');
+      if (modal && modal.classList.contains('show')) {
+        e.preventDefault();
+        this.hideProfileModal();
+      }
+    });
+
     // Proxy type change handler
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
 
@@ -367,6 +380,9 @@ class OptionsManager {
 
   showProfileModal(profile = null) {
     this.editingProfile = profile;
+    // Remember which element was focused before the modal opened so we can
+    // return focus there on close (WCAG 2.4.3 focus order).
+    this.lastFocusedBeforeModal = document.activeElement;
     const modal = document.getElementById('profileModal');
     const title = document.getElementById('profileModalTitle');
 
@@ -429,11 +445,23 @@ class OptionsManager {
 
     this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
     modal.classList.add('show');
+    // Land the user on the first input so they can type immediately instead
+    // of being stranded behind the modal. .focus() moves activeElement
+    // synchronously even if the element is not yet painted.
+    document.getElementById('profileName').focus();
   }
 
   hideProfileModal() {
     document.getElementById('profileModal').classList.remove('show');
     this.editingProfile = null;
+    // Return focus to the element that opened the modal (typically
+    // #addProfileBtn or an Edit button). Falls through quietly if that
+    // element was removed in the meantime.
+    const returnTo = this.lastFocusedBeforeModal;
+    this.lastFocusedBeforeModal = null;
+    if (returnTo && typeof returnTo.focus === 'function' && document.contains(returnTo)) {
+      returnTo.focus();
+    }
   }
 
   handleProxyTypeChange(e) {
