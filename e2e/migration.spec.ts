@@ -8,20 +8,23 @@ import { test, expect, type Page } from './fixture'
 // migrateData() from the read or write path, which unit tests would not
 // detect because they call the function directly.
 //
-// Why only two tests here:
-//   1. UI-level "seed v1 → popup shows migrated mode" is ideal in theory
-//      but requires forcing the background service worker to re-initialize
-//      against the seeded data (background caches its state on first boot).
-//      chrome.runtime.reload() in a persistent Playwright context leaves
-//      the extension in a transient ERR_BLOCKED_BY_CLIENT state that does
-//      not reliably clear within a reasonable timeout. Given full unit
-//      coverage already exists, the E2E value is in *integration* — that
-//      migrate is wired up — and two narrower tests below suffice for that.
+// Scope note — what's NOT tested here and why:
+//   UI-level "seed v1 → popup shows migrated mode" would be complementary
+//   but requires forcing the background service worker to re-initialize
+//   against the seeded data (the worker caches its state on first boot).
+//   chrome.runtime.reload() in a persistent Playwright context leaves the
+//   extension in a transient ERR_BLOCKED_BY_CLIENT state that does not
+//   reliably clear within a reasonable timeout. With full unit coverage
+//   already in place, the E2E value is in *integration* — that migrate is
+//   actually wired up on read + write — which the three tests below cover.
 //
-// The two tests pin down the two integration invariants that would silently
+// The three tests pin down integration invariants that would silently
 // break if someone bypassed migrateData():
 //   - Read path is non-destructive (storage stays v1 when only read)
-//   - First write upgrades to v2
+//   - First write through the System button upgrades to v2
+//   - First write through the Direct button also upgrades to v2 with the
+//     distinct mode value (covers v2's raison d'être branch — Direct vs
+//     System — that the System-only test wouldn't distinguish)
 
 type V1Profile = { id: string; name: string; type: string; host: string; port: number }
 

@@ -1,31 +1,11 @@
 import AxeBuilder from '@axe-core/playwright'
 import { test, expect, type Page } from './fixture'
+import { disableTransitions } from './helpers'
 
 // Known preexisting violations — filtered here so the suite passes today while
 // NEW regressions still fail. Keep this list minimal and annotated: each entry
 // is a design decision the project has consciously accepted. Empty by default.
 const KNOWN_CONTRAST_EXCEPTIONS: Array<string | RegExp> = []
-
-// `page.emulateMedia({ colorScheme })` flips matchMedia + `:root` custom
-// properties synchronously, but elements with `transition: all` (which this
-// design system applies to nav items, buttons, inputs, etc.) animate color
-// between the old and new var() value over the transition duration (~250ms).
-// If axe scans mid-transition it reads intermediate rgba values like
-// `rgba(120, 120, 125, 0.87)` instead of the final `#AEAEB2`, reporting
-// spurious contrast failures. The `toHaveScreenshot.animations: 'disabled'`
-// config in playwright.config.ts only affects screenshots; axe runs in-page
-// JS and needs transitions killed at the CSS level.
-async function disableTransitions(page: Page) {
-  await page.addStyleTag({
-    content: `
-      *, *::before, *::after {
-        transition: none !important;
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-      }
-    `,
-  })
-}
 
 function isKnownException(target: string[]): boolean {
   return target.some(sel =>
