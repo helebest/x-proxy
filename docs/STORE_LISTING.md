@@ -88,12 +88,13 @@ X-Proxy respects your privacy:
 
 ### 🔄 Current Version
 
-**Version 1.6.0** - Direct Connection Mode + UI Polish
-• New Direct Connection mode bypasses all proxies (including OS/IE-wide settings)
-• Schema v2 with automatic one-way migration — existing users unaffected
-• Options page now supports dark mode; refined focus rings and danger colors
+**Version 1.6.1** - Icon & Popup Polish
+• Direct mode now has a distinct green toolbar icon so it's visually distinguishable from System mode
+• Popup empty-state cleanup — the redundant header "+" is hidden when no profiles exist
+• Reduced active-mode signaling from 4 indicators to 2 for less visual noise
 
 **Previous Updates:**
+• v1.6.0: Direct Connection mode that bypasses all proxies (incl. OS/IE-wide settings); schema v2 migration; options dark mode
 • v1.5.2: Removed backdrop blur effect for smooth UI on low-end hardware (no GPU required)
 • v1.5.1: Dynamic toolbar icon colors, dark mode polish
 • v1.5.0: PAC (Proxy Auto-Configuration) file support
