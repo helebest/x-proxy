@@ -200,6 +200,40 @@ class OptionsManager {
     document.getElementById('cancelProfileBtn').addEventListener('click', () => this.hideProfileModal());
     document.getElementById('closeProfileModal').addEventListener('click', () => this.hideProfileModal());
 
+    // Keyboard handling for the profile modal.
+    //   Escape  → close the modal. Previously there was no way out without
+    //             pointer or Tab-hunting for Cancel; this clears the WCAG
+    //             2.1.2 "No Keyboard Trap" bar.
+    //   Tab     → wrap focus inside the modal (WAI-ARIA dialog pattern).
+    //             Without this, Tab from Save leaks to #saveAllBtn / sidebar
+    //             so the user is visually inside the modal but typing into
+    //             the page behind it.
+    document.addEventListener('keydown', (e) => {
+      const modal = document.getElementById('profileModal');
+      if (!modal || !modal.classList.contains('show')) return;
+
+      if (e.key === 'Escape') {
+        e.preventDefault();
+        this.hideProfileModal();
+        return;
+      }
+
+      if (e.key === 'Tab') {
+        const focusables = this.getModalFocusables(modal);
+        if (focusables.length === 0) return;
+        const first = focusables[0];
+        const last = focusables[focusables.length - 1];
+        const active = document.activeElement;
+        if (e.shiftKey && active === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && active === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    });
+
     // Proxy type change handler
     document.getElementById('proxyType').addEventListener('change', (e) => this.handleProxyTypeChange(e));
 
@@ -367,6 +401,9 @@ class OptionsManager {
 
   showProfileModal(profile = null) {
     this.editingProfile = profile;
+    // Remember which element was focused before the modal opened so we can
+    // return focus there on close (WCAG 2.4.3 focus order).
+    this.lastFocusedBeforeModal = document.activeElement;
     const modal = document.getElementById('profileModal');
     const title = document.getElementById('profileModalTitle');
 
@@ -429,11 +466,42 @@ class OptionsManager {
 
     this.handleProxyTypeChange({ target: { value: profile?.config?.type || profile?.type || 'http' } });
     modal.classList.add('show');
+    // Land the user on the first input so they can type immediately instead
+    // of being stranded behind the modal. .focus() moves activeElement
+    // synchronously even if the element is not yet painted.
+    document.getElementById('profileName').focus();
   }
 
   hideProfileModal() {
     document.getElementById('profileModal').classList.remove('show');
     this.editingProfile = null;
+    // Return focus to the element that opened the modal (typically
+    // #addProfileBtn or an Edit button). Falls through quietly if that
+    // element was removed in the meantime.
+    const returnTo = this.lastFocusedBeforeModal;
+    this.lastFocusedBeforeModal = null;
+    if (returnTo && typeof returnTo.focus === 'function' && document.contains(returnTo)) {
+      returnTo.focus();
+    }
+  }
+
+  // Enumerate visible, enabled tabbable elements inside the modal in DOM
+  // order, for the Tab / Shift+Tab focus-trap handler. offsetParent === null
+  // filters out elements hidden by display:none on themselves or an ancestor
+  // — this matters because #pacDetails / #proxyDetails / #routingRulesPanel
+  // toggle visibility based on proxy type, and #domainListTextarea is hidden
+  // unless the routing toggle is on.
+  getModalFocusables(modal) {
+    const selector = [
+      'a[href]',
+      'button:not([disabled])',
+      'input:not([disabled]):not([type="hidden"])',
+      'select:not([disabled])',
+      'textarea:not([disabled])',
+      '[tabindex]:not([tabindex="-1"])',
+    ].join(',');
+    return Array.from(modal.querySelectorAll(selector))
+      .filter(el => el.offsetParent !== null);
   }
 
   handleProxyTypeChange(e) {

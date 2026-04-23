@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright'
 import { test, expect, type Page } from './fixture'
+import { disableTransitions } from './helpers'
 
 // Known preexisting violations — filtered here so the suite passes today while
 // NEW regressions still fail. Keep this list minimal and annotated: each entry
@@ -48,31 +49,39 @@ async function openEditModal(optionsPage: Page) {
 }
 
 test.describe('Accessibility — color contrast', () => {
+  // NOTE: disableTransitions MUST run before emulateMedia. Otherwise, the
+  // transitions are already armed at the moment the media flip happens, and
+  // the in-flight color animation is what the !important rule can't unwind.
   test('popup passes color-contrast in light mode', async ({ popupPage }) => {
+    await disableTransitions(popupPage)
     await popupPage.emulateMedia({ colorScheme: 'light' })
     const violations = await scanContrast(popupPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('popup passes color-contrast in dark mode', async ({ popupPage }) => {
+    await disableTransitions(popupPage)
     await popupPage.emulateMedia({ colorScheme: 'dark' })
     const violations = await scanContrast(popupPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('options profiles page passes color-contrast in light mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'light' })
     const violations = await scanContrast(optionsPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('options profiles page passes color-contrast in dark mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'dark' })
     const violations = await scanContrast(optionsPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('Edit Profile modal passes color-contrast in dark mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'dark' })
     await openEditModal(optionsPage)
 

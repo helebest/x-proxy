@@ -1,6 +1,6 @@
 # Contributing to X-Proxy
 
-Last updated: 2025-08-13
+Last updated: 2026-04-23
 
 First off, thank you for considering contributing to X-Proxy! 🎉
 
@@ -34,36 +34,32 @@ This project and everyone participating in it is governed by our Code of Conduct
 Before you begin, ensure you have:
 
 - Node.js 18+ and npm 8+
-- Git
-- A GitHub account
+- Git and a GitHub account
 - Chrome browser for testing
-- Basic knowledge of TypeScript and Chrome Extensions
+- Basic familiarity with plain JavaScript and Chrome Extensions (Manifest V3)
+
+> X-Proxy source files are **plain `.js`** at the repo root. TypeScript is used only for type-checking via `tsconfig.json` (`allowJs: true`) — there is no `.ts` source to compile and no build-time transform on your code.
 
 ### First Contributions
 
-Unsure where to begin? You can start by looking through these issues:
+Unsure where to begin? Look at:
 
-- [Good First Issues](https://github.com/helebest/x-proxy/labels/good%20first%20issue) - issues which should only require a few lines of code
-- [Help Wanted](https://github.com/helebest/x-proxy/labels/help%20wanted) - issues which need extra attention
-- [Documentation](https://github.com/helebest/x-proxy/labels/documentation) - improvements or additions to documentation
+- [Good First Issues](https://github.com/helebest/x-proxy/labels/good%20first%20issue) - small, focused tasks
+- [Help Wanted](https://github.com/helebest/x-proxy/labels/help%20wanted) - issues that need extra attention
+- [Documentation](https://github.com/helebest/x-proxy/labels/documentation) - doc improvements
 
 ## How Can I Contribute?
 
 ### Reporting Bugs
 
-Before creating bug reports, please check existing issues to avoid duplicates. When creating a bug report, please include:
+Before filing a bug, please check existing issues to avoid duplicates. Include:
 
-1. **Clear Title**: A clear and descriptive title
-2. **Description**: A detailed description of the issue
-3. **Steps to Reproduce**: List the exact steps to reproduce the behavior
-4. **Expected Behavior**: What you expected to happen
-5. **Actual Behavior**: What actually happened
-6. **Screenshots**: If applicable, add screenshots
-7. **Environment**:
-   - Chrome version
-   - X-Proxy version
-   - Operating System
-   - Any relevant proxy configuration
+1. **Clear Title** — a concise, descriptive title
+2. **Description** — what went wrong
+3. **Steps to Reproduce** — the exact sequence
+4. **Expected vs. Actual Behavior**
+5. **Screenshots** — if relevant
+6. **Environment** — Chrome version, X-Proxy version, OS, proxy type
 
 #### Bug Report Template
 
@@ -87,10 +83,10 @@ What actually happened.
 If applicable, add screenshots.
 
 ## Environment
-- Chrome Version: [e.g., 120.0.6099.129]
-- X-Proxy Version: [e.g., 1.0.0]
-- OS: [e.g., Windows 11]
-- Proxy Type: [e.g., SOCKS5]
+- Chrome Version: [e.g., 128.0.6613.120]
+- X-Proxy Version: [e.g., 1.6.1]
+- OS: [e.g., macOS 15, Windows 11]
+- Proxy Type: [HTTP / HTTPS / SOCKS5 / PAC]
 
 ## Additional Context
 Any other context about the problem.
@@ -98,163 +94,124 @@ Any other context about the problem.
 
 ### Suggesting Enhancements
 
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, please include:
+Enhancement suggestions are tracked as GitHub issues. Please include:
 
-1. **Use Case**: Explain the use case for this enhancement
-2. **Current Behavior**: Current behavior and why it's insufficient
-3. **Proposed Solution**: Your proposed solution
-4. **Alternatives**: Any alternative solutions you've considered
-5. **Additional Context**: Any other context or screenshots
+1. **Use Case** — why you need this
+2. **Current Behavior** — and why it's insufficient
+3. **Proposed Solution**
+4. **Alternatives** considered
+5. **Additional Context**
 
-### Code Contributions
+## Development Setup
 
-#### Local Development Setup
-
-1. **Fork the Repository**
+1. **Fork and clone**
    ```bash
-   # Fork via GitHub UI, then:
    git clone https://github.com/your-username/x-proxy.git
    cd x-proxy
-   ```
-
-2. **Set Up Upstream**
-   ```bash
    git remote add upstream https://github.com/helebest/x-proxy.git
-   git fetch upstream
    ```
 
-3. **Install Dependencies**
+2. **Install dependencies**
    ```bash
    npm install
    ```
 
-4. **Create a Branch**
+3. **Create a branch**
    ```bash
    git checkout -b feature/your-feature-name
    # or
    git checkout -b fix/your-bug-fix
    ```
 
-5. **Start Development Server**
+4. **Build the extension**
    ```bash
-   npm run dev
+   npm run build       # build all three components to dist/
+   npm run watch       # rebuild background.js on change (popup/options need manual rebuild)
    ```
 
-6. **Load Extension in Chrome**
+   > Do **not** use `npm run dev` — it starts a Vite dev server, which is not how Chrome extensions load. Chrome loads files from `dist/` as an unpacked extension; that's why the workflow is build → load → reload.
+
+5. **Load the extension in Chrome**
    - Open `chrome://extensions/`
    - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the `dist` directory
+   - Click "Load unpacked" and select the `dist` directory
+   - After each rebuild, click the reload icon on the X-Proxy card
 
 ## Project Structure
 
 ```
 x-proxy/
-├── dist/               # Build output
-├── tests/              # Test suites
-│   ├── unit/          # Unit tests
-│   ├── integration/   # Integration tests
-│   └── e2e/           # End-to-end tests
-├── docs/               # Documentation
-├── store-assets/       # Chrome Web Store assets
-├── manifest.json       # Extension manifest
-├── popup.html          # Popup UI
-├── popup.js            # Popup logic
-├── options.html        # Options page
-├── options.js          # Options logic
-├── background.js       # Background service worker
-├── package.json        # Project configuration
-├── tsconfig.json       # TypeScript configuration
-└── README.md           # Documentation
+├── background.js             # Service worker (proxy mgmt, PAC gen, auth)
+├── popup.html / popup.js / popup.css   # Toolbar popup UI
+├── options.html / options.js / options.css   # Full options page
+├── manifest.json             # MV3 manifest (copied into dist/ at build)
+├── lib/
+│   ├── icon-paths.js         # Icon path resolver (profile/direct/system)
+│   └── storage-migration.js  # v1 → v2 schema migration
+├── tests/                    # Vitest unit tests — flat, *.test.js
+├── e2e/                      # Playwright E2E — flat, *.spec.ts
+│   ├── fixture.ts            # Launches Chromium with built dist/ loaded
+│   └── __screenshots__/      # Visual-regression baselines
+├── scripts/
+│   └── generate-icons.js     # Regenerate PNG icons from SVG (sharp)
+├── public/icons/             # Static icon assets
+├── vite.config.background.ts # One Vite config per component — each builds
+├── vite.config.popup.ts      # independently into dist/ (no emptyOutDir)
+├── vite.config.options.ts
+└── tsconfig.json             # Strict type-check over .js via allowJs
 ```
 
 ## Coding Guidelines
 
-### TypeScript Style Guide
+### JavaScript Style
 
-We follow the [TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html) with some modifications:
+Source files are plain ES2022 JavaScript. We follow a few hard rules:
 
-1. **Use TypeScript Strict Mode**: All code must pass strict type checking
-2. **Prefer const**: Use `const` for values that won't be reassigned
-3. **Use Type Annotations**: Always provide explicit type annotations for function parameters and return types
-4. **Avoid `any`**: Never use `any` type unless absolutely necessary
-5. **Use Interfaces**: Prefer interfaces over type aliases for object types
+1. **No TypeScript syntax in source files** — JSDoc annotations are fine and preferred for public helpers; the type checker consumes them.
+2. **Prefer `const`** — `let` only when reassignment is real; avoid `var`.
+3. **No `eval` / dynamic code** — required for Chrome Web Store review.
+4. **Small, pure helpers live in `lib/`** — so they can be unit-tested without stubbing `chrome.*` APIs (see `lib/icon-paths.js` as the pattern).
+5. **Keep `background.js` lightweight** — it's a service worker and gets terminated aggressively; anything expensive should be on-demand, not on-startup.
 
-#### Example Code Style
+#### Example: an extractable pure helper
 
-```typescript
-// Good ✅
-interface ProxyConfig {
-  host: string;
-  port: number;
-  type: ProxyType;
-  username?: string;
-  password?: string;
-}
-
-export const createProxy = async (config: ProxyConfig): Promise<Proxy> => {
-  const { host, port, type } = config;
-  
-  if (!isValidHost(host)) {
-    throw new Error(`Invalid host: ${host}`);
-  }
-  
-  const proxy = new Proxy({
-    host,
-    port,
-    type,
-  });
-  
-  return proxy;
-};
-
-// Bad ❌
-export function createProxy(config: any) {
-  var proxy = new Proxy(config);
-  return proxy;
+```javascript
+// lib/icon-paths.js
+/**
+ * Resolve the toolbar icon paths for the current mode.
+ * @param {string | undefined} profileColor - hex color of the active profile, if any
+ * @param {'profile' | 'direct' | 'system'} mode
+ * @returns {{ 16: string, 32: string, 48: string, 128: string }}
+ */
+export function resolveIconPaths(profileColor, mode) {
+  if (mode === 'direct') return DIRECT_ICONS;
+  if (mode === 'system') return INACTIVE_ICONS;
+  return colorizedIcons(profileColor);
 }
 ```
 
-### File Naming Conventions
+```javascript
+// tests/update-icon.test.js — exercises it directly, no chrome stubs
+import { resolveIconPaths } from '../lib/icon-paths.js';
+// ...
+```
 
-- **TypeScript Files**: Use camelCase (e.g., `proxyManager.ts`)
-- **React Components**: Use PascalCase (e.g., `ProxyList.tsx`)
-- **Test Files**: Add `.test.ts` or `.spec.ts` suffix
-- **Constants**: Use UPPER_SNAKE_CASE in constants file
-- **CSS Files**: Use kebab-case (e.g., `proxy-list.css`)
+### File Naming
 
-### Code Organization
+- **Source files**: kebab-case for multi-word files (`icon-paths.js`, `storage-migration.js`); single-purpose entry points keep their established names (`background.js`, `popup.js`, `options.js`).
+- **Test files**: `*.test.js` in `tests/` for Vitest; `*.spec.ts` in `e2e/` for Playwright.
+- **CSS**: kebab-case.
 
-1. **Imports Order**:
-   ```typescript
-   // 1. External imports
-   import { someFunction } from 'external-library';
-   
-   // 2. Internal absolute imports
-   import { ProxyManager } from '@/core/proxy';
-   
-   // 3. Internal relative imports
-   import { helper } from './utils';
-   
-   // 4. Type imports
-   import type { ProxyConfig } from '@/types';
-   ```
+### Chrome Extension Specifics
 
-2. **Export Patterns**:
-   - Use named exports for utilities and components
-   - Use default export only for main module entry points
-   - Group related exports in index files
-
-### Chrome Extension Specific Guidelines
-
-1. **Manifest Permissions**: Only request necessary permissions
-2. **Storage**: Use chrome.storage.local for profile data
-3. **Security**: Never execute dynamic code or use eval()
-4. **Performance**: Keep background script lightweight
+1. **Only request permissions you use** — each new permission triggers re-review on the Web Store.
+2. **Storage**: `chrome.storage.local` under the single key `'x-proxy-data'`. Respect the v2 schema (`mode` + `profiles` + `activeProfileId`) documented in `CLAUDE.md`. If you change the schema, bump `version` and add a migration in `lib/storage-migration.js`.
+3. **Message protocol** (popup/options → background): `ACTIVATE_PROFILE`, `DEACTIVATE_PROFILE`, `GET_STATE`. Don't introduce new message types without discussion.
+4. **Proxy API mode selection** lives in `background.js` and branches on profile type; test both the PAC-generation path and the `fixed_servers` path when touching it.
 
 ## Commit Messages
 
-We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
+We follow [Conventional Commits](https://www.conventionalcommits.org/).
 
 ### Format
 
@@ -268,81 +225,60 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 ### Types
 
-- **feat**: New feature
-- **fix**: Bug fix
-- **docs**: Documentation changes
-- **style**: Code style changes (formatting, etc.)
-- **refactor**: Code refactoring
-- **perf**: Performance improvements
-- **test**: Adding or updating tests
-- **build**: Build system changes
-- **ci**: CI/CD changes
-- **chore**: Other changes that don't modify src or test files
+- **feat** — new feature
+- **fix** — bug fix
+- **docs** — documentation only
+- **style** — formatting, no code change
+- **refactor** — code change that neither fixes a bug nor adds a feature
+- **perf** — performance improvement
+- **test** — adding or updating tests
+- **build** — build system / deps
+- **ci** — CI configuration
+- **chore** — anything else that doesn't touch src or tests
 
 ### Examples
 
 ```bash
-# Feature
-feat(proxy): add SOCKS4 support
+feat(popup): add Direct Connection mode button
+fix(background): repaint toolbar icon immediately on activate
+docs(readme): add v1.6.1 roadmap entry
+perf(popup): remove backdrop-filter from header and footer
+test(icon-paths): pin direct-vs-system distinctness
+feat(storage)!: migrate to schema v2 with top-level mode
 
-# Bug fix
-fix(popup): resolve connection status display issue
-
-# Documentation
-docs(readme): update installation instructions
-
-# Performance
-perf(background): optimize proxy switching logic
-
-# Breaking change
-feat(api)!: redesign proxy configuration API
-
-BREAKING CHANGE: The proxy configuration API has been completely redesigned.
-Old configuration format is no longer supported.
+BREAKING CHANGE: x-proxy-data now includes a top-level `mode` field;
+v1 → v2 migration runs automatically on first load.
 ```
 
 ## Pull Request Process
 
-1. **Update Your Fork**
+1. **Sync with upstream**
    ```bash
    git fetch upstream
    git checkout main
    git merge upstream/main
    ```
 
-2. **Create Feature Branch**
+2. **Create a branch** (`feature/...` or `fix/...`)
+
+3. **Make changes** — code, tests, docs
+
+4. **Verify locally**
    ```bash
-   git checkout -b feature/your-feature
+   npm run type-check   # tsc --noEmit
+   npm test             # Vitest unit tests
+   npm run build        # must succeed; required before E2E
+   npm run test:e2e     # Playwright (headed Chrome, needs dist/)
    ```
 
-3. **Make Changes**
-   - Write code following our guidelines
-   - Add/update tests
-   - Update documentation
+   > `npm run lint` is currently a no-op placeholder; it will always "pass". Don't treat it as a real gate.
 
-4. **Run Tests**
-   ```bash
-   npm test
-   npm run lint
-   npm run type-check
-   ```
+5. **Commit** — Conventional Commits; one logical change per commit where practical
 
-5. **Commit Changes**
-   ```bash
-   git add .
-   git commit -m "feat(scope): your feature description"
-   ```
-
-6. **Push to Your Fork**
-   ```bash
-   git push origin feature/your-feature
-   ```
-
-7. **Create Pull Request**
-   - Go to GitHub and create a PR
+6. **Push and open a PR**
    - Fill out the PR template
-   - Link related issues
-   - Request review from maintainers
+   - Link related issues (`Fixes #N`)
+   - If a user-visible behavior changed, update `CHANGELOG.md` under `[Unreleased]`
 
 ### Pull Request Template
 
@@ -357,24 +293,24 @@ Brief description of changes.
 - [ ] Documentation update
 
 ## Testing
-- [ ] Unit tests pass
-- [ ] Integration tests pass
-- [ ] Manual testing completed
+- [ ] Unit tests pass (`npm test`)
+- [ ] Type check passes (`npm run type-check`)
+- [ ] Build succeeds (`npm run build`)
+- [ ] E2E tests pass (`npm run test:e2e`) — if UI/background changed
+- [ ] Manual testing completed in an unpacked `dist/` load
 
 ## Checklist
-- [ ] Code follows project style guidelines
+- [ ] Follows project conventions (plain JS, no TS syntax in source)
 - [ ] Self-review completed
-- [ ] Comments added for complex code
-- [ ] Documentation updated
-- [ ] No new warnings
-- [ ] Tests added/updated
-- [ ] All tests passing
+- [ ] Comments added only where WHY is non-obvious
+- [ ] Docs updated (README / CHANGELOG / CLAUDE.md) if behavior changed
+- [ ] No new permissions added (or explicitly justified if so)
 
 ## Related Issues
 Fixes #(issue number)
 
 ## Screenshots
-If applicable, add screenshots.
+If UI changed, include before/after.
 ```
 
 ## Testing
@@ -382,67 +318,39 @@ If applicable, add screenshots.
 ### Running Tests
 
 ```bash
-# Run all tests
-npm test
+npm test                 # Vitest unit tests (tests/*.test.js)
+npm run test:watch       # Vitest in watch mode
+npm run test:coverage    # Vitest with v8 coverage
 
-# Run unit tests
-npm run test:unit
-
-# Run integration tests
-npm run test:integration
-
-# Run with coverage
-npm run test:coverage
-
-# Run in watch mode
-npm run test:watch
+npm run build            # required before E2E
+npm run test:e2e         # Playwright E2E (e2e/*.spec.ts)
+npm run test:e2e:headed  # E2E with a visible browser
 ```
+
+> `test:unit` and `test:integration` are aliases for `vitest run` kept for muscle memory — they run the same suite as `npm test`. The real second tier is `test:e2e`.
 
 ### Writing Tests
 
-1. **Test File Location**: Place test files next to the code they test
-2. **Test Structure**: Use describe/it blocks for organization
-3. **Coverage**: Aim for >80% code coverage
-4. **Mocking**: Mock Chrome APIs and external dependencies
+1. **Unit tests** live in `tests/` as flat `*.test.js` files. Prefer extracting logic into `lib/` and testing the pure function — no `chrome.*` stubs needed. See `lib/icon-paths.js` + `tests/update-icon.test.js` as the canonical pattern.
+2. **E2E tests** live in `e2e/` as flat `*.spec.ts` files and go through the `fixture.ts` helper that launches Chromium with the built `dist/` loaded.
+3. **Screenshot baselines** live under `e2e/__screenshots__/`; update them deliberately (`--update-snapshots`) and review the diffs before committing.
 
-#### Example Test
+#### Example unit test
 
-```typescript
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { ProxyManager } from './proxyManager';
+```javascript
+import { describe, it, expect } from 'vitest';
+import { resolveIconPaths } from '../lib/icon-paths.js';
 
-describe('ProxyManager', () => {
-  let manager: ProxyManager;
-
-  beforeEach(() => {
-    manager = new ProxyManager();
-    vi.clearAllMocks();
+describe('resolveIconPaths', () => {
+  it('direct and system resolve to different icon sets', () => {
+    const direct = resolveIconPaths(undefined, 'direct');
+    const system = resolveIconPaths(undefined, 'system');
+    expect(direct[128]).not.toBe(system[128]);
   });
 
-  describe('addProxy', () => {
-    it('should add a valid proxy', async () => {
-      const proxy = {
-        host: 'proxy.example.com',
-        port: 8080,
-        type: 'http' as const,
-      };
-
-      const result = await manager.addProxy(proxy);
-
-      expect(result).toBeDefined();
-      expect(result.id).toBeDefined();
-      expect(result.host).toBe(proxy.host);
-    });
-
-    it('should reject invalid proxy', async () => {
-      const invalidProxy = {
-        host: '',
-        port: -1,
-        type: 'invalid' as any,
-      };
-
-      await expect(manager.addProxy(invalidProxy)).rejects.toThrow();
-    });
+  it('profile mode uses the profile color', () => {
+    const paths = resolveIconPaths('#FF3B30', 'profile');
+    expect(paths[16]).toMatch(/#?FF3B30/i);
   });
 });
 ```
@@ -451,37 +359,83 @@ describe('ProxyManager', () => {
 
 ### Code Documentation
 
-Use JSDoc comments for functions and classes:
+Default to no comments. Add a short one only when the **why** is non-obvious (hidden constraint, subtle invariant, workaround for a specific bug). Don't explain **what** the code does — names should do that.
 
-```typescript
+JSDoc is encouraged for exported helpers in `lib/`:
+
+```javascript
 /**
- * Creates a new proxy configuration
- * @param config - The proxy configuration object
- * @returns Promise resolving to the created proxy
- * @throws {InvalidConfigError} When configuration is invalid
- * @example
- * ```typescript
- * const proxy = await createProxy({
- *   host: 'proxy.example.com',
- *   port: 8080,
- *   type: 'http'
- * });
- * ```
+ * Resolve the toolbar icon paths for the current mode.
+ * @param {string | undefined} profileColor - hex color of the active profile
+ * @param {'profile' | 'direct' | 'system'} mode
+ * @returns {Record<16|32|48|128, string>}
  */
-export async function createProxy(config: ProxyConfig): Promise<Proxy> {
-  // Implementation
-}
+export function resolveIconPaths(profileColor, mode) { /* ... */ }
 ```
 
-### Documentation Updates
+## Release Checklist
 
-When making changes:
+Version numbers are easy to forget — they live in more places than you'd think, and a stale one in the wrong file (e.g. the JSON-LD `softwareVersion` used by Google search results) is user-visible. Work through this list on every release.
 
-1. Update inline code comments
-2. Update README if adding features
-3. Update API documentation
-4. Add examples for new features
-5. Update CHANGELOG.md
+### Tier 1 — every version bump (no exceptions)
+
+| File | What to change |
+| --- | --- |
+| `package.json` | `"version"` field |
+| `package-lock.json` | regenerated automatically by `npm install` after `package.json` bumps — commit it |
+| `manifest.json` | `"version"` field (this is what Chrome Web Store sees) |
+| `options.html` | About panel `<h3>X-Proxy v…</h3>` (user-visible in the extension) |
+| `CHANGELOG.md` | move `[Unreleased]` content into a new `## [x.y.z] - YYYY-MM-DD` section; update the `Last updated:` date at the top |
+| `docs/index.html` | JSON-LD `"softwareVersion"` (schema.org — surfaces in Google SERPs) |
+| `docs/STORE_LISTING.md` | "Current Version" block + push the old version into "Previous Updates" |
+| `README.md` | add a new `### vX.Y.Z ✅ (Current - …)` roadmap entry, and clear any stale `(Current - …)` markers on older versions |
+| `e2e/options.spec.ts` | the About-section test hard-codes the version string (`X-Proxy v…`) — update the assertion |
+| `e2e/__screenshots__/visual.spec.ts/options-about.png` | regenerate so the baseline image shows the new version (see Tier 2 "visual baselines" below — same `npm run test:e2e:update` step handles this) |
+
+### Tier 2 — when user-visible behavior changes
+
+- **Visual baselines (ALWAYS on any CSS / HTML / design-token change)** — run `npm run test:e2e:update` and commit the regenerated PNGs under `e2e/__screenshots__/`. **Then review the PNG diffs in the PR**, not just the file-count delta: a two-pixel shift looks the same as a broken layout in `git diff --stat`. Visual tests that "pass unexpectedly" after a design change are a signal the diff threshold is too loose or the baseline is frozen before the code change landed — treat that as a failure, not a pass.
+- **`README.md`** — feature list, domain-routing callouts, screenshots; and the roadmap bullets under the new version
+- **`options.html`** About panel `Features:` list — if a headline feature shipped or was removed
+- **`docs/STORE_LISTING.md`** — description, screenshots, permissions explanation if a new permission was added
+- **`docs/index.html`** — `featureList[]` array in JSON-LD, and any hero/meta copy
+
+### Tier 3 — when internals change
+
+- **`CLAUDE.md`** — architecture, storage schema (`x-proxy-data`), message protocol, proxy-mode branching, or build/test flow
+- **`CONTRIBUTING.md`** (this file) — dev setup, test commands, project structure, or contribution conventions
+- **`docs/SEO_GUIDE.md`** — only when SEO infrastructure itself changes (meta tags, sitemap, structured data); version string at the top gets the same bump as Tier 1
+
+### Historical / do-not-touch-on-release
+
+- `docs/PRIVACY_POLICY` — only update on actual policy change, not on version bumps
+- `docs/BACKGROUND_SERVICE_IMPLEMENTATION.md` — historical design record
+- `CHANGELOG.md` entries for prior versions — immutable once released
+
+### Sanity check before opening the PR
+
+```bash
+# These two should agree and match the new version
+grep '"version"' package.json manifest.json
+
+# Nothing but CHANGELOG entries for old versions should mention the previous version
+# (replace 1.6.0 with whatever the previous released version was)
+git grep -n 'v1\.6\.0\|1\.6\.0' -- ':!CHANGELOG.md'
+
+# Full E2E suite including visual regression — runs against the built dist/
+npm run build && npm run test:e2e
+
+# Serial E2E suite to rule out worker-parallelism flakes before pushing
+npm run test:e2e -- --workers=1
+```
+
+### Things that are *not* caught automatically
+
+Be aware of the gaps so you don't over-trust the green check:
+
+- **Single-character text drift** (like "v1.5.1" → "v1.6.1" in a 1280×720 screenshot) is smaller than the `maxDiffPixelRatio: 0.01` threshold. `toHaveScreenshot` will NOT fail on it. Content drift of this shape is caught by `toContainText` assertions (see `e2e/options.spec.ts` About test), not by pixel diff. If you bump the version, both the text assertion AND the baseline image must be updated — Tier 1 covers both.
+- **CSS transition mid-flight values** can fool axe-core's color-contrast rule after `emulateMedia` flips. `e2e/a11y.spec.ts` handles this via a `disableTransitions` helper that must run *before* `emulateMedia`. Use the same pattern if you add new a11y or visual specs that toggle color scheme.
+- **Flakes from worker parallelism** occasionally surface when the same `context.newPage()` is reused across workers. When in doubt, re-run with `--workers=1`; if the failure does not reproduce serially, it's the harness, not your code.
 
 ## License
 
@@ -489,7 +443,7 @@ By contributing, you agree that your contributions will be licensed under the MI
 
 ## Questions?
 
-Feel free to open an issue with the "question" label!
+Open an issue with the `question` label.
 
 ---
 

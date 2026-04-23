@@ -31,7 +31,7 @@ function testProfile(id = 'p-visual-snapshot') {
 test.describe('Popup visual baselines (1.6.1)', () => {
   test('empty state — only big CTA, no header "+"', async ({ popupPage }) => {
     await expect(popupPage.locator('#emptyState')).toBeVisible()
-    await expect(popupPage).toHaveScreenshot('popup-empty-state.png', { maxDiffPixelRatio: 0.02 })
+    await expect(popupPage).toHaveScreenshot('popup-empty-state.png')
   })
 
   test('populated state — header "+" visible, empty CTA gone', async ({ popupPage }) => {
@@ -41,7 +41,7 @@ test.describe('Popup visual baselines (1.6.1)', () => {
     await popupPage.waitForTimeout(500)
 
     await expect(popupPage.locator('.profile-item')).toHaveCount(1)
-    await expect(popupPage).toHaveScreenshot('popup-has-profiles.png', { maxDiffPixelRatio: 0.02 })
+    await expect(popupPage).toHaveScreenshot('popup-has-profiles.png')
   })
 
   test('Direct mode active — no checkmark, no status dot', async ({ popupPage }) => {
@@ -49,7 +49,7 @@ test.describe('Popup visual baselines (1.6.1)', () => {
     await popupPage.waitForTimeout(300)
 
     await expect(popupPage.locator('#directConnection')).toHaveClass(/selected/)
-    await expect(popupPage).toHaveScreenshot('popup-direct-active.png', { maxDiffPixelRatio: 0.02 })
+    await expect(popupPage).toHaveScreenshot('popup-direct-active.png')
   })
 
   test('System mode active — no checkmark, no status dot', async ({ popupPage }) => {
@@ -59,7 +59,7 @@ test.describe('Popup visual baselines (1.6.1)', () => {
     await popupPage.waitForTimeout(300)
 
     await expect(popupPage.locator('#systemProxy')).toHaveClass(/selected/)
-    await expect(popupPage).toHaveScreenshot('popup-system-active.png', { maxDiffPixelRatio: 0.02 })
+    await expect(popupPage).toHaveScreenshot('popup-system-active.png')
   })
 
   test('Profile active — no checkmark on profile-item.active', async ({ popupPage }) => {
@@ -72,6 +72,6 @@ test.describe('Popup visual baselines (1.6.1)', () => {
     await popupPage.waitForTimeout(400)
 
     await expect(popupPage.locator('.profile-item.active')).toHaveCount(1)
-    await expect(popupPage).toHaveScreenshot('popup-profile-active.png', { maxDiffPixelRatio: 0.02 })
+    await expect(popupPage).toHaveScreenshot('popup-profile-active.png')
   })
 })

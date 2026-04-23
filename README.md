@@ -291,7 +291,7 @@ If you find X-Proxy useful, consider:
 
 ## 📈 Roadmap
 
-### v1.0.0 ✅ (Current - Extension Release)
+### v1.0.0 ✅ (Extension Release)
 - [x] Core proxy switching functionality
 - [x] HTTP/HTTPS, SOCKS5 & PAC support
 - [x] Profile management (create, edit, delete)
@@ -319,7 +319,7 @@ If you find X-Proxy useful, consider:
 - [x] Enhanced PAC script for blacklist mode
 - [x] Backward compatible with existing profiles
 
-### v1.3.1 ✅ (Current - Bug Fix)
+### v1.3.1 ✅ (Bug Fix)
 - [x] Fixed domain validation for blacklist mode (Issue #9)
 - [x] Added IPv4/IPv6 address support in routing rules
 - [x] Added localhost and simple hostname support
@@ -358,6 +358,12 @@ If you find X-Proxy useful, consider:
 - [x] **Direct Connection mode** — a dedicated popup button that bypasses all proxies, including the OS-level / IE proxy that `System` otherwise honors ([#28](https://github.com/helebest/x-proxy/issues/28))
 - [x] **Schema v2 migration** — new top-level `mode` field replaces the implicit "no active profile = system" convention; automatic v1 → v2 upgrade for existing users
 - [x] **Options page dark mode + token cleanup** — restored missing `--border-radius` / `--transition` tokens, added `prefers-color-scheme: dark` support, aligned focus/danger colors with the iOS palette
+
+### v1.6.1 ✅ (Current - Icon & Popup Polish)
+- [x] **Distinct Direct-mode toolbar icon** — Direct now renders a green arrow icon family so it's visually distinguishable from System's gray inactive icon ([#28](https://github.com/helebest/x-proxy/issues/28) tail)
+- [x] **Popup empty-state cleanup** — hides the redundant header "+" while the profile list is empty so the big "Add your first profile" CTA is the single obvious action ([#36](https://github.com/helebest/x-proxy/issues/36))
+- [x] **Reduced active-mode signaling** from 4 indicators to 2 — removed the animated status dot and per-card ✓ check; selection is carried by the blue gradient + white-inherited icon alone
+- [x] **New `lib/icon-paths.js` helper** and regression guards (`tests/update-icon.test.js`, `e2e/popup-visual-simplicity.spec.ts`, `e2e/icon-differentiation.spec.ts`, `e2e/popup-visual.spec.ts` screenshot baselines)
 
 ### v2.0.0 (Future)
 - [ ] Profile sharing via URL
