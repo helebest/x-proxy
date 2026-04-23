@@ -390,9 +390,11 @@ Version numbers are easy to forget — they live in more places than you'd think
 | `docs/STORE_LISTING.md` | "Current Version" block + push the old version into "Previous Updates" |
 | `README.md` | add a new `### vX.Y.Z ✅ (Current - …)` roadmap entry, and clear any stale `(Current - …)` markers on older versions |
 | `e2e/options.spec.ts` | the About-section test hard-codes the version string (`X-Proxy v…`) — update the assertion |
+| `e2e/__screenshots__/visual.spec.ts/options-about.png` | regenerate so the baseline image shows the new version (see Tier 2 "visual baselines" below — same `npm run test:e2e:update` step handles this) |
 
 ### Tier 2 — when user-visible behavior changes
 
+- **Visual baselines (ALWAYS on any CSS / HTML / design-token change)** — run `npm run test:e2e:update` and commit the regenerated PNGs under `e2e/__screenshots__/`. **Then review the PNG diffs in the PR**, not just the file-count delta: a two-pixel shift looks the same as a broken layout in `git diff --stat`. Visual tests that "pass unexpectedly" after a design change are a signal the diff threshold is too loose or the baseline is frozen before the code change landed — treat that as a failure, not a pass.
 - **`README.md`** — feature list, domain-routing callouts, screenshots; and the roadmap bullets under the new version
 - **`options.html`** About panel `Features:` list — if a headline feature shipped or was removed
 - **`docs/STORE_LISTING.md`** — description, screenshots, permissions explanation if a new permission was added
@@ -417,8 +419,23 @@ Version numbers are easy to forget — they live in more places than you'd think
 grep '"version"' package.json manifest.json
 
 # Nothing but CHANGELOG entries for old versions should mention the previous version
+# (replace 1.6.0 with whatever the previous released version was)
 git grep -n 'v1\.6\.0\|1\.6\.0' -- ':!CHANGELOG.md'
+
+# Full E2E suite including visual regression — runs against the built dist/
+npm run build && npm run test:e2e
+
+# Serial E2E suite to rule out worker-parallelism flakes before pushing
+npm run test:e2e -- --workers=1
 ```
+
+### Things that are *not* caught automatically
+
+Be aware of the gaps so you don't over-trust the green check:
+
+- **Single-character text drift** (like "v1.5.1" → "v1.6.1" in a 1280×720 screenshot) is smaller than the `maxDiffPixelRatio: 0.01` threshold. `toHaveScreenshot` will NOT fail on it. Content drift of this shape is caught by `toContainText` assertions (see `e2e/options.spec.ts` About test), not by pixel diff. If you bump the version, both the text assertion AND the baseline image must be updated — Tier 1 covers both.
+- **CSS transition mid-flight values** can fool axe-core's color-contrast rule after `emulateMedia` flips. `e2e/a11y.spec.ts` handles this via a `disableTransitions` helper that must run *before* `emulateMedia`. Use the same pattern if you add new a11y or visual specs that toggle color scheme.
+- **Flakes from worker parallelism** occasionally surface when the same `context.newPage()` is reused across workers. When in doubt, re-run with `--workers=1`; if the failure does not reproduce serially, it's the harness, not your code.
 
 ## License
 
