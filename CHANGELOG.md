@@ -1,6 +1,6 @@
 # Changelog
 
-Last updated: 2026-04-22
+Last updated: 2026-04-23
 
 All notable changes to X-Proxy Chrome Extension will be documented in this file.
 
@@ -9,7 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-Future improvements planned:
+### Added
+- **Keyboard navigation for the profile modal**: Escape closes the modal; focus is restored to the triggering button on close; the first form field is auto-focused on open; Tab and Shift+Tab wrap inside the modal instead of leaking into the page behind it. Clears WCAG 2.1.2 "No Keyboard Trap" and aligns with the WAI-ARIA dialog pattern.
+- **E2E coverage pass** to close long-standing blind spots:
+  - `e2e/modal-visual.spec.ts` — 6 visual baselines (Add/Edit modal in light + dark, Options Profiles dark, Options About dark).
+  - `e2e/migration.spec.ts` — storage v1→v2 integration guard (non-destructive reads, first-write upgrade, Direct-mode distinct persistence).
+  - `e2e/keyboard-nav.spec.ts` — 6 tests driving the new keyboard behavior red→green.
+- `npm run test:e2e:update` script so regenerating baselines is discoverable.
+
+### Changed
+- **Visual regression tolerance** tightened from `maxDiffPixelRatio: 0.05` to `0.01`. The previous ~46k-pixel budget on a 1280×720 frame silently absorbed the entire `v1.5.1 → v1.6.1` About-panel text change, so baselines sat three versions out of date while CI kept passing.
+- **`CONTRIBUTING.md`** rewritten to match the actual project (plain JS + three-component Vite build, no React, no `.ts` source) and gains a three-tier Release Checklist so future version bumps can't miss `docs/index.html` JSON-LD, STORE_LISTING, or the hardcoded version assertion in `e2e/options.spec.ts`.
+
+### Fixed
+- **CSS-transition race** in axe color-contrast scans. `emulateMedia({colorScheme:'dark'})` flipped `:root` custom properties synchronously, but `transition: all var(--transition-base)` interpolated element colors over ~250ms, so axe sampled mid-transition rgba values and reported spurious AA failures. Fixed by disabling CSS transitions before the media flip (`e2e/a11y.spec.ts`).
+- **Stale v1.6.0 references** in `options.html` About panel, `README.md` roadmap, `docs/index.html` JSON-LD `softwareVersion` (user-visible in Google search results), `docs/STORE_LISTING.md`, `docs/SEO_GUIDE.md`, and the hardcoded assertion in `e2e/options.spec.ts`. Caused by the v1.6.1 cut having no single source of truth for "where does the version string live"; the new Release Checklist Tier 1 table pins this down.
+- **Nine stale visual baselines** under `e2e/__screenshots__/visual.spec.ts/` regenerated so screenshots match shipped UI.
+
+### Planned (not yet scheduled)
 - Enhanced error handling and user feedback
 - Performance optimizations
 - Blog content creation for SEO
