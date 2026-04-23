@@ -6,6 +6,27 @@ import { test, expect, type Page } from './fixture'
 // is a design decision the project has consciously accepted. Empty by default.
 const KNOWN_CONTRAST_EXCEPTIONS: Array<string | RegExp> = []
 
+// `page.emulateMedia({ colorScheme })` flips matchMedia + `:root` custom
+// properties synchronously, but elements with `transition: all` (which this
+// design system applies to nav items, buttons, inputs, etc.) animate color
+// between the old and new var() value over the transition duration (~250ms).
+// If axe scans mid-transition it reads intermediate rgba values like
+// `rgba(120, 120, 125, 0.87)` instead of the final `#AEAEB2`, reporting
+// spurious contrast failures. The `toHaveScreenshot.animations: 'disabled'`
+// config in playwright.config.ts only affects screenshots; axe runs in-page
+// JS and needs transitions killed at the CSS level.
+async function disableTransitions(page: Page) {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        transition: none !important;
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+      }
+    `,
+  })
+}
+
 function isKnownException(target: string[]): boolean {
   return target.some(sel =>
     KNOWN_CONTRAST_EXCEPTIONS.some(ex =>
@@ -48,31 +69,39 @@ async function openEditModal(optionsPage: Page) {
 }
 
 test.describe('Accessibility — color contrast', () => {
+  // NOTE: disableTransitions MUST run before emulateMedia. Otherwise, the
+  // transitions are already armed at the moment the media flip happens, and
+  // the in-flight color animation is what the !important rule can't unwind.
   test('popup passes color-contrast in light mode', async ({ popupPage }) => {
+    await disableTransitions(popupPage)
     await popupPage.emulateMedia({ colorScheme: 'light' })
     const violations = await scanContrast(popupPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('popup passes color-contrast in dark mode', async ({ popupPage }) => {
+    await disableTransitions(popupPage)
     await popupPage.emulateMedia({ colorScheme: 'dark' })
     const violations = await scanContrast(popupPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('options profiles page passes color-contrast in light mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'light' })
     const violations = await scanContrast(optionsPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('options profiles page passes color-contrast in dark mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'dark' })
     const violations = await scanContrast(optionsPage)
     expect(violations, JSON.stringify(violations, null, 2)).toEqual([])
   })
 
   test('Edit Profile modal passes color-contrast in dark mode', async ({ optionsPage }) => {
+    await disableTransitions(optionsPage)
     await optionsPage.emulateMedia({ colorScheme: 'dark' })
     await openEditModal(optionsPage)
 
